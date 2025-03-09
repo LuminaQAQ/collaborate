@@ -10,11 +10,4 @@ const db = knex({
     connection: config.db
 })
 
-db.schema.createTableIfNotExists("user", table => {
-    table.increments("id")
-    table.string("username")
-    table.string("account")
-    table.string("pwd")
-})
-
 module.exports = db;

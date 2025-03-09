@@ -1,6 +1,8 @@
-const { exec } = require("child_process");
 const express = require("express");
 const loginRouter = require("./src/router/login");
+
+const initTables = require("./src/schema/index.js")
+initTables();
 
 const app = express();
 
