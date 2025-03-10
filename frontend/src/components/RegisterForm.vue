@@ -1,17 +1,22 @@
 <template>
-  <el-form ref="formRef" :model="loginForm" label-width="auto" class="demo-dynamic" width="100%">
+  <el-form ref="formRef" :model="registerForm" label-width="auto" class="demo-dynamic" width="100%">
     <el-form-item
-      prop="account"
-      label="账号"
+      prop="email"
+      label="邮箱"
       :rules="[
         {
           required: true,
-          message: '请输入账号',
+          message: '请输入邮箱',
           trigger: 'blur',
+        },
+        {
+          type: 'email',
+          message: '请输入正确的邮箱',
+          trigger: ['blur', 'change'],
         },
       ]"
     >
-      <el-input v-model="loginForm.account" />
+      <el-input v-model="registerForm.email" />
     </el-form-item>
     <el-form-item
       prop="pwd"
@@ -24,13 +29,12 @@
         },
       ]"
     >
-      <el-input v-model="loginForm.pwd" type="password" show-password />
+      <el-input v-model="registerForm.pwd" type="password" show-password />
     </el-form-item>
     <el-form-item>
-      <div style="margin: 0 auto">
-        <el-button type="primary" @click="submitForm(formRef)">登录</el-button>
-        <el-button @click="toRegister(formRef)">注册</el-button>
-      </div>
+      <el-button type="primary" @click="submitForm(formRef)" style="margin: 0 auto">
+        登录/注册
+      </el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -40,15 +44,15 @@ import { EmitFn, reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 
 interface FormItem {
-  account: string
+  email: string
   pwd: string
 }
 
-const emits: EmitFn = defineEmits(['toRegister'])
+const emits: EmitFn = defineEmits(['toLogin'])
 
 const formRef = ref<FormInstance>()
-const loginForm = reactive<FormItem>({
-  account: '',
+const registerForm = reactive<FormItem>({
+  email: '',
   pwd: '',
 })
 
@@ -63,11 +67,11 @@ const submitForm = (formEl: FormInstance | undefined) => {
   })
 }
 
-const toRegister = (formEl: FormInstance | undefined) => {
+const toLogin = (formEl: FormInstance | undefined) => {
   if (!formEl) return
 
   formEl.resetFields()
-  emits('toRegister')
+  emits('toLogin')
 }
 </script>
 
