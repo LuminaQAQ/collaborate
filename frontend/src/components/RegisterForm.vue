@@ -102,6 +102,8 @@ const sendVerifyCode = () => {
       email: registerForm.email,
     },
   })
+    .then((res) => console.log(res))
+    .catch((err) => console.log(err))
 
   verifyCodeStatus.sendCodeLoaded = true
   let waitTime = 60

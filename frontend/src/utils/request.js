@@ -23,7 +23,7 @@ instance.interceptors.request.use(config => {
  * axios 请求实例
  * @param {string} api 接口地址
  * @param {import("axios").AxiosRequestConfig} data 配置+数据项
- * @returns {import("axios").AxiosInstance}
+ * @returns {import("axios").AxiosPromise}
  */
 export const request = (api, data) => {
   return instance(api, data)
