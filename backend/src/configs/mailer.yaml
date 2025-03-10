@@ -1,0 +1,8 @@
+mail:
+  service: qq
+  host: "smtp.qq.com"
+  port: 465
+  secure: true
+  auth:
+    user: 1710884533@qq.com
+    pass: oihqwepqilggeccj

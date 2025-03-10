@@ -96,6 +96,13 @@ const registerForm = reactive<FormItem>({
 const sendVerifyCode = () => {
   if (verifyCodeStatus.sendCodeLoaded) return
 
+  request('/api/verifyCode', {
+    method: 'post',
+    data: {
+      email: registerForm.email,
+    },
+  })
+
   verifyCodeStatus.sendCodeLoaded = true
   let waitTime = 60
   verifyCodeStatus.sendCodeText = `${(waitTime -= 1)}秒后可重新发送`
