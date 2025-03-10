@@ -4,7 +4,6 @@ const current_time = () => {
     return new Date(Date.now()).toISOString().slice(0, 10);
 }
 
-
 const initUserTable = async () => {
     const isExists = await db.schema.hasTable("users")
 
@@ -51,10 +50,10 @@ const initDocPermissionsTable = async () => {
 }
 
 const initFileTable = async () => {
-    const isExists = await db.schema.hasTable("doc_permissions")
+    const isExists = await db.schema.hasTable("file")
 
     if (!isExists) {
-        db.schema.createTable("doc_permissions", table => {
+        db.schema.createTable("file", table => {
             table.increments("id").primary().unsigned()
             table.string("filename").notNullable()
             table.string("path").notNullable()
