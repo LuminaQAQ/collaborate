@@ -7,4 +7,11 @@ loginRouter.post("/login", (req, res) => {
     const { account, pwd } = req.body;
 })
 
+loginRouter.post("/register", (req, res) => {
+    const { account, pwd } = req.body;
+
+    console.log(req.body);
+
+})
+
 module.exports = loginRouter;
