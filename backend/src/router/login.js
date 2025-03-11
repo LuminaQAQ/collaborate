@@ -1,6 +1,7 @@
 const express = require("express");
 const { readFileSync } = require("fs");
 const { join } = require("path");
+const crypto = require("node:crypto")
 
 const redis = require("../lib/redis.js")
 const db = require("../lib/db.js");
@@ -27,7 +28,7 @@ loginRouter.post("/verifyCode", (req, res) => {
     redis.eval(readFileSync(join(__dirname, "../lib/lottery.lua")), 1, LOTTERY_KEY, LIMIT_COUNT, EX_TIME, (err, result) => {
         if (err) {
             serviceDebug(email, __filename, err)
-            return res.status(500).send({ msg: "发送失败！" })
+            return res.status(500).send({ error: "发送失败！" })
         }
 
         if (result) {
@@ -40,28 +41,37 @@ loginRouter.post("/verifyCode", (req, res) => {
                 to: email,
                 subject: "协作平台--登录保护验证",
                 text: `本次请求的验证码为：${randCode}，验证码3分钟内有效。`
-            }).then().catch(err => {
+            }).then(() => {
+                return res.status(200).send({ msg: "验证码已发送" })
+            }).catch(err => {
                 serviceDebug(email, __filename, err);
 
-                return res.status(500).send({ msg: "发送失败！" })
+                return res.status(500).send({ error: "发送失败！" })
             })
         } else {
-            return res.send({ msg: "发送过于频繁！" })
+            return res.status(429).send({ error: "发送过于频繁！" })
         }
     });
-
-
 })
 
 loginRouter.post("/register", async (req, res) => {
     const { email, pwd, code } = req.body;
 
+
     try {
         const verifyCode = await redis.get(`sms:code:${email}`)
-    } catch (error) { serviceDebug(email, __filename, error) }
+        if (verifyCode !== code) return res.status(400).send({ error: "验证码错误！" })
 
-    console.log(req.body);
-    db("users").insert()
+        const hash = crypto.createHash("md5")
+        hash.update(pwd)
+        const password_hash = hash.digest("hex");
+
+        db("users").insert({ email, password_hash, is_verified: 0, })
+    } catch (error) {
+        serviceDebug(email, __filename, error);
+        return res.status(500).send({ error: "注册失败！" })
+    }
+
 })
 
 module.exports = loginRouter;

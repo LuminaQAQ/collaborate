@@ -1,9 +1,5 @@
 const db = require("../lib/db.js");
 
-const current_time = () => {
-    return new Date(Date.now()).toISOString().slice(0, 10);
-}
-
 const initUserTable = async () => {
     const isExists = await db.schema.hasTable("users")
 
@@ -14,8 +10,8 @@ const initUserTable = async () => {
             table.string("email").unique().notNullable()
             table.string("password_hash").notNullable()
             table.integer("is_verified").notNullable().defaultTo(0)
-            table.timestamp("created_at").defaultTo(current_time())
-            table.timestamp("updated_at")
+            table.timestamp("created_at").defaultTo(db.fn.now())
+            table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
         }).catch(err => { throw err })
     }
 }
@@ -29,8 +25,8 @@ const initDocsTable = async () => {
             table.string("title").notNullable()
             table.text("content").notNullable()
             table.integer("creator_id").notNullable().unsigned()
-            table.timestamp("created_at").defaultTo(current_time())
-            table.timestamp("updated_at").defaultTo(current_time())
+            table.timestamp("created_at").defaultTo(db.fn.now())
+            table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
         }).catch(err => { throw err })
     }
 }
@@ -44,7 +40,7 @@ const initDocPermissionsTable = async () => {
             table.integer("doc_id").notNullable().unsigned()
             table.integer("user_id").notNullable().unsigned()
             table.enum("permission", ["owner", "editor", "viewer"]).notNullable().defaultTo("viewer")
-            table.timestamp("granted_at").defaultTo(current_time())
+            table.timestamp("granted_at").defaultTo(db.fn.now())
         }).catch(err => { throw err })
     }
 }
@@ -60,7 +56,7 @@ const initFileTable = async () => {
             table.string("mime_type").notNullable()
             table.integer("size").notNullable().unsigned()
             table.integer("uploader_id").notNullable().unsigned()
-            table.timestamp("created_at").defaultTo(current_time())
+            table.timestamp("created_at").defaultTo(db.fn.now())
         }).catch(err => { throw err })
     }
 }
