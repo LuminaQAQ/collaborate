@@ -1,4 +1,5 @@
-const { readFileSync } = require("fs");
+
+require("./src/lib/env.js")
 const express = require("express");
 const cors = require("cors");
 
