@@ -1,5 +1,5 @@
 <template>
-  <el-tabs type="border-card" class="demo-tabs" v-model="activeTab">
+  <el-tabs type="border-card" class="demo-tabs" v-model="activeTab" width="100%">
     <el-tab-pane label="登录" name="login">
       <LoginForm @to-register="toRegister" />
     </el-tab-pane>
@@ -14,7 +14,7 @@ import { ref } from 'vue'
 import LoginForm from '../components/LoginForm.vue'
 import RegisterForm from '@/components/RegisterForm.vue'
 
-let activeTab = ref('login')
+let activeTab = ref('register')
 
 const toRegister = () => {
   activeTab.value = 'register'
