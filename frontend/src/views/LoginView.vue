@@ -3,7 +3,7 @@
     <el-tab-pane label="登录" name="login">
       <LoginForm @to-register="toRegister" />
     </el-tab-pane>
-    <el-tab-pane name="register" label="注册">
+    <el-tab-pane label="注册" name="register">
       <RegisterForm @to-login="toLogin" />
     </el-tab-pane>
   </el-tabs>

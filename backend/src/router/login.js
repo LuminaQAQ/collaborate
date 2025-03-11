@@ -5,7 +5,7 @@ const { join } = require("path");
 const redis = require("../lib/redis.js")
 const db = require("../lib/db.js");
 const mailer = require("../lib/mailer.js")
-const logger = require("../lib/logger.js")
+const { serviceDebug } = require("../lib/logger.js")
 
 const mailerConfigs = require("../configs/mailer.d.js");
 
@@ -26,7 +26,7 @@ loginRouter.post("/verifyCode", (req, res) => {
 
     redis.eval(readFileSync(join(__dirname, "../lib/lottery.lua")), 1, LOTTERY_KEY, LIMIT_COUNT, EX_TIME, (err, result) => {
         if (err) {
-            logger.debug(`user: '${email}'\nfilePath: ${__filename}\n${err}`);
+            serviceDebug(email, __filename, err)
             return res.status(500).send({ msg: "发送失败！" })
         }
 
@@ -41,7 +41,7 @@ loginRouter.post("/verifyCode", (req, res) => {
                 subject: "协作平台--登录保护验证",
                 text: `本次请求的验证码为：${randCode}，验证码3分钟内有效。`
             }).then().catch(err => {
-                logger.debug(`user: '${email}'\nfilePath: ${__filename}\n${err}`);
+                serviceDebug(email, __filename, err);
 
                 return res.status(500).send({ msg: "发送失败！" })
             })
@@ -53,11 +53,15 @@ loginRouter.post("/verifyCode", (req, res) => {
 
 })
 
-loginRouter.post("/register", (req, res) => {
-    const { account, pwd } = req.body;
+loginRouter.post("/register", async (req, res) => {
+    const { email, pwd, code } = req.body;
+
+    try {
+        const verifyCode = await redis.get(`sms:code:${email}`)
+    } catch (error) { serviceDebug(email, __filename, error) }
 
     console.log(req.body);
-    db("users")
+    db("users").insert()
 })
 
 module.exports = loginRouter;

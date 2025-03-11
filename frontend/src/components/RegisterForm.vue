@@ -29,7 +29,7 @@
         },
       ]"
     >
-      <el-input>
+      <el-input v-model="registerForm.code">
         <template #append>
           <el-button
             type="primary"
