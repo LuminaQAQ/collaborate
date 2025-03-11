@@ -15,10 +15,21 @@ const loginRouter = express.Router();
 
 loginRouter.post("/login", (req, res) => {
     const { account, pwd } = req.body;
+
+    console.log(req.body);
+
 })
 
-loginRouter.post("/verifyCode", (req, res) => {
+loginRouter.post("/verifyCode", async (req, res) => {
     const { email } = req.body;
+
+    try {
+        const result = await db("users").select("email").where({ email })
+        if (result.length) return res.status(400).send({ error: "账号已存在！" })
+    } catch (err) {
+        serviceDebug(email, __filename, err);
+        return res.status(500).send({ error: "注册失败！" });
+    }
 
     const REDIS_CODE_KEY = generateRedisSMSCodeKey(email);
     const LOTTERY_KEY = generateRedisSMSCodeLotteryKey(email);

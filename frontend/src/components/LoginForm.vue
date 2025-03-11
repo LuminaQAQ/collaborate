@@ -1,17 +1,17 @@
 <template>
   <el-form ref="formRef" :model="loginForm" label-width="auto" class="demo-dynamic" width="100%">
     <el-form-item
-      prop="account"
-      label="账号"
+      prop="email"
+      label="邮箱"
       :rules="[
         {
           required: true,
-          message: '请输入账号',
+          message: '请输入邮箱',
           trigger: 'blur',
         },
       ]"
     >
-      <el-input v-model="loginForm.account" />
+      <el-input v-model="loginForm.email" />
     </el-form-item>
     <el-form-item
       prop="pwd"
@@ -38,9 +38,10 @@
 <script lang="ts" setup>
 import { EmitFn, reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
+import { requestLogin } from '@/api/login'
 
 interface FormItem {
-  account: string
+  email: string
   pwd: string
 }
 
@@ -48,15 +49,20 @@ const emits: EmitFn = defineEmits(['toRegister'])
 
 const formRef = ref<FormInstance>()
 const loginForm = reactive<FormItem>({
-  account: '',
-  pwd: '',
+  email: '1710884533@qq.com',
+  pwd: '123456',
 })
 
 const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      console.log('submit!')
+      requestLogin({
+        email: loginForm.email,
+        pwd: loginForm.pwd,
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err))
     } else {
       console.log('error submit!')
     }

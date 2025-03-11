@@ -57,7 +57,7 @@
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="submitForm(formRef)" style="margin: 0 auto">
-        登录/注册
+        注册
       </el-button>
     </el-form-item>
   </el-form>
@@ -66,8 +66,7 @@
 <script lang="ts" setup>
 import { EmitFn, reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { useUserStore } from '@/stores/user'
-import { request } from '@/utils/request.js'
+import { requestRegister, requestVerifyCode } from '@/api/login'
 
 interface FormItem {
   email: string
@@ -93,15 +92,11 @@ const registerForm = reactive<FormItem>({
   pwd: '123456',
   code: '',
 })
+
 const sendVerifyCode = () => {
   if (verifyCodeStatus.sendCodeLoaded) return
 
-  request('/api/verifyCode', {
-    method: 'post',
-    data: {
-      email: registerForm.email,
-    },
-  })
+  requestVerifyCode({ email: registerForm.email })
     .then((res) => console.log(res))
     .catch((err) => console.log(err))
 
@@ -123,9 +118,10 @@ const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.validate((valid) => {
     if (valid) {
-      request('/api/register', {
-        method: 'post',
-        data: registerForm,
+      requestRegister({
+        email: registerForm.email,
+        pwd: registerForm.pwd,
+        code: registerForm.code,
       })
         .then((res) => console.log(res))
         .catch((err) => console.error(err))
