@@ -1,8 +1,10 @@
+const { readFileSync } = require("fs");
 const express = require("express");
 const cors = require("cors");
-const loginRouter = require("./src/router/login");
 
-const initTables = require("./src/schema/index.js")
+const loginRouter = require("./src/router/login.js");
+
+const initTables = require("./src/schema/index.js");
 initTables();
 
 const app = express();
