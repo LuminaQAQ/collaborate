@@ -1,11 +1,13 @@
 const express = require("express");
+const { readFileSync } = require("fs");
+const { join } = require("path");
 
 const redis = require("../lib/redis.js")
 const db = require("../lib/db.js");
 const mailer = require("../lib/mailer.js")
+const logger = require("../lib/logger.js")
+
 const mailerConfigs = require("../configs/mailer.d.js");
-const { readFileSync } = require("fs");
-const { join } = require("path");
 
 const loginRouter = express.Router();
 
@@ -23,7 +25,10 @@ loginRouter.post("/verifyCode", (req, res) => {
     const EX_TIME = 60;
 
     redis.eval(readFileSync(join(__dirname, "../lib/lottery.lua")), 1, LOTTERY_KEY, LIMIT_COUNT, EX_TIME, (err, result) => {
-        if (err) console.log(err);
+        if (err) {
+            logger.debug(`user: '${email}'\nfilePath: ${__filename}\n${err}`);
+            return res.status(500).send({ msg: "发送失败！" })
+        }
 
         if (result) {
             const randCode = Math.ceil(Math.random() * Math.pow(10, 6));
@@ -36,9 +41,9 @@ loginRouter.post("/verifyCode", (req, res) => {
                 subject: "协作平台--登录保护验证",
                 text: `本次请求的验证码为：${randCode}，验证码3分钟内有效。`
             }).then().catch(err => {
-                console.log(err);
+                logger.debug(`user: '${email}'\nfilePath: ${__filename}\n${err}`);
 
-                return res.send({ msg: "发送失败！" })
+                return res.status(500).send({ msg: "发送失败！" })
             })
         } else {
             return res.send({ msg: "发送过于频繁！" })
@@ -52,7 +57,7 @@ loginRouter.post("/register", (req, res) => {
     const { account, pwd } = req.body;
 
     console.log(req.body);
-
+    db("users")
 })
 
 module.exports = loginRouter;
