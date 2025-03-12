@@ -12,6 +12,7 @@ const { generateRedisSMSCodeKey, generateRedisSMSCodeLotteryKey } = require("../
 
 const mailerConfigs = require("../configs/mailer.d.js");
 const jwtConfigs = require("../configs/jwt.d.js");
+const generateHash = require("../utils/generateHash.js");
 
 const loginRouter = express.Router();
 
@@ -19,9 +20,7 @@ loginRouter.post("/login", async (req, res) => {
     const { email, pwd } = req.body;
 
     try {
-        const hash = crypto.createHash("md5");
-        hash.update(pwd);
-        const password_hash = hash.digest("hex");
+        const password_hash = generateHash(pwd);
         const userIsExists = await db("users").select("*").where({ email, password_hash });
         if (!userIsExists.length) return res.status(401).send({ error: "邮箱或密码错误！" });
     } catch (error) {
@@ -29,9 +28,7 @@ loginRouter.post("/login", async (req, res) => {
         return res.status(500).send({ error: "登录失败！" })
     }
 
-    const md5 = crypto.createHash("md5");
-    md5.update(jwtConfigs.options.secret);
-    const jwtSecretKey = md5.digest("hex");
+    const jwtSecretKey = generateHash(jwtConfigs.options.secret);
 
     const payload = { email };
     const token = jwt.sign(payload, jwtSecretKey, { expiresIn: "24h" });
@@ -102,9 +99,7 @@ loginRouter.post("/register", async (req, res) => {
         const verifyCode = await redis.get(REDIS_CODE_KEY)
         if (verifyCode !== code) return res.status(400).send({ error: "验证码错误！" })
 
-        const hash = crypto.createHash("md5");
-        hash.update(pwd);
-        const password_hash = hash.digest("hex");
+        const password_hash = generateHash(pwd);
 
         const isSuccess = await db("users").insert({ email, password_hash, username: crypto.randomBytes(10).toString() });
         await redis.del(REDIS_CODE_KEY);
