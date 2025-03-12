@@ -2,22 +2,30 @@ const express = require("express");
 const { readFileSync } = require("fs");
 const { join } = require("path");
 const crypto = require("node:crypto")
+const jwt = require("jsonwebtoken")
 
 const redis = require("../lib/redis.js")
 const db = require("../lib/db.js");
 const mailer = require("../lib/mailer.js")
 const { serviceDebug } = require("../lib/logger.js")
+const { generateRedisSMSCodeKey, generateRedisSMSCodeLotteryKey } = require("../utils/generateRedisKey.js");
 
 const mailerConfigs = require("../configs/mailer.d.js");
-const { generateRedisSMSCodeKey, generateRedisSMSCodeLotteryKey } = require("../utils/generateRedisKey.js");
+const jwtConfigs = require("../configs/jwt.d.js");
 
 const loginRouter = express.Router();
 
 loginRouter.post("/login", (req, res) => {
-    const { account, pwd } = req.body;
+    const { email, pwd } = req.body;
 
-    console.log(req.body);
+    const md5 = crypto.createHash("md5");
+    md5.update(jwtConfigs.options.secret);
+    const jwtSecretKey = md5.digest("hex");
 
+    const payload = { email };
+    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: "24h" });
+
+    res.status(200).send({ token });
 })
 
 loginRouter.post("/verifyCode", async (req, res) => {

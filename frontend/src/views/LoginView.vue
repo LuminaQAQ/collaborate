@@ -14,7 +14,7 @@ import { ref } from 'vue'
 import LoginForm from '../components/LoginForm.vue'
 import RegisterForm from '@/components/RegisterForm.vue'
 
-let activeTab = ref('register')
+let activeTab = ref('login')
 
 const toRegister = () => {
   activeTab.value = 'register'
