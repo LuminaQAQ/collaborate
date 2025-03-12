@@ -14,11 +14,6 @@ app.use(cors())
 app.use(express.json())
 app.use("/api", loginRouter)
 
-const jwtMiddleware = require("./src/middleware/jwtMiddleware.js");
-app.post("/test", jwtMiddleware, (req, res) => {
-    console.log(req.headers);
-
-})
 
 app.listen(3000, () => {
     console.log("服务器已启动在 3000 端口");
