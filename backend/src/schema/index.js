@@ -6,8 +6,8 @@ const initUserTable = async () => {
     if (!isExists) {
         db.schema.createTable("users", table => {
             table.increments("id").primary().unique()
-            table.string("username").unique().notNullable()
-            table.string("email").unique().notNullable()
+            table.string("username", 32).unique().notNullable()
+            table.string("email", 32).unique().notNullable()
             table.string("password_hash").notNullable()
             table.integer("is_verified").notNullable().defaultTo(0)
             table.timestamp("created_at").defaultTo(db.fn.now())

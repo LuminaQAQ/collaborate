@@ -15,8 +15,19 @@ const jwtConfigs = require("../configs/jwt.d.js");
 
 const loginRouter = express.Router();
 
-loginRouter.post("/login", (req, res) => {
+loginRouter.post("/login", async (req, res) => {
     const { email, pwd } = req.body;
+
+    try {
+        const hash = crypto.createHash("md5");
+        hash.update(pwd);
+        const password_hash = hash.digest("hex");
+        const userIsExists = await db("users").select("*").where({ email, password_hash });
+        if (!userIsExists.length) return res.status(401).send({ error: "邮箱或密码错误！" });
+    } catch (error) {
+        serviceDebug(email, __filename, error);
+        return res.status(500).send({ error: "登录失败！" })
+    }
 
     const md5 = crypto.createHash("md5");
     md5.update(jwtConfigs.options.secret);
