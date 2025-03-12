@@ -28,10 +28,12 @@ loginRouter.post("/login", async (req, res) => {
         return res.status(500).send({ error: "登录失败！" })
     }
 
+    const EX_TIME = 2 * 60 * 60;
     const jwtSecretKey = generateHash(jwtConfigs.options.secret);
 
     const payload = { email };
-    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: "24h" });
+    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: EX_TIME });
+    await redis.set(token, 1, "EX", EX_TIME);
 
     res.status(200).send({ token });
 })
