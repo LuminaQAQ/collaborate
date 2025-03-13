@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useUserStore } from "@/stores/user.js";
+import { ElMessage } from "element-plus"
 
 const instance = axios.create({
   baseURL: "http://localhost:3000",
@@ -18,6 +19,13 @@ instance.interceptors.request.use(config => {
 
   return config;
 }, err => Promise.reject(err))
+
+instance.interceptors.response.use(config => {
+
+}, err => {
+  console.log(err);
+
+})
 
 /**
  * axios 请求实例
