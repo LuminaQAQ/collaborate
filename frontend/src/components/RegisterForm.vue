@@ -147,8 +147,6 @@ const submitForm = (formEl: FormInstance | undefined) => {
         code: registerForm.code,
       })
         .then((res) => {
-          console.log(res)
-
           ElMessage('注册成功！')
         })
         .catch((err) => {})
