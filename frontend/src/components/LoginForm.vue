@@ -36,14 +36,21 @@
 </template>
 
 <script lang="ts" setup>
-import { EmitFn, reactive, ref } from 'vue'
+import { EmitFn, reactive, Ref, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { requestLogin } from '@/api/login'
+import { useUserStore } from '@/stores/user'
 
 interface FormItem {
   email: string
   pwd: string
 }
+
+interface UserStore {
+  token: Ref<string>
+}
+
+const userStore: UserStore = useUserStore()
 
 const emits: EmitFn = defineEmits(['toRegister'])
 
@@ -61,10 +68,10 @@ const submitForm = (formEl: FormInstance | undefined) => {
         email: loginForm.email,
         pwd: loginForm.pwd,
       })
-        .then((res) => console.log(res))
+        .then((res) => {
+          userStore.token = res.data.token
+        })
         .catch((err) => console.log(err))
-    } else {
-      console.log('error submit!')
     }
   })
 }
