@@ -86,9 +86,8 @@
 
 <script lang="ts" setup>
 import { EmitFn, reactive, ref } from 'vue'
-import type { FormInstance } from 'element-plus'
+import { ElMessage, type FormInstance } from 'element-plus'
 import { requestRegister, requestVerifyCode } from '@/api/login'
-import { ElMessage } from 'element-plus'
 
 interface FormItem {
   email: string
@@ -148,15 +147,11 @@ const submitForm = (formEl: FormInstance | undefined) => {
         code: registerForm.code,
       })
         .then((res) => {
+          console.log(res)
+
           ElMessage('注册成功！')
         })
-        .catch((err) => {
-          console.log(err)
-
-          ElMessage('注册失败！')
-          cczn xcz3c})
-    } else {
-      console.log('error submit!')
+        .catch((err) => {})
     }
   })
 }

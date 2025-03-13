@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useUserStore } from "@/stores/user.js";
-import { ElMessage } from "element-plus"
+import { ElMessage } from "element-plus";
+// import { ElMessage } from "element-plus"
 
-const instance = axios.create({
+export const request = axios.create({
   baseURL: "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
@@ -10,7 +11,7 @@ const instance = axios.create({
   }
 })
 
-instance.interceptors.request.use(config => {
+request.interceptors.request.use(config => {
   const useUser = useUserStore();
 
   if (useUser.token) {
@@ -18,21 +19,13 @@ instance.interceptors.request.use(config => {
   }
 
   return config;
-}, err => Promise.reject(err))
-
-instance.interceptors.response.use(config => {
-
 }, err => {
-  console.log(err);
-
+  return Promise.reject(err)
 })
 
-/**
- * axios 请求实例
- * @param {string} api 接口地址
- * @param {import("axios").AxiosRequestConfig} data 配置+数据项
- * @returns {import("axios").AxiosPromise}
- */
-export const request = (api, data) => {
-  return instance(api, data)
-}
+request.interceptors.response.use(config => {
+  return config;
+}, err => {
+  ElMessage({ type: "error", message: err.response.data?.error })
+  return Promise.reject(err);
+})

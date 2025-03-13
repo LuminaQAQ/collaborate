@@ -71,7 +71,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
         .then((res) => {
           userStore.token = res.data.token
         })
-        .catch((err) => console.log(err))
+        .catch((err) => console.log())
     }
   })
 }
