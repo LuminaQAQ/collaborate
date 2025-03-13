@@ -55,6 +55,27 @@
     >
       <el-input v-model="registerForm.pwd" type="password" show-password />
     </el-form-item>
+    <el-form-item
+      prop="pwd_confirm"
+      label="确认密码"
+      :rules="[
+        {
+          required: true,
+          trigger: 'blur',
+          validator: (rule: any, value: any, callback: any) => {
+            if (value === '') {
+              callback(new Error('请再次输入密码！'))
+            } else if (value !== registerForm.pwd) {
+              callback(new Error(`两次密码不匹配!`))
+            } else {
+              callback()
+            }
+          },
+        },
+      ]"
+    >
+      <el-input v-model="registerForm.pwd_confirm" type="password" show-password />
+    </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="submitForm(formRef)" style="margin: 0 auto">
         注册
@@ -71,6 +92,7 @@ import { requestRegister, requestVerifyCode } from '@/api/login'
 interface FormItem {
   email: string
   pwd: string
+  pwd_confirm: string
   code: string
 }
 
@@ -90,6 +112,7 @@ const formRef = ref<FormInstance>()
 const registerForm = reactive<FormItem>({
   email: '1710884533@qq.com',
   pwd: '123456',
+  pwd_confirm: '',
   code: '',
 })
 
