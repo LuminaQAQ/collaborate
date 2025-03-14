@@ -1,7 +1,7 @@
 import { request } from "@/utils/request.js"
 import { apiList } from "./index.js"
 
-const { verifyCode, register, login } = apiList.loginApi
+const { verifyCode, register, login } = apiList.authApi
 
 /**
  * @typedef verifyCodeData

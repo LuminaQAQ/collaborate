@@ -6,6 +6,10 @@ const state = ref('')
 const username = ref('user')
 const dropdownBoardIsShow = ref(false)
 
+const userDropdownVisibleChange = (flag) => {
+  dropdownBoardIsShow.value = flag
+}
+
 interface LinkItem {
   value: string
   link: string
@@ -52,6 +56,9 @@ onMounted(() => {
 <template>
   <el-header>
     <div class="cl-header-left-wrap">
+      <div class="cl-logo-wrap">
+        <img src="/favicon.ico" alt="logo" />
+      </div>
       <el-autocomplete
         v-model="state"
         :fetch-suggestions="querySearchAsync"
@@ -60,10 +67,13 @@ onMounted(() => {
       />
     </div>
     <div class="cl-header-right-wrap">
-      <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
-      <el-dropdown trigger="click" size="large" @visible-change="">
+      <el-dropdown trigger="click" size="large" @visible-change="userDropdownVisibleChange">
         <span class="el-dropdown-link">
-          {{ username }}<el-icon class="el-icon--right"><arrow-down /></el-icon>
+          <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+          <span class="user-name-wrap"> {{ username }}</span>
+          <el-icon :class="['el-icon--right', dropdownBoardIsShow ? 'is-show' : '']">
+            <arrow-down />
+          </el-icon>
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -88,13 +98,46 @@ onMounted(() => {
   align-items: center;
 
   .cl-header-left-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .cl-logo-wrap {
+      width: 1.75rem;
+      height: 1.75rem;
+      object-fit: cover;
+      margin-right: 0.5rem;
+
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
   }
+
   .cl-header-right-wrap {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
+
+    .el-dropdown-link {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .user-name-wrap {
+      padding: 0 0.5rem;
+    }
+
+    .el-icon--right {
+      transition: transform 0.3s;
+    }
+    .is-show {
+      transform: rotate(-180deg);
+    }
   }
 }
 </style>
