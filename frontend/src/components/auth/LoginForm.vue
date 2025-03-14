@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import { EmitFn, reactive, Ref, ref } from 'vue'
+import { EmitFn, Reactive, reactive, Ref, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { requestLogin } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
@@ -46,8 +46,14 @@ interface FormItem {
   pwd: string
 }
 
+interface User {
+  username: string
+  avatar: string
+}
+
 interface UserStore {
   token: Ref<string>
+  user: Reactive<User>
 }
 
 const userStore: UserStore = useUserStore()
@@ -69,8 +75,11 @@ const submitForm = (formEl: FormInstance | undefined) => {
         pwd: loginForm.pwd,
       })
         .then((res) => {
-          userStore.token = res.data.token
-          localStorage.setItem('token', res.data.token)
+          const { token, username, avatar } = res.data
+          userStore.token = token
+          userStore.user.username = username
+          userStore.user.avatar = avatar
+          localStorage.setItem('token', token)
         })
         .catch((err) => console.log())
     }

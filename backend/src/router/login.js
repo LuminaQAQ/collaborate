@@ -23,19 +23,20 @@ loginRouter.post("/login", async (req, res) => {
         const password_hash = generateHash(pwd);
         const userIsExists = await db("users").select("*").where({ email, password_hash });
         if (!userIsExists.length) return res.status(401).send({ error: "邮箱或密码错误！" });
+
+        const EX_TIME = 2 * 60 * 60;
+        const jwtSecretKey = generateHash(jwtConfigs.options.secret);
+
+        const payload = { email };
+        const token = jwt.sign(payload, jwtSecretKey, { expiresIn: EX_TIME });
+        await redis.set(token, 1, "EX", EX_TIME);
+
+        const [userinfo] = userIsExists;
+        return res.status(200).send({ token, username: userinfo.username, avatar: userinfo.avatar });
     } catch (error) {
         serviceDebug(email, __filename, error);
         return res.status(500).send({ error: "登录失败！" })
     }
-
-    const EX_TIME = 2 * 60 * 60;
-    const jwtSecretKey = generateHash(jwtConfigs.options.secret);
-
-    const payload = { email };
-    const token = jwt.sign(payload, jwtSecretKey, { expiresIn: EX_TIME });
-    await redis.set(token, 1, "EX", EX_TIME);
-
-    res.status(200).send({ token });
 })
 
 loginRouter.post("/verifyCode", async (req, res) => {

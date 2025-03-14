@@ -30,7 +30,6 @@ onMounted(() => {
   requestHomeData()
     .then((res) => {
       const { username, avatar } = res.data
-      console.log(userStore)
 
       userStore.user.username = username
       userStore.user.avatar = avatar

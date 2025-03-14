@@ -4,7 +4,7 @@ const express = require("express");
 const cors = require("cors");
 
 const loginRouter = require("./src/router/login.js");
-const userRouter = require("./src/router/user.js");
+const homeRouter = require("./src/router/home.js");
 
 const initTables = require("./src/schema/index.js");
 initTables();
@@ -14,7 +14,7 @@ const app = express();
 app.use(cors())
 app.use(express.json())
 app.use("/api", loginRouter)
-app.use("/api", userRouter)
+app.use("/api", homeRouter)
 
 
 app.listen(3000, () => {
