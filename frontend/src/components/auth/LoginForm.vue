@@ -70,6 +70,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
       })
         .then((res) => {
           userStore.token = res.data.token
+          localStorage.setItem('token', res.data.token)
         })
         .catch((err) => console.log())
     }
