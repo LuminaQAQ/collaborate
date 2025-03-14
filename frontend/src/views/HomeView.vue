@@ -1,11 +1,13 @@
-<script setup></script>
+<script setup>
+import ClHeader from '@/components/layout/ClHeader.vue'
+</script>
 
 <template>
   <div class="common-layout">
     <el-container>
-      <el-aside width="200px">Aside</el-aside>
+      <cl-header />
       <el-container>
-        <el-header>Header</el-header>
+        <el-aside width="200px"> aside </el-aside>
         <el-main>Main</el-main>
       </el-container>
     </el-container>
@@ -19,6 +21,10 @@
 
   .el-container {
     height: 100%;
+  }
+
+  > .el-container {
+    flex-direction: column;
   }
 }
 </style>
