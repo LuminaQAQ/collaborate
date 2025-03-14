@@ -12,6 +12,7 @@ const redis = require("../lib/redis.js");
  */
 const jwtMiddleware = async (req, res, next) => {
     const ary = req.headers["authorization"]?.split(" ");
+    if (!ary) return res.status(401).send({ error: "未授权！" })
 
     if (ary[0] === "Bearer" && ary[1]) {
         const token = ary[1]?.trim();
