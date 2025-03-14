@@ -11,8 +11,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import LoginForm from '../components/LoginForm.vue'
-import RegisterForm from '@/components/RegisterForm.vue'
+import LoginForm from '../components/auth/LoginForm.vue'
+import RegisterForm from '@/components/auth/RegisterForm.vue'
 
 let activeTab = ref('login')
 

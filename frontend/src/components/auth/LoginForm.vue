@@ -38,7 +38,7 @@
 <script lang="ts" setup>
 import { EmitFn, reactive, Ref, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { requestLogin } from '@/api/login'
+import { requestLogin } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
 
 interface FormItem {

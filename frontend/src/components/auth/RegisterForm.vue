@@ -87,7 +87,7 @@
 <script lang="ts" setup>
 import { EmitFn, reactive, ref } from 'vue'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { requestRegister, requestVerifyCode } from '@/api/login'
+import { requestRegister, requestVerifyCode } from '@/api/auth'
 
 interface FormItem {
   email: string
