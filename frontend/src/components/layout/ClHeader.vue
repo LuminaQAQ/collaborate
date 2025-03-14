@@ -1,5 +1,17 @@
 <script lang="ts" setup>
+import { requestHomeData } from '@/api/user'
+import { useUserStore } from '@/stores/user'
 import { onMounted, ref } from 'vue'
+
+const userStore = useUserStore()
+
+requestHomeData()
+  .then((res) => {
+    console.log(res)
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 
 const state = ref('')
 
@@ -15,42 +27,13 @@ interface LinkItem {
   link: string
 }
 
-const links = ref<LinkItem[]>([])
-
-const loadAll = () => {
-  return [
-    { value: 'vue', link: 'https://github.com/vuejs/vue' },
-    { value: 'element', link: 'https://github.com/ElemeFE/element' },
-    { value: 'cooking', link: 'https://github.com/ElemeFE/cooking' },
-    { value: 'mint-ui', link: 'https://github.com/ElemeFE/mint-ui' },
-    { value: 'vuex', link: 'https://github.com/vuejs/vuex' },
-    { value: 'vue-router', link: 'https://github.com/vuejs/vue-router' },
-    { value: 'babel', link: 'https://github.com/babel/babel' },
-  ]
-}
-
-let timeout: ReturnType<typeof setTimeout>
-const querySearchAsync = (queryString: string, cb: (arg: any) => void) => {
-  const results = queryString ? links.value.filter(createFilter(queryString)) : links.value
-
-  clearTimeout(timeout)
-  timeout = setTimeout(() => {
-    cb(results)
-  }, 3000 * Math.random())
-}
 const createFilter = (queryString: string) => {
   return (restaurant: LinkItem) => {
     return restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0
   }
 }
 
-const handleSelect = (item: Record<string, any>) => {
-  console.log(item)
-}
-
-onMounted(() => {
-  links.value = loadAll()
-})
+const querySearchAsync = () => {}
 </script>
 
 <template>
@@ -63,13 +46,18 @@ onMounted(() => {
         v-model="state"
         :fetch-suggestions="querySearchAsync"
         placeholder="Please input"
-        @select="handleSelect"
       />
     </div>
     <div class="cl-header-right-wrap">
       <el-dropdown trigger="click" size="large" @visible-change="userDropdownVisibleChange">
         <span class="el-dropdown-link">
-          <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
+          <template v-if="userStore.user.avatar">
+            <el-avatar :src="userStore.user.avatar" />
+          </template>
+          <template v-else>
+            <el-avatar>{{ username }}</el-avatar>
+          </template>
+
           <span class="user-name-wrap"> {{ username }}</span>
           <el-icon :class="['el-icon--right', dropdownBoardIsShow ? 'is-show' : '']">
             <arrow-down />

@@ -9,6 +9,7 @@ const initUserTable = async () => {
             table.string("username", 32).unique().notNullable()
             table.string("email", 32).unique().notNullable()
             table.string("password_hash").notNullable()
+            table.string("avatar")
             table.integer("is_verified").notNullable().defaultTo(0)
             table.timestamp("created_at").defaultTo(db.fn.now())
             table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))

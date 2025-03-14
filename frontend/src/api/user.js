@@ -1,10 +1,13 @@
 import { request } from "@/utils/request.js"
+import { apiList } from "./index.js"
 
 /**
- * 
- * @param {*} data 
- * @returns 
+ * 请求首页数据
+ * @param {object} params 
+ * @returns {import("axios").AxiosPromise}
  */
-export const requestHomeData = (data) => {
-    return request()
+export const requestHomeData = () => {
+    return request(apiList.userApi.home, {
+        method: "get"
+    })
 }

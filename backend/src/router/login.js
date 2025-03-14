@@ -99,11 +99,11 @@ loginRouter.post("/register", async (req, res) => {
         const LOTTERY_KEY = generateRedisSMSCodeLotteryKey(email);
 
         const verifyCode = await redis.get(REDIS_CODE_KEY)
-        if (verifyCode !== code) return res.status(400).send({ error: "验证码错误！" })
+        if (verifyCode !== code) return res.status(400).send({ error: "验证码错误或已过期！" })
 
         const password_hash = generateHash(pwd);
 
-        const isSuccess = await db("users").insert({ email, password_hash, username: crypto.randomBytes(10).toString() });
+        const isSuccess = await db("users").insert({ email, password_hash, username: "用户_" + crypto.randomUUID().split("-").join().slice(0, 6) });
         await redis.del(REDIS_CODE_KEY);
         await redis.del(LOTTERY_KEY);
         return res.status(200).send({ msg: "注册成功！" });
