@@ -5,17 +5,8 @@ import { onMounted, ref } from 'vue'
 
 const userStore = useUserStore()
 
-requestHomeData()
-  .then((res) => {
-    console.log(res)
-  })
-  .catch((err) => {
-    console.log(err)
-  })
-
 const state = ref('')
 
-const username = ref('user')
 const dropdownBoardIsShow = ref(false)
 
 const userDropdownVisibleChange = (flag) => {
@@ -34,6 +25,20 @@ const createFilter = (queryString: string) => {
 }
 
 const querySearchAsync = () => {}
+
+onMounted(() => {
+  requestHomeData()
+    .then((res) => {
+      const { username, avatar } = res.data
+      console.log(userStore)
+
+      userStore.user.username = username
+      userStore.user.avatar = avatar
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+})
 </script>
 
 <template>
@@ -55,10 +60,9 @@ const querySearchAsync = () => {}
             <el-avatar :src="userStore.user.avatar" />
           </template>
           <template v-else>
-            <el-avatar>{{ username }}</el-avatar>
+            <el-avatar>{{ userStore.user.username }}</el-avatar>
           </template>
-
-          <span class="user-name-wrap"> {{ username }}</span>
+          <span class="user-name-wrap"> {{ userStore.user.username }}</span>
           <el-icon :class="['el-icon--right', dropdownBoardIsShow ? 'is-show' : '']">
             <arrow-down />
           </el-icon>

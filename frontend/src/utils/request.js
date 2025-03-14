@@ -18,7 +18,7 @@ request.interceptors.request.use(config => {
   const useUser = useUserStore();
   const token = useUser.token || localStorage.getItem("token");
 
-  if (useUser.token && !whiteList.includes(config.url)) {
+  if (token && !whiteList.includes(config.url)) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }
 
