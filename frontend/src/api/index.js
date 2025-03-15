@@ -3,10 +3,11 @@
  * @property {string} verifyCode
  * @property {string} register
  * @property {string} login
+ * @property {string} logout
  */
 
 /**
- * 
+ *
  */
 
 /**
@@ -19,7 +20,8 @@ export const apiList = {
   authApi: {
     verifyCode: '/api/verifyCode',
     register: "/api/register",
-    login: "/api/login"
+    login: "/api/login",
+    logout: "/api/logout"
   },
   userApi: {
     home: "/api/home",

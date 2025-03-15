@@ -2,6 +2,7 @@ import axios from "axios";
 import { useUserStore } from "@/stores/user.js";
 import { ElMessage } from "element-plus";
 import { apiList } from "@/api";
+import router from "@/router";
 
 const { authApi } = apiList;
 
@@ -30,6 +31,8 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(config => {
   return config;
 }, err => {
+  if (err.status === 401) router.replace("/login");
+
   ElMessage({ type: "error", message: err.response?.data?.error })
   return Promise.reject(err);
 })

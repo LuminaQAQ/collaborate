@@ -37,9 +37,10 @@
 
 <script lang="ts" setup>
 import { EmitFn, Reactive, reactive, Ref, ref } from 'vue'
-import type { FormInstance } from 'element-plus'
+import { ElMessage, type FormInstance } from 'element-plus'
 import { requestLogin } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
+import router from '@/router'
 
 interface FormItem {
   email: string
@@ -80,6 +81,10 @@ const submitForm = (formEl: FormInstance | undefined) => {
           userStore.user.username = username
           userStore.user.avatar = avatar
           localStorage.setItem('token', token)
+
+          ElMessage.success('登录成功，即将跳转至主页...')
+
+          router.replace('/dashboard')
         })
         .catch((err) => console.log())
     }

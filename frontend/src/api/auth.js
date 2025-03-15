@@ -1,7 +1,7 @@
 import { request } from "@/utils/request.js"
 import { apiList } from "./index.js"
 
-const { verifyCode, register, login } = apiList.authApi
+const { verifyCode, register, login, logout } = apiList.authApi
 
 /**
  * @typedef verifyCodeData
@@ -28,6 +28,7 @@ export const requestVerifyCode = (data) => {
 /**
  * 用户注册
  * @param {registerData} data
+ * @returns {import("axios").AxiosPromise}
  */
 export const requestRegister = (data) => {
   return request(register, {
@@ -44,11 +45,26 @@ export const requestRegister = (data) => {
 /**
  * 用户登录
  * @param {loginData} data
- * @returns
+ * @returns {import("axios").AxiosPromise}
  */
 export const requestLogin = (data) => {
   return request(login, {
     method: "post",
     data
+  })
+}
+
+/**
+ * @typedef logoutData
+ * @property {string} email
+ * @property {string | number} pwd
+ */
+/**
+ * 用户退出登录
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestLogout = () => {
+  return request(logout, {
+    method: "post"
   })
 }

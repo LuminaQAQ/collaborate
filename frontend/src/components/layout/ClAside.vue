@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { Document, Star, ArrowRightBold, ArrowLeftBold, Notebook } from '@element-plus/icons-vue'
+import router from '@/router'
 
 const isCollapse = ref(true)
 const isMenuHover = ref(false)
@@ -10,9 +11,9 @@ const isMenuHover = ref(false)
 <template>
   <el-aside width="auto" @mouseover="isMenuHover = true" @mouseout="isMenuHover = false">
     <el-menu
-      default-active="/dashboard"
       class="el-menu-vertical-demo"
       :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
       :collapse="isCollapse"
     >
       <el-menu-item index="/dashboard">
@@ -24,7 +25,7 @@ const isMenuHover = ref(false)
         <template #title>收藏</template>
       </el-menu-item>
       <el-menu-item index="/notes">
-        <el-icon><document /></el-icon>
+        <el-icon><Document /></el-icon>
         <template #title>小记</template>
       </el-menu-item>
       <el-menu-item index="/books">

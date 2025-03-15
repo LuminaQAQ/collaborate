@@ -1,7 +1,10 @@
 <script lang="ts" setup>
+import { requestLogout } from '@/api/auth'
 import { requestHomeData } from '@/api/user'
+import router from '@/router'
 import { useUserStore } from '@/stores/user'
 import { User, SwitchButton } from '@element-plus/icons-vue/dist/index'
+import { ElMessage } from 'element-plus'
 import { onMounted, ref } from 'vue'
 
 const userStore = useUserStore()
@@ -27,17 +30,24 @@ const createFilter = (queryString: string) => {
 
 const querySearchAsync = () => {}
 
+const logout = async () => {
+  try {
+    await requestLogout()
+    localStorage.removeItem('token')
+    ElMessage.success('退出成功！')
+    router.replace('/login')
+  } catch (error) {}
+}
+
 onMounted(() => {
   requestHomeData()
     .then((res) => {
-      const { username, avatar } = res.data
+      const { username, avatar } = res.data.user
 
       userStore.user.username = username
       userStore.user.avatar = avatar
     })
-    .catch((err) => {
-      console.log(err)
-    })
+    .catch((err) => {})
 })
 </script>
 
@@ -71,7 +81,7 @@ onMounted(() => {
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item :icon="User">个人中心</el-dropdown-item>
-            <el-dropdown-item :icon="SwitchButton">退出登录</el-dropdown-item>
+            <el-dropdown-item :icon="SwitchButton" @click="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>

@@ -13,6 +13,7 @@ const { generateRedisSMSCodeKey, generateRedisSMSCodeLotteryKey } = require("../
 const mailerConfigs = require("../configs/mailer.d.js");
 const jwtConfigs = require("../configs/jwt.d.js");
 const generateHash = require("../utils/generateHash.js");
+const jwtMiddleware = require("../middleware/jwtMiddleware.js");
 
 const loginRouter = express.Router();
 
@@ -113,6 +114,18 @@ loginRouter.post("/register", async (req, res) => {
         return res.status(500).send({ error: "注册失败！" })
     }
 
+})
+
+loginRouter.post("/logout", jwtMiddleware, async (req, res) => {
+    const token = req.headers["authorization"].split(" ")[1];
+    try {
+        await redis.del(token)
+    } catch (error) {
+        serviceDebug(req.user.email, __filename, error)
+        return res.status(500).send({ error: "退出失败！" })
+    }
+
+    return res.send({ msg: "退出成功！" })
 })
 
 module.exports = loginRouter;
