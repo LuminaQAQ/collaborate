@@ -14,10 +14,6 @@ homeRouter.get("/home", jwtMiddleware, async (req, res) => {
     try {
         const [userResult] = await db("users").select(["id", "username", "avatar"]).where({ email });
         const recentDocs = await db("docs").select(["title"]).where({ creator_id: userResult.id }).orderBy("updated_at", "desc")
-        // const 
-        // console.log(os.totalmem(), os.freemem());
-        console.log(recentDocs);
-
 
         return res.status(200).send({
             user: userResult
