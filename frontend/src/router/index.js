@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import HomeView from '@/views/Home/HomeView.vue'
 import AuthView from '@/views/AuthView.vue'
 
 const router = createRouter({
@@ -9,10 +9,27 @@ const router = createRouter({
       path: "/",
       redirect: "/dashboard",
       component: HomeView,
-      children: [{
-        path: 'dashboard',
-        name: 'Dashboard',
-      },
+      children: [
+        {
+          path: 'dashboard',
+          name: 'Dashboard',
+          component: () => import("@/views/Home/ClDashboard.vue")
+        },
+        {
+          path: 'collections',
+          name: 'Collections',
+          component: () => import("@/views/Home/ClCollections.vue")
+        },
+        {
+          path: 'notes',
+          name: 'Notes',
+          component: () => import("@/views/Home/ClNotes.vue")
+        },
+        {
+          path: 'books',
+          name: 'Books',
+          component: () => import("@/views/Home/ClBooks.vue")
+        },
       ]
     },
     {
