@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { requestHomeData } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { User, SwitchButton } from '@element-plus/icons-vue/dist/index'
 import { onMounted, ref } from 'vue'
 
 const userStore = useUserStore()
@@ -46,6 +47,7 @@ onMounted(() => {
       <div class="cl-logo-wrap">
         <img src="/favicon.ico" alt="logo" />
       </div>
+      <span style="text-wrap: nowrap; margin-right: 0.5rem">云迹</span>
       <el-autocomplete
         v-model="state"
         :fetch-suggestions="querySearchAsync"
@@ -68,11 +70,8 @@ onMounted(() => {
         </span>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item :icon="Plus">Action 1</el-dropdown-item>
-            <el-dropdown-item :icon="CirclePlusFilled"> Action 2 </el-dropdown-item>
-            <el-dropdown-item :icon="CirclePlus">Action 3</el-dropdown-item>
-            <el-dropdown-item :icon="Check">Action 4</el-dropdown-item>
-            <el-dropdown-item :icon="CircleCheck">Action 5</el-dropdown-item>
+            <el-dropdown-item :icon="User">个人中心</el-dropdown-item>
+            <el-dropdown-item :icon="SwitchButton">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
