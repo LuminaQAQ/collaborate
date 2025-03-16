@@ -1,7 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 
-import { Document, Star, ArrowRightBold, ArrowLeftBold, Notebook } from '@element-plus/icons-vue'
+import {
+  Document,
+  Star,
+  ArrowRightBold,
+  ArrowLeftBold,
+  Notebook,
+  Setting,
+} from '@element-plus/icons-vue'
 import router from '@/router'
 
 const isCollapse = ref(true)
@@ -28,9 +35,30 @@ const isMenuHover = ref(false)
         <el-icon><Document /></el-icon>
         <template #title>小记</template>
       </el-menu-item>
+    </el-menu>
+    <el-divider />
+    <el-menu
+      class="el-menu-vertical-demo"
+      style="flex: 1 0"
+      :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
+      :collapse="isCollapse"
+    >
       <el-menu-item index="/books">
         <el-icon><Notebook /></el-icon>
         <template #title>知识库</template>
+      </el-menu-item>
+    </el-menu>
+    <el-divider />
+    <el-menu
+      class="el-menu-vertical-demo"
+      :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
+      :collapse="isCollapse"
+    >
+      <el-menu-item index="/setting">
+        <el-icon><Setting /></el-icon>
+        <template #title>设置</template>
       </el-menu-item>
     </el-menu>
     <el-icon class="collapse-icon" @click="isCollapse = !isCollapse" v-show="isMenuHover">
@@ -44,8 +72,14 @@ const isMenuHover = ref(false)
 .el-aside,
 .el-menu {
   position: relative;
+  border-right: 0;
+}
 
+.el-aside {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--el-menu-border-color);
 }
 
 .collapse-icon {

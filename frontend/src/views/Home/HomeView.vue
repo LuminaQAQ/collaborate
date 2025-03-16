@@ -47,13 +47,6 @@ onMounted(() => {
     flex-direction: column;
   }
 
-  .el-aside,
-  .el-menu {
-    position: relative;
-
-    height: 100%;
-  }
-
   .collapse-icon {
     position: absolute;
     top: 50%;
