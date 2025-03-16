@@ -18,6 +18,7 @@ const isMenuHover = ref(false)
 
 <template>
   <el-aside width="auto" @mouseover="isMenuHover = true" @mouseout="isMenuHover = false">
+    <!-- 基本功能 -->
     <el-menu
       class="el-menu-vertical-demo"
       :router="true"
@@ -38,6 +39,8 @@ const isMenuHover = ref(false)
       </el-menu-item>
     </el-menu>
     <el-divider />
+
+    <!-- 文档列表  -->
     <el-menu
       class="el-menu-vertical-demo"
       style="flex: 1 0"

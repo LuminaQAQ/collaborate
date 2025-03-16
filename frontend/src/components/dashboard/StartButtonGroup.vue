@@ -1,47 +1,78 @@
 <script setup>
 import { DocumentAdd, MagicStick, Notebook, Paperclip } from '@element-plus/icons-vue/dist/index.js'
 import { ElRow } from 'element-plus'
+import StartButton from './StartButton.vue'
+import CreateBook from '../common/CreateBook.vue'
+import { reactive } from 'vue'
+
+const state = reactive({
+  createBookModelIsOpen: false,
+})
 
 const buttons = [
   {
     icon: Paperclip,
+    type: 'importDoc',
     title: '导入文档',
     details: '导入本地文档',
+    handleClick: () => {},
   },
   {
     icon: DocumentAdd,
+    type: 'createDoc',
     title: '新建文档',
     details: '开始文字之旅',
+    handleClick: () => {},
   },
   {
     icon: Notebook,
+    type: 'createBook',
     title: '新建知识库',
     details: '使用知识库整理知识',
+    handleClick: () => {
+      state.createBookModelIsOpen = !state.createBookModelIsOpen
+    },
   },
   {
     icon: MagicStick,
+    type: 'createTemplate',
     title: '模板库',
     details: '从模板中获取灵感',
+    handleClick: () => {},
   },
 ]
+
+const handleCreateBookModelOpen = (flag) => {
+  state.createBookModelIsOpen = flag
+}
+
+const handleCreateBookModelClose = (flag) => {
+  console.log(flag)
+}
+
+const handleCreateBookModelSubmit = (bookInfo) => {
+  console.log(bookInfo)
+}
 </script>
 
 <template>
   <div class="cl-start-button-group">
     <h1>开始</h1>
-    <ElRow>
-      <div class="cl-start-btn" v-for="(item, index) in buttons" :key="index" shadow="hover">
-        <el-icon size="22"><component :is="item.icon" /></el-icon>
-        <div class="button-info-wrap">
-          <p class="button-title">
-            <b>{{ item.title }}</b>
-          </p>
-          <p class="button-details">
-            <small> {{ item.details }}</small>
-          </p>
-        </div>
-      </div>
+    <ElRow :gutter="24">
+      <StartButton
+        v-for="(button, index) in buttons"
+        :button="button"
+        :key="index"
+        @click="button.handleClick"
+      />
     </ElRow>
+
+    <CreateBook
+      :is-open="state.createBookModelIsOpen"
+      @open="handleCreateBookModelOpen"
+      @close="handleCreateBookModelClose"
+      @submit="handleCreateBookModelSubmit"
+    />
   </div>
 </template>
 
