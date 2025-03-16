@@ -76,10 +76,11 @@ const submitForm = (formEl: FormInstance | undefined) => {
         pwd: loginForm.pwd,
       })
         .then((res) => {
-          const { token, username, avatar } = res.data
+          const { token, username, avatar, created_at } = res.data
           userStore.token = token
           userStore.user.username = username
           userStore.user.avatar = avatar
+          userStore.user.created_at = created_at
           localStorage.setItem('token', token)
 
           ElMessage.success('登录成功，即将跳转至主页...')

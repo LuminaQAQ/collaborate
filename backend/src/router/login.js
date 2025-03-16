@@ -33,7 +33,13 @@ loginRouter.post("/login", async (req, res) => {
         await redis.set(token, 1, "EX", EX_TIME);
 
         const [userinfo] = userIsExists;
-        return res.status(200).send({ token, username: userinfo.username, avatar: userinfo.avatar });
+
+        return res.status(200).send({
+            token,
+            username: userinfo.username,
+            avatar: userinfo.avatar,
+            created_at: new Date(userinfo.created_at).toISOString().slice(0, 10)
+        });
     } catch (error) {
         serviceDebug(email, __filename, error);
         return res.status(500).send({ error: "登录失败！" })

@@ -1,4 +1,5 @@
 <script setup>
+import ClStatistic from '@/components/dashboard/ClStatistic.vue'
 import StartButtonGroup from '@/components/dashboard/StartButtonGroup.vue'
 import { ref } from 'vue'
 
@@ -9,6 +10,7 @@ const options = ['编辑过', '浏览过', '我点赞的', '我评论过']
 
 <template>
   <div class="cl-dashboard-wrap">
+    <ClStatistic />
     <StartButtonGroup />
     <h1>文档</h1>
     <div class="flex flex-col items-start gap-4">

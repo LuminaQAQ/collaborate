@@ -12,7 +12,8 @@ homeRouter.get("/home", jwtMiddleware, async (req, res) => {
     const { email } = req.user;
 
     try {
-        const [userResult] = await db("users").select(["id", "username", "avatar"]).where({ email });
+        const [userResult] = await db("users").select(["id", "username", "avatar", "created_at"]).where({ email });
+        userResult.created_at = new Date(userResult.created_at).toISOString().slice(0, 10)
         const recentDocs = await db("docs").select(["title"]).where({ creator_id: userResult.id }).orderBy("updated_at", "desc")
 
         return res.status(200).send({

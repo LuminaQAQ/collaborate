@@ -1,6 +1,23 @@
 <script setup>
 import ClHeader from '@/components/layout/ClHeader.vue'
 import ClAside from '@/components/layout/ClAside.vue'
+import { onMounted } from 'vue'
+import { requestHomeData } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  requestHomeData()
+    .then((res) => {
+      const { username, avatar, created_at } = res.data.user
+
+      userStore.user.username = username
+      userStore.user.avatar = avatar
+      userStore.user.created_at = created_at
+    })
+    .catch((err) => {})
+})
 </script>
 
 <template>

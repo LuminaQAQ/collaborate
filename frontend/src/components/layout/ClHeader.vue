@@ -5,7 +5,7 @@ import router from '@/router'
 import { useUserStore } from '@/stores/user'
 import { User, SwitchButton } from '@element-plus/icons-vue/dist/index'
 import { ElMessage } from 'element-plus'
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 
 const userStore = useUserStore()
 
@@ -38,17 +38,6 @@ const logout = async () => {
     router.replace('/login')
   } catch (error) {}
 }
-
-onMounted(() => {
-  requestHomeData()
-    .then((res) => {
-      const { username, avatar } = res.data.user
-
-      userStore.user.username = username
-      userStore.user.avatar = avatar
-    })
-    .catch((err) => {})
-})
 </script>
 
 <template>
