@@ -26,6 +26,7 @@ const initDocsTable = async () => {
             table.string("title").notNullable()
             table.text("content").notNullable()
             table.integer("creator_id").notNullable().unsigned()
+            table.integer("library_id").notNullable().unsigned()
             table.timestamp("created_at").defaultTo(db.fn.now())
             table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
         }).catch(err => { throw err })
@@ -62,11 +63,41 @@ const initFileTable = async () => {
     }
 }
 
+const initBooksTable = async () => {
+    const isExists = await db.schema.hasTable("books")
+
+    if (!isExists) {
+        db.schema.createTable("books", table => {
+            table.increments("id").primary().unsigned()
+            table.string("name").notNullable()
+            table.string("description").notNullable()
+            table.integer("creator_id").notNullable().unsigned()
+            table.timestamp("created_at").defaultTo(db.fn.now())
+            table.timestamp("updated_at").defaultTo(db.fn.now())
+        }).catch(err => { throw err })
+    }
+}
+
+const initBookPermissionsTable = async () => {
+    const isExists = await db.schema.hasTable("book_permissions")
+
+    if (!isExists) {
+        db.schema.createTable("book_permissions", table => {
+            table.increments("id").primary().unsigned()
+            table.integer("book_id").notNullable().unsigned()
+            table.integer("user_id").notNullable().unsigned()
+            table.enum("permission", ["owner", "editor", "viewer"]).notNullable().defaultTo("viewer")
+        }).catch(err => { throw err })
+    }
+}
+
 const initTables = () => {
     initUserTable();
     initDocsTable();
     initDocPermissionsTable();
     initFileTable();
+    initBooksTable();
+    initBookPermissionsTable();
 }
 
 module.exports = initTables;

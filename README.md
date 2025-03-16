@@ -47,6 +47,23 @@
 | -------- | ---- | ------------- | ---------------- | ----------------- |
 | 上传文件 | POST | `/api/upload` | FormData: `file` | `{ url: string }` |
 
+##### **文档库管理接口**
+
+| 接口描述       | 方法   | 路径                           | 参数/Headers/Body               | 响应格式                     | 权限       |
+| -------------- | ------ | ------------------------------ | ------------------------------- | ---------------------------- | ---------- |
+| 创建文档库     | POST   | `/api/v1/libraries`            | Body: `{ name, description? }`  | `{ libraryId, name }`        | 已登录用户 |
+| 获取文档库列表 | GET    | `/api/v1/libraries`            | Query: `{ page=1, limit=10 }`   | `{ data: [library], total }` | 已登录用户 |
+| 获取文档库详情 | GET    | `/api/v1/libraries/:libraryId` | -                               | `{ id, name, description }`  | 库权限校验 |
+| 更新文档库     | PATCH  | `/api/v1/libraries/:libraryId` | Body: `{ name?, description? }` | `{ success: true }`          | 库所有者   |
+| 删除文档库     | DELETE | `/api/v1/libraries/:libraryId` | -                               | `{ success: true }`          | 库所有者   |
+
+##### **文档库权限接口**
+
+| 接口描述       | 方法 | 路径                                       | 参数/Headers/Body              | 响应格式                 | 权限            |
+| -------------- | ---- | ------------------------------------------ | ------------------------------ | ------------------------ | --------------- |
+| 设置文档库权限 | POST | `/api/v1/libraries/:libraryId/permissions` | Body: `{ userId, permission }` | `{ success: true }`      | 库所有者        |
+| 获取权限列表   | GET  | `/api/v1/libraries/:libraryId/permissions` | -                              | `{ data: [permission] }` | 库所有者/编辑者 |
+
 ---
 
 ### 三、数据库设计（MySQL）
@@ -64,15 +81,16 @@
 
 #### **2. 文档表（`docs`）**
 
-| 字段         | 类型         | 说明                       |
-| ------------ | ------------ | -------------------------- |
-| `id`         | INT(11)      | 主键，自增                 |
-| `user_id`    | INT(11)      | 外键（关联`users.id`）     |
-| `title`      | VARCHAR(100) | 文档标题                   |
-| `content`    | TEXT         | Markdown 内容              |
-| `is_public`  | TINYINT(1)   | 是否公开（0:私有，1:公开） |
-| `parent_id`  | INT(11)      | 父文档 ID（支持树形结构）  |
-| `updated_at` | DATETIME     | 最后更新时间               |
+| 字段         | 类型         | 说明                               |
+| ------------ | ------------ | ---------------------------------- |
+| `id`         | INT(11)      | 主键，自增                         |
+| `user_id`    | INT(11)      | 外键（关联`users.id`）             |
+| `title`      | VARCHAR(100) | 文档标题                           |
+| `content`    | TEXT         | Markdown 内容                      |
+| `is_public`  | TINYINT(1)   | 是否公开（0:私有，1:公开）         |
+| `parent_id`  | INT(11)      | 父文档 ID（支持树形结构）          |
+| `library_id` | INT UNSIGNED | 所属文档库 ID（关联 libraries.id） |
+| `updated_at` | DATETIME     | 最后更新时间                       |
 
 #### **3. 文档历史表（`doc_histories`）**
 
@@ -94,6 +112,26 @@
 
 ---
 
+##### **5. 文档库表（libraries）**
+
+| 字段名      | 类型         | 说明                       | 约束                        |
+| ----------- | ------------ | -------------------------- | --------------------------- |
+| id          | INT UNSIGNED | 文档库唯一 ID（主键）      | AUTO_INCREMENT, PK          |
+| name        | VARCHAR(255) | 文档库名称                 | NOT NULL                    |
+| creator_id  | INT UNSIGNED | 创建者 ID（关联 users.id） | NOT NULL, FK                |
+| description | TEXT         | 文档库描述（可选）         | DEFAULT NULL                |
+| created_at  | TIMESTAMP    | 创建时间                   | DEFAULT CURRENT_TIMESTAMP   |
+| updated_at  | TIMESTAMP    | 最后更新时间               | ON UPDATE CURRENT_TIMESTAMP |
+
+##### **6. 文档库权限表（library_permissions）**
+
+| 字段名     | 类型                              | 说明                           | 约束                       |
+| ---------- | --------------------------------- | ------------------------------ | -------------------------- |
+| id         | INT UNSIGNED                      | 权限记录 ID（主键）            | AUTO_INCREMENT, PK         |
+| library_id | INT UNSIGNED                      | 文档库 ID（关联 libraries.id） | NOT NULL, FK               |
+| user_id    | INT UNSIGNED                      | 用户 ID（关联 users.id）       | NOT NULL, FK               |
+| permission | ENUM('owner', 'editor', 'viewer') | 权限类型                       | NOT NULL, DEFAULT 'viewer' |
+
 ### 四、未来扩展功能需求
 
 1. **实时协作**：集成`socket.io`实现多人协同编辑。
@@ -112,3 +150,5 @@
 4. **API 版本控制**：路径添加`/v1/`前缀，未来可升级到`/v2/`。
 
 通过以上设计，当前可快速实现基础功能，同时为后续扩展留有充足空间。
+
+---
