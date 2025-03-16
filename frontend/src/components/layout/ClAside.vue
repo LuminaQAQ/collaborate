@@ -8,6 +8,7 @@ import {
   ArrowLeftBold,
   Notebook,
   Setting,
+  ArrowRight,
 } from '@element-plus/icons-vue'
 import router from '@/router'
 
@@ -44,10 +45,16 @@ const isMenuHover = ref(false)
       :default-active="router.currentRoute.value.path.toString()"
       :collapse="isCollapse"
     >
-      <el-menu-item index="/books">
-        <el-icon><Notebook /></el-icon>
-        <template #title>知识库</template>
-      </el-menu-item>
+      <el-sub-menu index="/books" @click="router.push('/books')">
+        <template #title>
+          <el-icon><Notebook /></el-icon>
+          <span>知识库</span>
+        </template>
+        <el-menu-item-group>
+          <el-menu-item index="1-1">item one</el-menu-item>
+          <el-menu-item index="1-2">item two</el-menu-item>
+        </el-menu-item-group>
+      </el-sub-menu>
     </el-menu>
     <el-divider />
     <el-menu
@@ -56,7 +63,7 @@ const isMenuHover = ref(false)
       :default-active="router.currentRoute.value.path.toString()"
       :collapse="isCollapse"
     >
-      <el-menu-item index="/setting">
+      <el-menu-item index="/settings">
         <el-icon><Setting /></el-icon>
         <template #title>设置</template>
       </el-menu-item>

@@ -33,6 +33,11 @@ const router = createRouter({
           name: 'Books',
           component: () => import("@/views/Home/ClBooks.vue")
         },
+        {
+          path: 'settings',
+          name: 'Settings',
+          component: () => import("@/views/Home/ClSettings.vue")
+        },
       ]
     },
     {
