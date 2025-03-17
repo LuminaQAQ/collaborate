@@ -34,7 +34,11 @@ const serviceDebug = (user, filePath, err) => {
     logger.debug(`user: '${user}'\nfilePath: ${filePath}\n${err}`)
 }
 
-module.exports = { serviceDebug }
+const jwtDebug = (user, status, err) => {
+    logger.debug(`\nuser: '${user}'\nstatusCode: ${status}\n${err}`)
+}
+
+module.exports = { serviceDebug, jwtDebug }
 
 // if (process.env.NODE_ENV === "dev") {
 //     module.exports = log4js.getLogger("default")

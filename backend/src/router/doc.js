@@ -7,10 +7,11 @@ const { InternalServerError } = require("../middleware/errorMiddleware");
 const docRouter = express.Router();
 
 docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
-    const { email } = req.user
+    const { email } = req.user;
+    const { name, description } = req.body
 
     try {
-        const [result] = await db("users").select("id").where({ emaild })
+        const [result] = await db("users").select("id").where({ email })
     } catch (error) {
         return next(new InternalServerError(500, "创建失败！",))
     }

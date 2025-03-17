@@ -1,11 +1,11 @@
-const { serviceDebug } = require("../lib/logger");
+const { serviceDebug, jwtDebug } = require("../lib/logger");
 
 class InternalServerError extends Error {
     /**
      * @param {string} error 返回数据中的错误信息 
      * @param {number} status 返回数据中的错误码
      */
-    constructor(error, status = 500) {
+    constructor(status, error) {
         super();
         this.error = error;
         this.status = status;
@@ -21,9 +21,10 @@ class InternalServerError extends Error {
 const errorMiddleware = (err, req, res, next) => {
     const { status, error, stack } = err;
 
-    serviceDebug(req?.user?.email || "", "", stack)
+    jwtDebug(req?.user?.email || "", status, stack)
+    next();
 
-    return res.status(status).send({ error })
+    res.status(status).send({ error })
 }
 
 module.exports = { InternalServerError, errorMiddleware };
