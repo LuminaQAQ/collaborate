@@ -58,7 +58,7 @@ const handleCreateBookModelSubmit = (bookInfo) => {
 <template>
   <div class="cl-start-button-group">
     <h1>开始</h1>
-    <ElRow :gutter="24">
+    <ElRow :gutter="24" style="padding: 1rem">
       <StartButton
         v-for="(button, index) in buttons"
         :button="button"
