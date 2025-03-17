@@ -22,7 +22,6 @@ const errorMiddleware = (err, req, res, next) => {
     const { status, error, stack } = err;
 
     jwtDebug(req?.user?.email || "", status, stack)
-    next();
 
     res.status(status).send({ error })
 }

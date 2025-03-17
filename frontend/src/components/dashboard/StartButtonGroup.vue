@@ -8,6 +8,7 @@ import { requestCreateBook } from '@/api/create'
 
 const state = reactive({
   createBookModelIsOpen: false,
+  createDocModelIsOpen: false,
 })
 
 const buttons = [
