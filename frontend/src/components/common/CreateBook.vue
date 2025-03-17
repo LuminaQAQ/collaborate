@@ -12,6 +12,7 @@ const state = reactive({
   bookName: '',
   bookDesc: '',
   isValidate: false,
+  isLoading: false,
 })
 
 const handleOpen = () => {
@@ -23,11 +24,20 @@ const handleClose = () => {
 }
 
 const handleSubmit = () => {
-  if (state.bookName.length > 0)
-    emits('submit', {
-      bookName: state.bookName,
-      bookDesc: state.bookDesc,
-    })
+  if (state.bookName.length > 0) {
+    emits(
+      'submit',
+      {
+        bookName: state.bookName,
+        bookDesc: state.bookDesc,
+      },
+      function resetFn() {
+        state.bookName = ''
+        state.bookDesc = ''
+      },
+    ),
+      (state.isLoading = true)
+  }
 }
 </script>
 
@@ -56,7 +66,14 @@ const handleSubmit = () => {
     </div>
     <template #footer>
       <template v-if="state.isValidate">
-        <ElButton style="width: 100%" type="primary" @click="handleSubmit"> 新建 </ElButton>
+        <ElButton
+          style="width: 100%"
+          type="primary"
+          @click="handleSubmit"
+          :loading="state.isLoading"
+        >
+          新建
+        </ElButton>
       </template>
       <template v-else>
         <ElButton style="width: 100%" type="primary" @click="handleSubmit" disabled>

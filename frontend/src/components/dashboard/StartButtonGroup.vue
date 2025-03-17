@@ -1,9 +1,10 @@
 <script setup>
 import { DocumentAdd, MagicStick, Notebook, Paperclip } from '@element-plus/icons-vue/dist/index.js'
-import { ElRow } from 'element-plus'
+import { ElMessage, ElRow } from 'element-plus'
 import StartButton from './StartButton.vue'
 import CreateBook from '../common/CreateBook.vue'
 import { reactive } from 'vue'
+import { requestCreateBook } from '@/api/create'
 
 const state = reactive({
   createBookModelIsOpen: false,
@@ -50,8 +51,21 @@ const handleCreateBookModelClose = (flag) => {
   console.log(flag)
 }
 
-const handleCreateBookModelSubmit = (bookInfo) => {
-  console.log(bookInfo)
+const handleCreateBookModelSubmit = async (bookInfo, reset) => {
+  const { bookName, bookDesc } = bookInfo
+
+  try {
+    await requestCreateBook({
+      name: bookName,
+      description: bookDesc,
+    })
+
+    ElMessage.success('创建成功！')
+    state.createBookModelIsOpen = false
+    reset()
+  } catch {
+    ElMessage.error('创建失败！')
+  }
 }
 </script>
 
