@@ -11,7 +11,11 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 
     try {
         const [{ id }] = await db("users").select("id").where({ email });
-        const bookList = await db("books").leftJoin("users").select(["books.id", "books.name", "books.description", "users.email"]).where({ creator_id: id }).orderBy("books.id");
+        const bookList = await db("books")
+            .join("users", "books.creator_id", "users.id")
+            .select(["books.id", "books.name", "books.description", "users.email"])
+            .where({ "books.creator_id": id })
+            .orderBy("books.id");
 
         return res.status(200).send({ msg: "ok", bookList, email })
     } catch (error) {
