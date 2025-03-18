@@ -11,7 +11,7 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 
     try {
         const [{ id }] = await db("users").select("id").where({ email });
-        const bookList = await db("books").select(["name", "description"]).where({ creator_id: id });
+        const bookList = await db("books").select(["id", "name", "description"]).where({ creator_id: id });
         return res.status(200).send({ msg: "ok", bookList })
     } catch (error) {
         return next(new InternalServerError(500, "获取失败！"))

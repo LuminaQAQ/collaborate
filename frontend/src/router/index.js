@@ -46,7 +46,7 @@ const router = createRouter({
       component: AuthView,
     },
     {
-      path: '/:user/:doc',
+      path: '/:user/:book/:doc',
       name: 'Doc',
       // component: () => import("@/views/Home/ClBooks.vue")
     },
