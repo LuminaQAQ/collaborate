@@ -12,6 +12,7 @@ const emits = defineEmits(['open', 'close', 'submit'])
 
 const state = reactive({
   bookList: [],
+  bookListIsLoad: false,
 })
 
 const handleOpen = async () => {
@@ -20,6 +21,7 @@ const handleOpen = async () => {
     const res = await requestBookList()
 
     state.bookList = res.data.bookList
+    state.bookListIsLoad = true
   } catch (err) {}
 }
 
@@ -49,12 +51,14 @@ const handleClose = () => {
   <ElDialog :model-value="isOpen" width="500" @open="handleOpen" @close="handleClose">
     <template #header> 新建文档 </template>
     <div class="cl-create-book__body">
-      <span>请选择一个知识库</span>
+      <div style="margin-bottom: 0.5rem">请选择一个知识库</div>
       <section class="cl-book-item" v-for="(item, index) in state.bookList" :key="index">
-        <ElIcon color="#409eff" size="22"><Notebook /></ElIcon>
+        <ElIcon color="#409eff" size="32"><Notebook /></ElIcon>
         <div class="book-info">
-          <div class="title">{{ item.title }}</div>
-          <div class="desc">{{ item.description }}</div>
+          <div class="title">
+            <b>{{ item.name }}</b>
+          </div>
+          <small class="desc">{{ item.description || '暂无简介' }}</small>
         </div>
       </section>
     </div>
@@ -64,7 +68,19 @@ const handleClose = () => {
 <style lang="scss">
 .cl-book-item {
   display: flex;
-
   align-items: center;
+  border-bottom: 1px solid #d7d6d6;
+  padding: 0.5rem;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgb(235.9, 245.3, 255);
+  }
+
+  .book-info {
+    margin-left: 0.5rem;
+    .title {
+    }
+  }
 }
 </style>
