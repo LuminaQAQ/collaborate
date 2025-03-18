@@ -11,10 +11,11 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 
     try {
         const [{ id }] = await db("users").select("id").where({ email });
-        const bookList = await db("books").select(["id", "name", "description"]).where({ creator_id: id });
-        return res.status(200).send({ msg: "ok", bookList })
+        const bookList = await db("books").leftJoin("users").select(["books.id", "books.name", "books.description", "users.email"]).where({ creator_id: id }).orderBy("books.id");
+
+        return res.status(200).send({ msg: "ok", bookList, email })
     } catch (error) {
-        return next(new InternalServerError(500, "获取失败！"))
+        return next(new InternalServerError(500, "获取失败！", error.message))
     }
 })
 

@@ -24,6 +24,8 @@ const handleOpen = async () => {
 
     state.bookList = res.data.bookList
     state.bookListIsLoad = true
+
+    console.log(state.bookList)
   } catch (err) {}
 }
 

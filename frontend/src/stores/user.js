@@ -5,7 +5,8 @@ export const useUserStore = defineStore("user", () => {
   let token = ref("");
   const user = reactive({
     username: "",
-    avatar: ""
+    avatar: "",
+    email: ""
   })
 
   return {

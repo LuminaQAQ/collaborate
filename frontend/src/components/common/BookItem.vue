@@ -5,10 +5,12 @@ import { Notebook } from '@element-plus/icons-vue'
 defineProps({
   book: Object,
 })
+
+// const
 </script>
 
 <template>
-  <section class="cl-book-item">
+  <RouterLink class="cl-book-item" :to="`///`">
     <ElIcon color="#409eff" size="32"><Notebook /></ElIcon>
     <div class="book-info">
       <div class="title">
@@ -16,7 +18,7 @@ defineProps({
       </div>
       <small class="desc">{{ book.description || '暂无简介' }}</small>
     </div>
-  </section>
+  </RouterLink>
 </template>
 
 <style lang="scss">
@@ -26,6 +28,9 @@ defineProps({
   border-bottom: 1px solid #d7d6d6;
   padding: 0.5rem;
   cursor: pointer;
+
+  text-decoration: none;
+  color: initial;
 
   &:hover {
     background-color: rgb(235.9, 245.3, 255);

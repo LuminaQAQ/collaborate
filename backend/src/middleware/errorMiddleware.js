@@ -5,10 +5,11 @@ class InternalServerError extends Error {
      * @param {string} error 返回数据中的错误信息 
      * @param {number} status 返回数据中的错误码
      */
-    constructor(status, error) {
+    constructor(status, error, message) {
         super();
         this.error = error;
         this.status = status;
+        this.message = message;
     }
 }
 
@@ -19,7 +20,7 @@ class InternalServerError extends Error {
  * @param {import("express").NextFunction} next 
  */
 const errorMiddleware = (err, req, res, next) => {
-    const { status, error, stack } = err;
+    const { status, error, stack, message } = err;
 
     jwtDebug(req?.user?.email || "", status, stack)
 
