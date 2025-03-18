@@ -1,5 +1,7 @@
 <script setup>
-import { ElButton, ElDialog, ElInput } from 'element-plus'
+import { requestBookList } from '@/api/user'
+import { ElButton, ElDialog, ElIcon, ElInput } from 'element-plus'
+import { Notebook } from '@element-plus/icons-vue'
 import { reactive } from 'vue'
 
 defineProps({
@@ -9,79 +11,60 @@ defineProps({
 const emits = defineEmits(['open', 'close', 'submit'])
 
 const state = reactive({
-  bookName: '',
-  bookDesc: '',
-  isValidate: false,
-  isLoading: false,
+  bookList: [],
 })
 
-const handleOpen = () => {
+const handleOpen = async () => {
   emits('open', true)
+  try {
+    const res = await requestBookList()
+
+    state.bookList = res.data.bookList
+  } catch (err) {}
 }
 
 const handleClose = () => {
-  emits('open', false)
+  emits('close', false)
 }
 
-const handleSubmit = () => {
-  if (state.bookName.length > 0) {
-    emits(
-      'submit',
-      {
-        bookName: state.bookName,
-        bookDesc: state.bookDesc,
-      },
-      function resetFn() {
-        state.bookName = ''
-        state.bookDesc = ''
-      },
-    ),
-      (state.isLoading = true)
-  }
-}
+// const handleSubmit = () => {
+//   if (state.bookName.length > 0) {
+//     emits(
+//       'submit',
+//       {
+//         bookName: state.bookName,
+//         bookDesc: state.bookDesc,
+//       },
+//       function resetFn() {
+//         state.bookName = ''
+//         state.bookDesc = ''
+//       },
+//     ),
+//       (state.isLoading = true)
+//   }
+// }
 </script>
 
 <template>
   <ElDialog :model-value="isOpen" width="500" @open="handleOpen" @close="handleClose">
-    <template #header>新建知识库</template>
+    <template #header> 新建文档 </template>
     <div class="cl-create-book__body">
-      <span>基本信息</span>
-      <ElInput
-        v-model="state.bookName"
-        @input="state.bookName.length > 0 ? (state.isValidate = true) : (state.isValidate = false)"
-        placeholder="知识库名称"
-        maxlength="10"
-        show-word-limit
-        style="margin: 0.75rem 0"
-      />
-      <ElInput
-        type="textarea"
-        v-model="state.bookDesc"
-        placeholder="知识库简介（选填）"
-        maxlength="30"
-        resize="none"
-        :autosize="{ minRows: 4, maxRows: 8 }"
-        show-word-limit
-      />
+      <span>请选择一个知识库</span>
+      <section class="cl-book-item" v-for="(item, index) in state.bookList" :key="index">
+        <ElIcon color="#409eff" size="22"><Notebook /></ElIcon>
+        <div class="book-info">
+          <div class="title">{{ item.title }}</div>
+          <div class="desc">{{ item.description }}</div>
+        </div>
+      </section>
     </div>
-    <template #footer>
-      <template v-if="state.isValidate">
-        <ElButton
-          style="width: 100%"
-          type="primary"
-          @click="handleSubmit"
-          :loading="state.isLoading"
-        >
-          新建
-        </ElButton>
-      </template>
-      <template v-else>
-        <ElButton style="width: 100%" type="primary" @click="handleSubmit" disabled>
-          新建
-        </ElButton>
-      </template>
-    </template>
   </ElDialog>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+.cl-book-item {
+  display: flex;
+
+  align-items: center;
+}
+</style>

@@ -11,3 +11,9 @@ export const requestHomeData = () => {
         method: "get"
     })
 }
+
+export const requestBookList = () => {
+    return request(apiList.userApi.bookList, {
+        method: "get"
+    })
+}

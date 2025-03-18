@@ -20,7 +20,7 @@ const handleOpen = () => {
 }
 
 const handleClose = () => {
-  emits('open', false)
+  emits('close', false)
 }
 
 const handleSubmit = () => {
@@ -34,6 +34,7 @@ const handleSubmit = () => {
       function resetFn() {
         state.bookName = ''
         state.bookDesc = ''
+        state.isLoading = false
       },
     ),
       (state.isLoading = true)

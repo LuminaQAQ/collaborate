@@ -25,6 +25,7 @@ export const apiList = {
   },
   userApi: {
     home: "/api/home",
+    bookList: "/api/bookList"
   },
   createApi: {
     createBook: "/api/createBook"

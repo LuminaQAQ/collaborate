@@ -1,10 +1,13 @@
 <script setup>
 import { DocumentAdd, MagicStick, Notebook, Paperclip } from '@element-plus/icons-vue/dist/index.js'
 import { ElMessage, ElRow } from 'element-plus'
+
+import { reactive } from 'vue'
+
+import { requestCreateBook } from '@/api/create'
 import StartButton from './StartButton.vue'
 import CreateBook from '../common/CreateBook.vue'
-import { reactive } from 'vue'
-import { requestCreateBook } from '@/api/create'
+import CreateDoc from '../common/CreateDoc.vue'
 
 const state = reactive({
   createBookModelIsOpen: false,
@@ -24,7 +27,9 @@ const buttons = [
     type: 'createDoc',
     title: '新建文档',
     details: '开始文字之旅',
-    handleClick: () => {},
+    handleClick: () => {
+      state.createDocModelIsOpen = !state.createDocModelIsOpen
+    },
   },
   {
     icon: Notebook,
@@ -49,7 +54,7 @@ const handleCreateBookModelOpen = (flag) => {
 }
 
 const handleCreateBookModelClose = (flag) => {
-  console.log(flag)
+  state.createBookModelIsOpen = flag
 }
 
 const handleCreateBookModelSubmit = async (bookInfo, reset) => {
@@ -67,6 +72,29 @@ const handleCreateBookModelSubmit = async (bookInfo, reset) => {
   } catch {
     ElMessage.error('创建失败！')
   }
+}
+
+const handleCreateDocModelOpen = (flag) => {
+  state.createDocModelIsOpen = flag
+}
+
+const handleCreateDocModelClose = (flag) => {
+  state.createDocModelIsOpen = flag
+}
+
+const handleCreateDocModelSubmit = async (bookInfo, reset) => {
+  // const { bookName, bookDesc } = bookInfo
+  // try {
+  //   await requestCreateBook({
+  //     name: bookName,
+  //     description: bookDesc,
+  //   })
+  //   ElMessage.success('创建成功！')
+  //   state.createBookModelIsOpen = false
+  //   reset()
+  // } catch {
+  //   ElMessage.error('创建失败！')
+  // }
 }
 </script>
 
@@ -87,6 +115,12 @@ const handleCreateBookModelSubmit = async (bookInfo, reset) => {
       @open="handleCreateBookModelOpen"
       @close="handleCreateBookModelClose"
       @submit="handleCreateBookModelSubmit"
+    />
+    <CreateDoc
+      :is-open="state.createDocModelIsOpen"
+      @open="handleCreateDocModelOpen"
+      @close="handleCreateDocModelClose"
+      @submit="handleCreateDocModelSubmit"
     />
   </div>
 </template>
