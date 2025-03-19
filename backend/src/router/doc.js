@@ -38,7 +38,19 @@ docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
     } catch (error) {
         return next(new InternalServerError(500, "创建失败！",))
     }
+})
 
+docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
+    const { id } = req.user;
+    const { book_id } = req.body;
+
+    try {
+        const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id }).select("id as doc_id");
+
+        return res.status(200).send({ msg: "创建成功！", doc_id })
+    } catch (error) {
+        next(new InternalServerError(500, "创建失败！", error.message))
+    }
 })
 
 module.exports = docRouter;

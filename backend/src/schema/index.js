@@ -26,7 +26,7 @@ const initDocsTable = async () => {
             table.string("title").notNullable()
             table.text("content").notNullable()
             table.integer("creator_id").notNullable().unsigned()
-            table.integer("library_id").notNullable().unsigned()
+            table.integer("book_id").notNullable().unsigned()
             table.timestamp("created_at").defaultTo(db.fn.now())
             table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
         }).catch(err => { throw err })

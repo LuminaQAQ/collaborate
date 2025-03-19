@@ -48,11 +48,11 @@ const router = createRouter({
     {
       path: '/:user/:book/:doc',
       name: 'Doc',
-      // component: () => import("@/views/Home/ClBooks.vue")
+      component: () => import("@/views/Doc/DocView.vue")
     },
     // {
-    //   path: ':user/:book/:doc',
-    //   name: 'doc',
+    //   path: ':user/:book',
+    //   name: 'Book',
     //   // component: () => import("@/views/Home/ClBooks.vue")
     // },
   ],

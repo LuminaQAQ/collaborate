@@ -28,6 +28,7 @@ export const apiList = {
     bookList: "/api/bookList"
   },
   createApi: {
-    createBook: "/api/createBook"
+    createBook: "/api/createBook",
+    createDoc: "/api/createDoc"
   }
 }

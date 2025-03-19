@@ -28,11 +28,12 @@ loginRouter.post("/login", async (req, res) => {
         const EX_TIME = 2 * 60 * 60;
         const jwtSecretKey = generateHash(jwtConfigs.options.secret);
 
-        const payload = { email };
+        const [userinfo] = userIsExists;
+
+        const payload = { email, id: userinfo.id };
         const token = jwt.sign(payload, jwtSecretKey, { expiresIn: EX_TIME });
         await redis.set(token, 1, "EX", EX_TIME);
 
-        const [userinfo] = userIsExists;
 
         return res.status(200).send({
             token,

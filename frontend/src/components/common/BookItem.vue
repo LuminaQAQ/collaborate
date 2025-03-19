@@ -2,21 +2,26 @@
 import { ElIcon } from 'element-plus'
 import { Notebook } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { requestCreateDoc } from '@/api/create'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   book: Object,
 })
+const router = useRouter()
 
-const path = ref('')
-// path.value =`/${book.email}/${book.id}/${}`
+const handleToPath = async () => {
+  try {
+    const res = await requestCreateDoc({ book_id: props.book.id })
+    const { doc_id } = res.data
 
-const handleToPath = () => {
-  console.log(props.book.email, props.book.id)
+    router.push(`/${props.book.email}/${props.book.id}/${doc_id}`)
+  } catch (error) {}
 }
 </script>
 
 <template>
-  <div class="cl-book-item" :to="path" @click="handleToPath">
+  <div class="cl-book-item" @click="handleToPath">
     <ElIcon color="#409eff" size="32"><Notebook /></ElIcon>
     <div class="book-info">
       <div class="title">
