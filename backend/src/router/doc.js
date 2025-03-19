@@ -22,6 +22,15 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
     }
 })
 
+docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
+    const { } = req.user;
+    const { book_id } = req.params;
+    console.log(req.params);
+
+
+    return res.status(200).send(book_id)
+})
+
 docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
     const { email } = req.user;
     const { name, description } = req.body

@@ -46,15 +46,24 @@ const router = createRouter({
       component: AuthView,
     },
     {
-      path: '/:user/:book/:doc',
-      name: 'Doc',
-      component: () => import("@/views/Doc/DocView.vue")
+      path: "/:user",
+      name: "User",
+      meta: { isAuth: true },
+      component: () => import("@/views/User/PersonalView.vue")
     },
-    // {
-    //   path: ':user/:book',
-    //   name: 'Book',
-    //   // component: () => import("@/views/Home/ClBooks.vue")
-    // },
+    {
+      path: '/:user/:book',
+      name: 'Book',
+      meta: { isAuth: true },
+      component: () => import("@/views/Doc/BookView.vue"),
+      children: [
+        {
+          path: ":doc",
+          name: 'Doc',
+          component: () => import("@/views/Doc/DocView.vue")
+        }
+      ]
+    },
   ],
 })
 

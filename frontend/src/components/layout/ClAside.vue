@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 import {
   Document,
@@ -11,19 +11,29 @@ import {
   ArrowRight,
 } from '@element-plus/icons-vue'
 import router from '@/router'
+import { requestBookList } from '@/api/user'
 
-const isCollapse = ref(true)
-const isMenuHover = ref(false)
+const state = reactive({
+  isCollapse: true,
+  isMenuHover: true,
+  bookList: [],
+})
+
+requestBookList().then((res) => (state.bookList = res.data.bookList))
 </script>
 
 <template>
-  <el-aside width="auto" @mouseover="isMenuHover = true" @mouseout="isMenuHover = false">
+  <el-aside
+    width="auto"
+    @mouseover="state.isMenuHover = true"
+    @mouseout="state.isMenuHover = false"
+  >
     <!-- 基本功能 -->
     <el-menu
       class="el-menu-vertical-demo"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="isCollapse"
+      :collapse="state.isCollapse"
     >
       <el-menu-item index="/dashboard">
         <el-icon><Clock /></el-icon>
@@ -46,16 +56,21 @@ const isMenuHover = ref(false)
       style="flex: 1 0"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="isCollapse"
+      :collapse="state.isCollapse"
     >
-      <el-sub-menu index="/books" @click="router.push('/books')">
+      <el-sub-menu index="/books">
         <template #title>
           <el-icon><Notebook /></el-icon>
           <span>知识库</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item index="1-1">item one</el-menu-item>
-          <el-menu-item index="1-2">item two</el-menu-item>
+          <el-menu-item
+            v-for="item in state.bookList"
+            :key="item.id"
+            :index="`${item.email}/${item.id}`"
+          >
+            {{ item.name }}
+          </el-menu-item>
         </el-menu-item-group>
       </el-sub-menu>
     </el-menu>
@@ -64,15 +79,19 @@ const isMenuHover = ref(false)
       class="el-menu-vertical-demo"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="isCollapse"
+      :collapse="state.isCollapse"
     >
       <el-menu-item index="/settings">
         <el-icon><Setting /></el-icon>
         <template #title>设置</template>
       </el-menu-item>
     </el-menu>
-    <el-icon class="collapse-icon" @click="isCollapse = !isCollapse" v-show="isMenuHover">
-      <ArrowRightBold v-if="isCollapse" />
+    <el-icon
+      class="collapse-icon"
+      @click="state.isCollapse = !state.isCollapse"
+      v-show="state.isMenuHover"
+    >
+      <ArrowRightBold v-if="state.isCollapse" />
       <ArrowLeftBold v-else />
     </el-icon>
   </el-aside>
@@ -83,6 +102,8 @@ const isMenuHover = ref(false)
 .el-menu {
   position: relative;
   border-right: 0;
+
+  transition: width 0.3s;
 }
 
 .el-aside {

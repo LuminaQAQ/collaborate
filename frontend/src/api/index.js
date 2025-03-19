@@ -7,10 +7,6 @@
  */
 
 /**
- *
- */
-
-/**
  * @typedef apiList
  * @property {authApi} authApi
  * @property {userApi} userApi
@@ -25,7 +21,8 @@ export const apiList = {
   },
   userApi: {
     home: "/api/home",
-    bookList: "/api/bookList"
+    bookList: "/api/bookList",
+    docList: "/api/docList"
   },
   createApi: {
     createBook: "/api/createBook",
