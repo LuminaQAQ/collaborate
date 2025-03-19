@@ -7,10 +7,9 @@ const { InternalServerError } = require("../middleware/errorMiddleware");
 const docRouter = express.Router();
 
 docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
-    const { email } = req.user;
+    const { email, id } = req.user;
 
     try {
-        const [{ id }] = await db("users").select("id").where({ email });
         const bookList = await db("books")
             .join("users", "books.creator_id", "users.id")
             .select(["books.id", "books.name", "books.description", "users.email"])
