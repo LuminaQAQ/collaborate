@@ -53,10 +53,14 @@ const router = createRouter({
     },
     {
       path: '/:user/:book',
-      name: 'Book',
       meta: { isAuth: true },
-      component: () => import("@/views/Doc/BookView.vue"),
+      component: () => import("@/components/layout/BookContainer.vue"),
       children: [
+        {
+          path: "",
+          name: 'Book',
+          component: () => import("@/views/Doc/BookView.vue"),
+        },
         {
           path: ":doc",
           name: 'Doc',
