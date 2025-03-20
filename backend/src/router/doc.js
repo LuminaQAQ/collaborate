@@ -24,11 +24,20 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 
 docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
     const { } = req.user;
-    const { book_id } = req.params;
-    console.log(req.params);
+    const { book_id } = req.query;
 
-
-    return res.status(200).send(book_id)
+    try {
+        const result = await db("docs")
+            .join("users")
+            .join("books", "docs.book_id", "books.id")
+            .select(["docs.*", "users.email"])
+            .where({ book_id })
+            .orderBy("docs.id")
+        const [{ name }] = await db("books").select("name").where({ id: book_id })
+        return res.status(200).send({ msg: "ok", docList: result, bookName: name })
+    } catch (error) {
+        next(new InternalServerError(500, "文档列表获取失败！", error.message));
+    }
 })
 
 docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {

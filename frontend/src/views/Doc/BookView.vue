@@ -1,9 +1,9 @@
 <script setup>
 import { reactive } from 'vue'
 
-import { ArrowRightBold, ArrowLeftBold } from '@element-plus/icons-vue'
+import { ArrowRightBold, ArrowLeftBold, Notebook } from '@element-plus/icons-vue'
 import { requestDocList } from '@/api/user'
-import { ElContainer, ElMain, ElMenu } from 'element-plus'
+import { ElContainer, ElHeader, ElIcon, ElMain, ElMenu } from 'element-plus'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -11,12 +11,13 @@ const route = useRoute()
 const state = reactive({
   isCollapse: true,
   isMenuHover: true,
+  bookName: '',
   docList: [],
 })
 
-console.log(route.params.book)
-
-requestDocList({ book_id: route.params.book }).then((res) => (state.docList = res.data.docList))
+requestDocList({ book_id: route.params.book }).then(
+  (res) => ((state.docList = res.data.docList), (state.bookName = res.data.bookName)),
+)
 </script>
 
 <template>
@@ -26,14 +27,29 @@ requestDocList({ book_id: route.params.book }).then((res) => (state.docList = re
       @mouseover="state.isMenuHover = true"
       @mouseout="state.isMenuHover = false"
     >
+      <ElHeader>
+        <el-breadcrumb separator=">">
+          <el-breadcrumb-item :to="{ path: '/' }">
+            <div class="favicon-wrap"><img src="@/assets/logo.svg" alt="" /></div>
+          </el-breadcrumb-item>
+          <el-breadcrumb-item :to="{ path: '/books' }"> 个人知识库 </el-breadcrumb-item>
+        </el-breadcrumb>
+      </ElHeader>
+      <ElHeader style="display: flex; align-items: center">
+        <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
+        <span>{{ state.bookName }}</span>
+        <span style="margin-left: auto">1</span>
+      </ElHeader>
       <!-- 文档列表  -->
-      <ElAside class="el-menu-vertical-demo" :router="true" :default-active="route.path.toString()">
-        <ElMenu>
-          <el-menu-item v-for="item in state.docList" index="">
-            <template #title>开始</template>
-          </el-menu-item>
-        </ElMenu>
-      </ElAside>
+      <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
+        <el-menu-item
+          v-for="item in state.docList"
+          :index="`/${item.email}/${item.book_id}/${item.id}`"
+          :key="item.id"
+        >
+          <template #title>{{ item.title }}</template>
+        </el-menu-item>
+      </ElMenu>
       <el-icon
         :class="['collapse-icon', state.isCollapse ? '' : 'is-close']"
         @click="state.isCollapse = !state.isCollapse"
@@ -43,7 +59,9 @@ requestDocList({ book_id: route.params.book }).then((res) => (state.docList = re
         <ArrowRightBold v-else />
       </el-icon>
     </el-aside>
-    <ElMain></ElMain>
+    <ElMain>
+      <RouterView />
+    </ElMain>
   </ElContainer>
 </template>
 
@@ -67,6 +85,28 @@ requestDocList({ book_id: route.params.book }).then((res) => (state.docList = re
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--el-menu-border-color);
+}
+
+.el-header {
+  --el-header-padding: 1rem 20px;
+  height: auto;
+}
+
+.el-breadcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.favicon-wrap {
+  width: 1.75rem;
+  height: 1.75rem;
+
+  object-fit: cover;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .collapse-icon {

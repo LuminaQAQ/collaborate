@@ -25,8 +25,6 @@ export const requestBookList = () => {
 export const requestDocList = (params) => {
     return request(apiList.userApi.docList, {
         method: "get",
-        data: {
-            params
-        }
+        params
     })
 }

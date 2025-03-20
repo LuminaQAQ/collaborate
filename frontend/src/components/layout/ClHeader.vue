@@ -44,7 +44,7 @@ const logout = async () => {
   <el-header>
     <div class="cl-header-left-wrap">
       <div class="cl-logo-wrap">
-        <img src="/favicon.ico" alt="logo" />
+        <img src="@/assets/logo.svg" alt="logo" />
       </div>
       <span style="text-wrap: nowrap; margin-right: 0.5rem">云迹</span>
       <el-autocomplete
@@ -96,6 +96,7 @@ const logout = async () => {
       height: 1.75rem;
       object-fit: cover;
       margin-right: 0.5rem;
+      flex: 1 0 1.75rem;
 
       img {
         width: 100%;
