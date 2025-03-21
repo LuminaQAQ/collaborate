@@ -1,47 +1,59 @@
 <template>
-  <v-md-editor v-model="state.content" height="100%" @save="methods.handleSave"></v-md-editor>
+  <v-md-editor
+    ref="md"
+    height="100%"
+    v-model="docStore.currentDocState.content"
+    :disabled-menus="[]"
+    @upload-image="handleUploadImage"
+  ></v-md-editor>
 </template>
 
 <script setup>
-import { requestDoc, requestDocUpdate } from '@/api/user'
-import { ElMessage } from 'element-plus'
-import { onMounted, reactive, ref, watch } from 'vue'
+import { useDocStore } from '@/stores/doc'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
+const docStore = useDocStore()
 const route = useRoute()
-
-const { user, book, doc } = route.params
-
-const state = reactive({
-  title: '',
-  content: '',
-})
+const md = ref('')
 
 const methods = {
-  handleSave: (text, html) => {
-    requestDocUpdate({ book_id: book, title: state.title, content: text }).then((res) => {
-      ElMessage.success('保存成功！')
-    })
+  handleSave: () => {
+    docStore.updateDoc()
   },
   initDoc: () => {
-    const { user, book, doc } = route.params
-
-    requestDoc({ email: user, book_id: book, doc_id: doc })
-      .then((result) => {
-        const { title, content } = result.data
-
-        state.title = title
-        state.content = content
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+    docStore.fetchDoc()
   },
 }
 
+const controller = new AbortController()
 onMounted(() => {
   methods.initDoc()
   watch(route, methods.initDoc)
+
+  document.addEventListener(
+    'keydown',
+    (e) => {
+      if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault()
+
+        methods.handleSave()
+      }
+    },
+    { signal: controller.signal },
+  )
+
+  document.addEventListener(
+    'paste',
+    (e) => {
+      console.log(new FileReader(e.clipboardData.items[0].getAsFile()))
+    },
+    { signal: controller.signal },
+  )
+})
+
+onBeforeUnmount(() => {
+  controller.abort()
 })
 </script>
 

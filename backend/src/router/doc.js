@@ -85,7 +85,7 @@ docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
     const { book_id, title, content } = req.body;
 
     try {
-        await db("docs").update({ content }).where({ id: book_id })
+        await db("docs").update({ title, content }).where({ id: book_id })
 
         return res.send({ msg: "ok" })
     } catch (error) {

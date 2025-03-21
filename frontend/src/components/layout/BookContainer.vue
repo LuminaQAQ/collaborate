@@ -14,29 +14,26 @@ import {
   Search,
   Plus,
 } from '@element-plus/icons-vue'
-import { requestDocList } from '@/api/user'
 import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu } from 'element-plus'
 import { useRoute } from 'vue-router'
+import { useDocStore } from '@/stores/doc'
 
 const route = useRoute()
+const docStore = useDocStore()
 
 const state = reactive({
   isCollapse: true,
   isMenuHover: true,
-  bookName: '',
   searchValue: '',
-  docList: [],
 })
 
-requestDocList({ book_id: route.params.book }).then(
-  (res) => ((state.docList = res.data.docList), (state.bookName = res.data.bookName)),
-)
+docStore.fetchDocList()
 </script>
 
 <template>
   <ElContainer>
     <el-aside
-      :width="state.isCollapse ? '280px' : '1px'"
+      :width="state.isCollapse ? '220px' : '1px'"
       @mouseover="state.isMenuHover = true"
       @mouseout="state.isMenuHover = false"
     >
@@ -53,7 +50,7 @@ requestDocList({ book_id: route.params.book }).then(
       <!-- 顶部-文档库相关：文档库名、文档设置 -->
       <ElHeader style="display: flex; align-items: center">
         <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
-        <span>{{ state.bookName }}</span>
+        <span>{{ docStore.currentDocState.bookName }}</span>
         <el-dropdown class="cl-book-dropdown" trigger="click">
           <span class="el-dropdown-link">
             <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
@@ -107,7 +104,7 @@ requestDocList({ book_id: route.params.book }).then(
       <!-- 文档列表  -->
       <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
         <el-menu-item
-          v-for="item in state.docList"
+          v-for="item in docStore.currentDocState.docList"
           :index="`/${item.email}/${item.book_id}/${item.id}`"
           :key="item.id"
         >
@@ -126,9 +123,14 @@ requestDocList({ book_id: route.params.book }).then(
       </el-icon>
     </el-aside>
 
-    <ElMain>
-      <RouterView />
-    </ElMain>
+    <ElContainer>
+      <ElHeader>
+        <ElInput v-model="docStore.currentDocState.title" />
+      </ElHeader>
+      <ElMain>
+        <RouterView />
+      </ElMain>
+    </ElContainer>
   </ElContainer>
 </template>
 
