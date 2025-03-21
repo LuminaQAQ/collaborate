@@ -23,7 +23,6 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 })
 
 docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
-    const { } = req.user;
     const { book_id } = req.query;
 
     try {
@@ -68,6 +67,10 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
     } catch (error) {
         next(new InternalServerError(500, "创建失败！", error.message))
     }
+})
+
+docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
+    const { email, book_id, doc_id } = req.query;
 })
 
 module.exports = docRouter;

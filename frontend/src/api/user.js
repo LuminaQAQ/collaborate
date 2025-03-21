@@ -28,3 +28,21 @@ export const requestDocList = (params) => {
         params
     })
 }
+
+/**
+ * @typedef docParams
+ * @property {string} email
+ * @property {number} book_id
+ * @property {number} doc_id
+ */
+/**
+ * 
+ * @param {docParams} params 
+ * @returns 
+ */
+export const requestDoc = (params) => {
+    return request(apiList.docApi.fetchDoc, {
+        method: "get",
+        params
+    });
+}
