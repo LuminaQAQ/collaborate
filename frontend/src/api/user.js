@@ -36,13 +36,31 @@ export const requestDocList = (params) => {
  * @property {number} doc_id
  */
 /**
- * 
+ * 获取文档信息
  * @param {docParams} params 
- * @returns 
+ * @returns {import("axios").AxiosPromise}
  */
 export const requestDoc = (params) => {
     return request(apiList.docApi.fetchDoc, {
         method: "get",
         params
+    });
+}
+
+/**
+ * @typedef DocUpdateData
+ * @property {number} book_id 
+ * @property {string} title 
+ * @property {string} content
+ */
+/**
+ * 
+ * @param {DocUpdateData} data 
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestDocUpdate = (data) => {
+    return request(apiList.docApi.updateDoc, {
+        method: "post",
+        data
     });
 }

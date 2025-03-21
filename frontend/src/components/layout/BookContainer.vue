@@ -24,6 +24,7 @@ const state = reactive({
   isCollapse: true,
   isMenuHover: true,
   bookName: '',
+  searchValue: '',
   docList: [],
 })
 
@@ -70,7 +71,12 @@ requestDocList({ book_id: route.params.book }).then(
 
       <!-- 顶部-搜索 -->
       <section class="cl-search-addtion-wrap">
-        <el-input v-model="input1" size="large" placeholder="搜索" :prefix-icon="Search" />
+        <el-input
+          v-model="state.searchValue"
+          size="large"
+          placeholder="搜索"
+          :prefix-icon="Search"
+        />
 
         <el-dropdown class="cl-addtion-dropdown" trigger="hover">
           <span class="el-dropdown-link">

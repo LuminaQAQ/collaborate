@@ -70,7 +70,27 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
 })
 
 docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
-    const { email, book_id, doc_id } = req.query;
+    const { book_id, doc_id } = req.query;
+
+    try {
+        const [result] = await db("docs").select(["title", "content"]).where({ id: doc_id, book_id, })
+
+        return res.send(result)
+    } catch (error) {
+
+    }
+})
+
+docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
+    const { book_id, title, content } = req.body;
+
+    try {
+        await db("docs").update({ content }).where({ id: book_id })
+
+        return res.send({ msg: "ok" })
+    } catch (error) {
+        next(new InternalServerError(500, "文档保存失败！", error.message))
+    }
 })
 
 module.exports = docRouter;

@@ -29,6 +29,7 @@ export const apiList = {
     createDoc: "/api/createDoc"
   },
   docApi: {
-    fetchDoc: "/api/doc"
+    fetchDoc: "/api/doc",
+    updateDoc: "/api/updateDoc"
   }
 }
