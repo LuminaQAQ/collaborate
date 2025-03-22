@@ -4,12 +4,14 @@
     height="100%"
     v-model="docStore.currentDocState.content"
     :disabled-menus="[]"
-    @upload-image="handleUploadImage"
+    @upload-image="methods.handleUploadImage"
   ></v-md-editor>
 </template>
 
 <script setup>
 import { useDocStore } from '@/stores/doc'
+import { request } from '@/utils/request'
+import { ElMessage } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -18,10 +20,49 @@ const route = useRoute()
 const md = ref('')
 
 const methods = {
-  handleSave: () => {
+  handleSave() {
     docStore.updateDoc()
   },
-  initDoc: () => {
+  /**
+   *
+   * @param event
+   * @param insertImage
+   * @param {File[]} files
+   */
+  handleUploadImage(event, insertImage, files) {
+    files.forEach((item) => {
+      // const formData = new FormData()
+      // formData.append('name', item.name)
+      // formData.append('img', item)
+      request('/api/docImageUpload', {
+        method: 'post',
+        data: { img: item, name: item.name },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Accept: '.jpg',
+        },
+      }).then((res) => {
+        const { url, desc } = res.data
+        insertImage({
+          url,
+          desc,
+        })
+      })
+      // const { name } = item
+      // const reader = new FileReader()
+      // reader.readAsDataURL(item)
+
+      // reader.onload = (e) => {
+      //   const { result } = e.target
+
+      //   insertImage({
+      //     url: result,
+      //     desc: name,
+      //   })
+      // }
+    })
+  },
+  initDoc() {
     docStore.fetchDoc()
   },
 }
@@ -46,7 +87,16 @@ onMounted(() => {
   document.addEventListener(
     'paste',
     (e) => {
-      console.log(new FileReader(e.clipboardData.items[0].getAsFile()))
+      const clipboardData = e.clipboardData.items[0]
+      if (clipboardData.type.indexOf('image/') === 0) {
+        // const fileReader = new FileReader()
+        // const file = clipboardData.getAsFile()
+        // const url = fileReader.readAsDataURL(file)
+        // fileReader.onload = (e) => {
+        //   console.log(e.target.result)
+        // }
+      }
+      // console.log(e.clipboardData.items[0], type)
     },
     { signal: controller.signal },
   )

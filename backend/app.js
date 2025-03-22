@@ -1,4 +1,3 @@
-
 require("./src/lib/env.js")
 const express = require("express");
 const cors = require("cors");
@@ -14,6 +13,7 @@ initTables();
 
 const app = express();
 
+app.use("/files", express.static("./uploads"))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded())
