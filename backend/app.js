@@ -9,14 +9,16 @@ const docRouter = require("./src/router/doc.js");
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
 const initTables = require("./src/schema/index.js");
+const preventHotLinking = require("./src/middleware/preventHotLinking.js");
 initTables();
 
 const app = express();
 
-app.use("/files", express.static("./uploads"))
+app.use(preventHotLinking)
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded())
+app.use("/files", express.static("./uploads"))
 app.use("/api", loginRouter)
 app.use("/api", homeRouter)
 app.use("/api", docRouter)
