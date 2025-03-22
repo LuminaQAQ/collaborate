@@ -1,17 +1,24 @@
 <template>
-  <v-md-editor
-    ref="md"
-    height="100%"
-    v-model="docStore.currentDocState.content"
-    :disabled-menus="[]"
-    @upload-image="methods.handleUploadImage"
-  ></v-md-editor>
+  <ElContainer>
+    <ElHeader>
+      <ElInput v-model="docStore.currentDocState.title" />
+    </ElHeader>
+    <ElMain>
+      <v-md-editor
+        ref="md"
+        height="100%"
+        v-model="docStore.currentDocState.content"
+        :disabled-menus="[]"
+        @upload-image="methods.handleUploadImage"
+      />
+    </ElMain>
+  </ElContainer>
 </template>
 
 <script setup>
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { ElMessage } from 'element-plus'
+import { ElContainer, ElMain, ElMessage } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -31,9 +38,6 @@ const methods = {
    */
   handleUploadImage(event, insertImage, files) {
     files.forEach((item) => {
-      // const formData = new FormData()
-      // formData.append('name', item.name)
-      // formData.append('img', item)
       request('/api/docImageUpload', {
         method: 'post',
         data: { img: item, name: item.name },
@@ -46,20 +50,10 @@ const methods = {
         insertImage({
           url,
           desc,
+          width: 'auto',
+          height: 'auto',
         })
       })
-      // const { name } = item
-      // const reader = new FileReader()
-      // reader.readAsDataURL(item)
-
-      // reader.onload = (e) => {
-      //   const { result } = e.target
-
-      //   insertImage({
-      //     url: result,
-      //     desc: name,
-      //   })
-      // }
     })
   },
   initDoc() {
@@ -107,4 +101,8 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.el-header {
+  --el-header-height: auto;
+}
+</style>

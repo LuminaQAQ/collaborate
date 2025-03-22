@@ -17,6 +17,7 @@ import {
 import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
+import router from '@/router'
 
 const route = useRoute()
 const docStore = useDocStore()
@@ -39,18 +40,21 @@ docStore.fetchDocList()
     >
       <!-- 顶部面包屑导航 -->
       <ElHeader>
-        <el-breadcrumb separator=">">
-          <el-breadcrumb-item :to="{ path: '/' }">
-            <div class="favicon-wrap"><img src="@/assets/logo.svg" alt="" /></div>
-          </el-breadcrumb-item>
-          <el-breadcrumb-item :to="{ path: '/books' }"> 个人知识库 </el-breadcrumb-item>
-        </el-breadcrumb>
+        <section class="home-icon-wrap" @click="router.push('/')">
+          <div class="favicon-wrap"><img src="/favicon.ico" alt="" /></div>
+          <span>云迹</span>
+        </section>
       </ElHeader>
 
       <!-- 顶部-文档库相关：文档库名、文档设置 -->
       <ElHeader style="display: flex; align-items: center">
-        <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
-        <span>{{ docStore.currentDocState.bookName }}</span>
+        <section
+          class="book-home-btn"
+          @click="router.push(`/${route.params.user}/${route.params.book}`)"
+        >
+          <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
+          <span>{{ docStore.currentDocState.bookName }}</span>
+        </section>
         <el-dropdown class="cl-book-dropdown" trigger="click">
           <span class="el-dropdown-link">
             <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
@@ -66,18 +70,15 @@ docStore.fetchDocList()
         </el-dropdown>
       </ElHeader>
 
+      <ElDivider />
+
       <!-- 顶部-搜索 -->
-      <section class="cl-search-addtion-wrap">
-        <el-input
-          v-model="state.searchValue"
-          size="large"
-          placeholder="搜索"
-          :prefix-icon="Search"
-        />
+      <ElHeader class="cl-search-addtion-wrap">
+        <el-input v-model="state.searchValue" placeholder="搜索" :prefix-icon="Search" />
 
         <el-dropdown class="cl-addtion-dropdown" trigger="hover">
           <span class="el-dropdown-link">
-            <el-icon class="el-icon--right" size="18"><Plus /></el-icon>
+            <el-icon class="el-icon--right" size="16"><Plus /></el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -88,18 +89,7 @@ docStore.fetchDocList()
             </el-dropdown-menu>
           </template>
         </el-dropdown>
-      </section>
-
-      <ElDivider />
-
-      <!-- 知识库的主页菜单 -->
-      <ElMenu class="cl-book-home-menu" :router="true" :default-active="route.path">
-        <el-menu-item :index="`/${route.params.user}/${route.params.book}`">
-          <template #title>
-            <ElIcon><HomeFilled /> </ElIcon> 首页</template
-          >
-        </el-menu-item>
-      </ElMenu>
+      </ElHeader>
 
       <!-- 文档列表  -->
       <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
@@ -123,14 +113,9 @@ docStore.fetchDocList()
       </el-icon>
     </el-aside>
 
-    <ElContainer>
-      <ElHeader>
-        <ElInput v-model="docStore.currentDocState.title" />
-      </ElHeader>
-      <ElMain>
-        <RouterView />
-      </ElMain>
-    </ElContainer>
+    <ElMain>
+      <RouterView />
+    </ElMain>
   </ElContainer>
 </template>
 
@@ -158,8 +143,12 @@ docStore.fetchDocList()
 }
 
 .el-header {
-  --el-header-padding: 1rem 20px;
+  --el-header-padding: 0.5rem 0.75rem;
   height: auto;
+}
+
+.el-divider {
+  margin: 0.5rem 0;
 }
 
 .el-breadcrumb {
@@ -167,19 +156,34 @@ docStore.fetchDocList()
   align-items: center;
 }
 
+.el-dropdown {
+  :focus-visible {
+    outline: unset;
+  }
+}
+
 .el-menu {
   overflow-y: auto;
 }
 
-.favicon-wrap {
-  width: 14px;
-  height: 14px;
+.home-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 
-  object-fit: cover;
+  .favicon-wrap {
+    --size: 1.5rem;
+    width: var(--size);
+    height: var(--size);
 
-  img {
-    width: 100%;
-    height: 100%;
+    object-fit: cover;
+    margin-right: 0.5rem;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 
@@ -204,8 +208,6 @@ docStore.fetchDocList()
 .cl-book-dropdown {
   margin-left: auto;
   cursor: pointer;
-  border: 1px solid var(--el-border-color);
-  border-radius: 5px;
 
   .el-icon--right {
     margin: 0;
@@ -216,7 +218,7 @@ docStore.fetchDocList()
 .cl-search-addtion-wrap {
   display: flex;
   align-items: center;
-  padding: 0 0.75rem;
+  // padding: 0 0.75rem;
   cursor: pointer;
 
   .el-icon--right {
@@ -228,7 +230,9 @@ docStore.fetchDocList()
   }
 }
 
-.cl-book-home-menu {
-  // padding: 0 1rem;
+.book-home-btn {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 </style>
