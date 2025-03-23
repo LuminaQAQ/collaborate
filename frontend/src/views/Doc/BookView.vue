@@ -1,5 +1,93 @@
-<script setup></script>
+<script setup>
+import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
+import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'element-plus'
+</script>
 
-<template><div>book-view</div></template>
+<template>
+  <section class="cl-book-wrap">
+    <header class="cl-book__header">
+      <section class="title-wrap">
+        <div class="title-info">
+          <ElIcon style="margin-right: 1rem" color="#409eff"><Notebook /> </ElIcon>
+          <span class="title">title</span>
+        </div>
+        <div class="title-setting">
+          <ElIcon size="20"><Star /> </ElIcon>
+          <ElIcon size="20"><Share /> </ElIcon>
+          <ElIcon size="20"><More /> </ElIcon>
+        </div>
+      </section>
+      <section class="statistic-wrap">
+        <span class="doc-num">0文档</span>
+        <span class="doc-character-num">0字</span>
+      </section>
+      <section class="collaborate-wrap">
+        <ElAvatar :size="30">user</ElAvatar>
+      </section>
+    </header>
+    <main class="cl-book__main">
+      <section class="cl-doc-list-item">
+        <span>111</span>
+        <span class="doc-list-chain"></span>
+        <span>111</span>
+      </section>
+    </main>
+  </section>
+</template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.cl-book-wrap {
+  margin: 0 auto;
+  margin-top: 3rem;
+  max-width: 42.5rem;
+  padding: 1.5rem 2rem;
+
+  box-sizing: border-box;
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.1);
+
+  .cl-book__header {
+    .statistic-wrap,
+    .collaborate-wrap {
+      margin: 0.75rem 0;
+      margin-left: 2.75rem;
+    }
+
+    .title-wrap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      font-size: 1.75rem;
+
+      .title-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .title {
+          font-weight: 800;
+        }
+      }
+
+      .title-setting {
+        > .el-icon {
+          margin: 0 0.5rem;
+        }
+      }
+    }
+  }
+
+  .cl-book__main {
+    .cl-doc-list-item {
+      display: flex;
+
+      .doc-list-chain {
+        flex: 1;
+        margin: 0 1rem;
+
+        background-image: linear-gradient(to left, 5px #ccc, to bottom, 5px #ccc);
+      }
+    }
+  }
+}
+</style>
