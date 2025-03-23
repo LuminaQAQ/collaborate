@@ -17,12 +17,13 @@ import {
   Folder,
 } from '@element-plus/icons-vue'
 import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
-import router from '@/router'
 import { requestCreateDoc } from '@/api/create'
+import DocMenuItem from '../common/DocMenuItem.vue'
 
 const route = useRoute()
+const router = useRouter()
 const docStore = useDocStore()
 
 const state = reactive({
@@ -38,7 +39,7 @@ const methods = {
     try {
       const res = await requestCreateDoc({ book_id: book })
       await docStore.fetchDocList()
-      router.push(`/${user}/${book}/${res.data.doc_id}`)
+      router.replace(`/${user}/${book}/${res.data.doc_id}`)
     } catch {}
   },
 }
@@ -112,13 +113,7 @@ watch(route, () => {
 
       <!-- 文档列表  -->
       <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
-        <el-menu-item
-          v-for="item in docStore.currentDocState.docList"
-          :index="`/${item.email}/${item.book_id}/${item.id}`"
-          :key="item.id"
-        >
-          <template #title>{{ item.title }}</template>
-        </el-menu-item>
+        <DocMenuItem v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
       </ElMenu>
 
       <!-- 侧边栏展缩按钮 -->

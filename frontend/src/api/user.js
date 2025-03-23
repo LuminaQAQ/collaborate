@@ -6,27 +6,27 @@ import { apiList } from "./index.js"
  * @returns {import("axios").AxiosPromise}
  */
 export const requestHomeData = () => {
-    return request(apiList.userApi.home, {
-        method: "get"
-    })
+  return request(apiList.userApi.home, {
+    method: "get"
+  })
 }
 
 export const requestBookList = () => {
-    return request(apiList.userApi.bookList, {
-        method: "get"
-    })
+  return request(apiList.userApi.bookList, {
+    method: "get"
+  })
 }
 
 /**
  * 请求对应文档库存在的文档
- * @param {object} params 
+ * @param {object} params
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDocList = (params) => {
-    return request(apiList.userApi.docList, {
-        method: "get",
-        params
-    })
+  return request(apiList.userApi.docList, {
+    method: "get",
+    params
+  })
 }
 
 /**
@@ -37,30 +37,46 @@ export const requestDocList = (params) => {
  */
 /**
  * 获取文档信息
- * @param {docParams} params 
+ * @param {docParams} params
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDoc = (params) => {
-    return request(apiList.docApi.fetchDoc, {
-        method: "get",
-        params
-    });
+  return request(apiList.docApi.fetchDoc, {
+    method: "get",
+    params
+  });
 }
 
 /**
  * @typedef DocUpdateData
- * @property {number} book_id 
- * @property {string} title 
+ * @property {number} book_id
+ * @property {string} title
  * @property {string} content
  */
 /**
- * 
- * @param {DocUpdateData} data 
+ *
+ * @param {DocUpdateData} data
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDocUpdate = (data) => {
-    return request(apiList.docApi.updateDoc, {
-        method: "post",
-        data
-    });
+  return request(apiList.docApi.updateDoc, {
+    method: "post",
+    data
+  });
+}
+
+/**
+ * @typedef DocDelData
+ * @property {number} doc_id
+ */
+/**
+ *
+ * @param {DocDelData} data
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestDocDel = (data) => {
+  return request(apiList.docApi.delDpc, {
+    method: "post",
+    data
+  });
 }

@@ -1,4 +1,5 @@
-import { requestDoc, requestDocList, requestDocUpdate } from "@/api/user";
+import { requestDoc, requestDocDel, requestDocList, requestDocUpdate } from "@/api/user";
+import router from "@/router";
 import { ElMessage } from "element-plus";
 import { defineStore } from "pinia";
 import { reactive } from "vue";
@@ -27,6 +28,8 @@ export const useDocStore = defineStore("doc", () => {
     book_id: route.params.book,
     doc_id: route.params.doc
   }).then((result) => {
+    if (!result.data) return router.push(`/${route.params.user}/${route.params.book}`);
+
     const { title, content } = result.data
 
     currentDocState.title = title
@@ -36,7 +39,7 @@ export const useDocStore = defineStore("doc", () => {
   })
 
   const updateDoc = () => requestDocUpdate({
-    book_id: route.params.book,
+    doc_id: route.params.doc,
     title: currentDocState.title,
     content: currentDocState.content
   }).then((res) => {
@@ -44,10 +47,19 @@ export const useDocStore = defineStore("doc", () => {
     fetchDocList();
   })
 
+  const delDoc = (doc_id) => requestDocDel({
+    doc_id
+  }).then((res) => {
+    ElMessage.success('删除成功！')
+    fetchDocList();
+    return router.replace(`/${route.params.user}/${route.params.book}`);
+  })
+
   return {
     currentDocState,
     fetchDocList,
     fetchDoc,
-    updateDoc
+    updateDoc,
+    delDoc
   }
 })

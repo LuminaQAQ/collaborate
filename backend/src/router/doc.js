@@ -83,14 +83,26 @@ docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
 })
 
 docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
-  const { book_id, title, content } = req.body;
+  const { doc_id, title, content } = req.body;
 
   try {
-    await db("docs").update({ title, content }).where({ id: book_id })
+    await db("docs").update({ title, content }).where({ id: doc_id })
 
     return res.send({ msg: "ok" })
   } catch (error) {
     next(new InternalServerError(500, "文档保存失败！", error.message))
+  }
+})
+
+docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
+  const { doc_id } = req.body;
+
+  try {
+    await db("docs").delete().where({ id: doc_id })
+
+    return res.send({ msg: "ok" })
+  } catch (error) {
+    next(new InternalServerError(500, "文档删除失败！", error.message))
   }
 })
 

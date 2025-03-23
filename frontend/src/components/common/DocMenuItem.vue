@@ -1,0 +1,95 @@
+<script setup>
+import router from '@/router'
+import { useDocStore } from '@/stores/doc'
+import { MoreFilled } from '@element-plus/icons-vue/dist/index.js'
+import { ElDivider } from 'element-plus'
+import { reactive } from 'vue'
+
+const props = defineProps({ book: Object })
+
+const store = useDocStore()
+
+const state = reactive({
+  isHover: false,
+})
+
+const methods = {
+  handleDropdownCollapse(flag) {
+    state.isHover = true
+    if (!flag) state.isHover = false
+  },
+  async handleDocDel() {
+    await store.delDoc(props.book.id)
+  },
+}
+</script>
+
+<template>
+  <section
+    class="cl-doc-item-wrap"
+    @mouseenter="state.isHover = true"
+    @mouseleave="state.isHover = false"
+  >
+    <el-menu-item class="cl-doc-menu" :index="`/${book.email}/${book.book_id}/${book.id}`">
+      <template #title>
+        {{ book.title }}
+      </template>
+    </el-menu-item>
+    <section class="addition-wrap">
+      <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+        <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
+        <template #dropdown>
+          <el-dropdown-menu @mouseenter="state.isHover = true">
+            <el-dropdown-item>复制链接</el-dropdown-item>
+            <el-dropdown-item>在新标签页打开</el-dropdown-item>
+            <ElDivider />
+            <el-dropdown-item>复制</el-dropdown-item>
+            <el-dropdown-item>移动</el-dropdown-item>
+            <el-dropdown-item>导出</el-dropdown-item>
+            <ElDivider />
+            <el-dropdown-item @click="methods.handleDocDel">删除</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+    </section>
+  </section>
+</template>
+
+<style lang="scss" scoped>
+.el-divider {
+  margin: 0.5rem 0;
+}
+.cl-doc-item-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+
+  &:hover {
+    background-color: var(--el-menu-hover-bg-color);
+  }
+
+  .cl-doc-menu {
+    width: 100%;
+
+    &:hover {
+      background: none;
+    }
+  }
+
+  .addition-wrap {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translate(0, -50%);
+    .more {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 5px;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+}
+</style>

@@ -30,6 +30,7 @@ export const apiList = {
   },
   docApi: {
     fetchDoc: "/api/doc",
-    updateDoc: "/api/updateDoc"
+    updateDoc: "/api/updateDoc",
+    delDpc: "/api/delDoc"
   }
 }
