@@ -1,7 +1,39 @@
+<style lang="scss" scoped>
+.el-header {
+  --el-header-height: auto;
+
+  display: flex;
+  justify-content: space-between;
+
+  .doc-addition-wrap {
+    > .el-icon {
+      margin: 0 0.25rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+}
+</style>
+
 <template>
   <ElContainer v-if="isLoad">
     <ElHeader>
-      <ElInput v-model="docStore.currentDocState.title" />
+      <section>
+        <ElInput v-model="docStore.currentDocState.title" />
+      </section>
+
+      <section class="doc-addition-wrap">
+        <ElIcon size="21" title="收藏"><Star /> </ElIcon>
+        <ElIcon size="21" title="协作"><FolderAdd /> </ElIcon>
+        <ElIcon size="21" title="分享"><Share /> </ElIcon>
+        <ElIcon size="21" title="历史版本"><MostlyCloudy /> </ElIcon>
+        <ElIcon size="21" title="设置"><SetUp /> </ElIcon>
+      </section>
     </ElHeader>
     <ElMain>
       <v-md-editor
@@ -18,7 +50,8 @@
 <script setup>
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { ElContainer, ElMain } from 'element-plus'
+import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
+import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 const docStore = useDocStore()
 const md = ref('')
@@ -81,9 +114,3 @@ onBeforeUnmount(() => {
   controller.abort()
 })
 </script>
-
-<style lang="scss" scoped>
-.el-header {
-  --el-header-height: auto;
-}
-</style>
