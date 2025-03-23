@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch } from 'vue'
 
 import {
   ArrowRightBold,
@@ -13,11 +13,14 @@ import {
   HomeFilled,
   Search,
   Plus,
+  Document,
+  Folder,
 } from '@element-plus/icons-vue'
 import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu } from 'element-plus'
 import { useRoute } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
 import router from '@/router'
+import { requestCreateDoc } from '@/api/create'
 
 const route = useRoute()
 const docStore = useDocStore()
@@ -26,9 +29,25 @@ const state = reactive({
   isCollapse: true,
   isMenuHover: true,
   searchValue: '',
+  key: route.fullPath,
 })
 
+const methods = {
+  handleCreateDoc: async () => {
+    const { user, book } = route.params
+    try {
+      const res = await requestCreateDoc({ book_id: book })
+      await docStore.fetchDocList()
+      router.push(`/${user}/${book}/${res.data.doc_id}`)
+    } catch {}
+  },
+}
+
 docStore.fetchDocList()
+
+watch(route, () => {
+  state.key = route.fullPath
+})
 </script>
 
 <template>
@@ -82,10 +101,10 @@ docStore.fetchDocList()
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item :icon="Lock">权限</el-dropdown-item>
-              <el-dropdown-item :icon="Histogram">统计</el-dropdown-item>
-              <el-dropdown-item :icon="List">目录管理</el-dropdown-item>
-              <el-dropdown-item :icon="Setting">更多设置</el-dropdown-item>
+              <el-dropdown-item :icon="Document" @click="methods.handleCreateDoc">
+                新建文档
+              </el-dropdown-item>
+              <el-dropdown-item :icon="Folder">新建分组</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -114,7 +133,7 @@ docStore.fetchDocList()
     </el-aside>
 
     <ElMain>
-      <RouterView />
+      <RouterView :key="state.key" />
     </ElMain>
   </ElContainer>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <ElContainer>
+  <ElContainer v-if="isLoad">
     <ElHeader>
       <ElInput v-model="docStore.currentDocState.title" />
     </ElHeader>
@@ -18,13 +18,11 @@
 <script setup>
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { ElContainer, ElMain, ElMessage } from 'element-plus'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-
+import { ElContainer, ElMain } from 'element-plus'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 const docStore = useDocStore()
-const route = useRoute()
 const md = ref('')
+const isLoad = ref(false)
 
 const methods = {
   handleSave() {
@@ -56,15 +54,15 @@ const methods = {
       })
     })
   },
-  initDoc() {
-    docStore.fetchDoc()
+  async initDoc() {
+    await docStore.fetchDoc()
+    isLoad.value = true
   },
 }
 
 const controller = new AbortController()
 onMounted(() => {
   methods.initDoc()
-  watch(route, methods.initDoc)
 
   document.addEventListener(
     'keydown',
@@ -74,23 +72,6 @@ onMounted(() => {
 
         methods.handleSave()
       }
-    },
-    { signal: controller.signal },
-  )
-
-  document.addEventListener(
-    'paste',
-    (e) => {
-      const clipboardData = e.clipboardData.items[0]
-      if (clipboardData.type.indexOf('image/') === 0) {
-        // const fileReader = new FileReader()
-        // const file = clipboardData.getAsFile()
-        // const url = fileReader.readAsDataURL(file)
-        // fileReader.onload = (e) => {
-        //   console.log(e.target.result)
-        // }
-      }
-      // console.log(e.clipboardData.items[0], type)
     },
     { signal: controller.signal },
   )
