@@ -10,13 +10,12 @@ import {
   List,
   Setting,
   Lock,
-  HomeFilled,
   Search,
   Plus,
   Document,
   Folder,
 } from '@element-plus/icons-vue'
-import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu } from 'element-plus'
+import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu, ElMenuItem } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
 import { requestCreateDoc } from '@/api/create'
@@ -49,6 +48,26 @@ docStore.fetchDocList()
 watch(route, () => {
   state.key = route.fullPath
 })
+
+const a = {
+  groupName: '1',
+  children: [
+    {
+      groupName: '2',
+      children: [
+        {
+          docTitle: '5',
+        },
+      ],
+    },
+    {
+      docTitle: '3',
+    },
+    {
+      docTitle: '4',
+    },
+  ],
+}
 </script>
 
 <template>
@@ -113,7 +132,10 @@ watch(route, () => {
 
       <!-- 文档列表  -->
       <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
-        <DocMenuItem v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
+        <!-- <DocMenuItem v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" /> -->
+        <template v-for="item in a">
+          <ElMenuItem>{{ item.groupName || item.docTitle }}</ElMenuItem>
+        </template>
       </ElMenu>
 
       <!-- 侧边栏展缩按钮 -->

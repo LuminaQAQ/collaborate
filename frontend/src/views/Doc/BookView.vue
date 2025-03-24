@@ -2,7 +2,7 @@
 import router from '@/router'
 import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
-import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'element-plus'
+import { ElAvatar, ElIcon } from 'element-plus'
 
 const store = useDocStore()
 </script>
