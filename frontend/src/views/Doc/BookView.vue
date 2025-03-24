@@ -1,4 +1,5 @@
 <script setup>
+import router from '@/router'
 import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
 import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'element-plus'
@@ -21,7 +22,7 @@ const store = useDocStore()
         </div>
       </section>
       <section class="statistic-wrap">
-        <small>{{ || "暂无简介" }}</small>
+        <small>{{ store.currentDocState.bookDesc || '暂无简介' }}</small>
       </section>
       <!-- <section class="statistic-wrap">
         <span class="doc-num">0文档</span>
@@ -32,10 +33,15 @@ const store = useDocStore()
       </section>
     </header>
     <main class="cl-book__main">
-      <section class="cl-doc-list-item">
-        <span>111</span>
+      <section
+        class="cl-doc-list-item"
+        v-for="item in store.currentDocState.docList"
+        :key="item.id"
+        @click="router.push(`/${item.email}/${item.book_id}/${item.id}`)"
+      >
+        <span>{{ item.title }}</span>
         <span class="doc-list-chain"></span>
-        <span>111</span>
+        <span>{{ item.created_at.slice(0, 10) }}</span>
       </section>
     </main>
   </section>
@@ -52,6 +58,7 @@ const store = useDocStore()
   box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.1);
 
   .cl-book__header {
+    margin-bottom: 2rem;
     .statistic-wrap,
     .collaborate-wrap {
       margin: 0.75rem 0;
@@ -86,6 +93,7 @@ const store = useDocStore()
   .cl-book__main {
     .cl-doc-list-item {
       display: flex;
+      margin: 1rem 0;
 
       .doc-list-chain {
         flex: 1;

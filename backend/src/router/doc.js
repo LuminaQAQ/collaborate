@@ -33,8 +33,8 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .select(["docs.*", "users.email"])
       .where({ book_id })
       .orderBy("docs.id")
-    const [{ name }] = await db("books").select("name").where({ id: book_id })
-    return res.status(200).send({ msg: "ok", docList: result, bookName: name })
+    const [{ name, description }] = await db("books").select(["name", "description"]).where({ id: book_id })
+    return res.status(200).send({ msg: "ok", docList: result, bookName: name, bookDescription: description })
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }

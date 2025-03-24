@@ -5,7 +5,6 @@ import { defineStore } from "pinia";
 import { reactive } from "vue";
 import { useRoute } from "vue-router";
 
-
 export const useDocStore = defineStore("doc", () => {
   const route = useRoute();
 
@@ -20,8 +19,10 @@ export const useDocStore = defineStore("doc", () => {
   const fetchDocList = () => requestDocList({
     book_id: route.params.book
   }).then((res) => {
-    currentDocState.docList = res.data.docList;
-    currentDocState.bookName = res.data.bookName;
+    const { docList, bookName, bookDescription } = res.data
+    currentDocState.docList = docList;
+    currentDocState.bookName = bookName;
+    currentDocState.bookDesc = bookDescription;
   })
 
   const fetchDoc = () => requestDoc({
