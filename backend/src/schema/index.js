@@ -91,6 +91,18 @@ const initBookPermissionsTable = async () => {
     }
 }
 
+const initDocGroupTable = async () => {
+    const isExists = await db.schema.hasTable("doc_group")
+
+    if (!isExists) {
+        db.schema.createTable("book_permissions", table => {
+            table.increments("id").primary().unsigned()
+            table.integer("book_id").notNullable().unsigned()
+            table.integer("parent_id").notNullable().unsigned()
+        }).catch(err => { throw err })
+    }
+}
+
 const initTables = () => {
     initUserTable();
     initDocsTable();

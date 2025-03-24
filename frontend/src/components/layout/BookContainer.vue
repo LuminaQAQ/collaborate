@@ -15,11 +15,22 @@ import {
   Document,
   Folder,
 } from '@element-plus/icons-vue'
-import { ElContainer, ElDivider, ElHeader, ElIcon, ElInput, ElMain, ElMenu, ElMenuItem } from 'element-plus'
+import {
+  ElContainer,
+  ElDivider,
+  ElHeader,
+  ElIcon,
+  ElInput,
+  ElMain,
+  ElMenu,
+  ElMenuItem,
+  ElSubMenu,
+} from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
 import { requestCreateDoc } from '@/api/create'
 import DocMenuItem from '../common/DocMenuItem.vue'
+import MenuTree from '../common/MenuTree.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,25 +60,49 @@ watch(route, () => {
   state.key = route.fullPath
 })
 
-const a = {
-  groupName: '1',
-  children: [
-    {
-      groupName: '2',
-      children: [
-        {
-          docTitle: '5',
-        },
-      ],
-    },
-    {
-      docTitle: '3',
-    },
-    {
-      docTitle: '4',
-    },
-  ],
-}
+const a = [
+  {
+    label: '1',
+    children: [
+      {
+        label: '2',
+        children: [
+          {
+            label: '5',
+          },
+          {
+            label: '10',
+          },
+        ],
+      },
+      {
+        label: '3',
+        children: [
+          {
+            label: '6',
+          },
+          {
+            label: '11',
+          },
+        ],
+      },
+      {
+        label: '4',
+        children: [
+          {
+            label: '7',
+          },
+          {
+            label: '12',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'one',
+  },
+]
 </script>
 
 <template>
@@ -133,9 +168,10 @@ const a = {
       <!-- 文档列表  -->
       <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
         <!-- <DocMenuItem v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" /> -->
-        <template v-for="item in a">
-          <ElMenuItem>{{ item.groupName || item.docTitle }}</ElMenuItem>
-        </template>
+        <!-- <template v-for="(item, index) in a" :key="index">
+          <component :is="item.component">{{ item.groupName || 'test' }}</component>
+        </template> -->
+        <MenuTree v-for="item in a" :book="item" :key="item.id" index="1" />
       </ElMenu>
 
       <!-- 侧边栏展缩按钮 -->

@@ -91,6 +91,7 @@ const store = useDocStore()
   }
 
   .cl-book__main {
+    padding: 1rem 1.5rem;
     .cl-doc-list-item {
       display: flex;
       margin: 1rem 0;

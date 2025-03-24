@@ -1,5 +1,4 @@
 <script setup>
-import router from '@/router'
 import { useDocStore } from '@/stores/doc'
 import { MoreFilled } from '@element-plus/icons-vue/dist/index.js'
 import { ElDivider } from 'element-plus'

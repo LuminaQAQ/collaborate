@@ -70,6 +70,19 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
+  // const { id } = req.user;
+  // const { book_id } = req.body;
+
+  // try {
+  //   const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id }).select("id as doc_id");
+
+  //   return res.status(200).send({ msg: "创建成功！", doc_id })
+  // } catch (error) {
+  //   next(new InternalServerError(500, "创建失败！", error.message))
+  // }
+})
+
 docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
   const { book_id, doc_id } = req.query;
 
