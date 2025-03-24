@@ -11,6 +11,7 @@ export const useDocStore = defineStore("doc", () => {
 
   const currentDocState = reactive({
     bookName: "",
+    bookDesc: "",
     title: "",
     content: "",
     docList: []

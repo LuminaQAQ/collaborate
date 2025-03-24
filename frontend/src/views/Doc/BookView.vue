@@ -1,6 +1,9 @@
 <script setup>
+import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
 import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'element-plus'
+
+const store = useDocStore()
 </script>
 
 <template>
@@ -9,7 +12,7 @@ import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'el
       <section class="title-wrap">
         <div class="title-info">
           <ElIcon style="margin-right: 1rem" color="#409eff"><Notebook /> </ElIcon>
-          <span class="title">title</span>
+          <span class="title">{{ store.currentDocState.bookName }}</span>
         </div>
         <div class="title-setting">
           <ElIcon size="20"><Star /> </ElIcon>
@@ -18,9 +21,12 @@ import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'el
         </div>
       </section>
       <section class="statistic-wrap">
+        <small>{{ || "暂无简介" }}</small>
+      </section>
+      <!-- <section class="statistic-wrap">
         <span class="doc-num">0文档</span>
         <span class="doc-character-num">0字</span>
-      </section>
+      </section> -->
       <section class="collaborate-wrap">
         <ElAvatar :size="30">user</ElAvatar>
       </section>
@@ -85,7 +91,8 @@ import { ElAvatar, ElContainer, ElHeader, ElIcon, ElMain, ElScrollbar } from 'el
         flex: 1;
         margin: 0 1rem;
 
-        background-image: linear-gradient(to left, 5px #ccc, to bottom, 5px #ccc);
+        background-image: radial-gradient(circle, #000 1px, transparent 1px);
+        background-size: 10px;
       }
     }
   }
