@@ -59,50 +59,6 @@ docStore.fetchDocList()
 watch(route, () => {
   state.key = route.fullPath
 })
-
-const a = [
-  {
-    label: '1',
-    children: [
-      {
-        label: '2',
-        children: [
-          {
-            label: '5',
-          },
-          {
-            label: '10',
-          },
-        ],
-      },
-      {
-        label: '3',
-        children: [
-          {
-            label: '6',
-          },
-          {
-            label: '11',
-          },
-        ],
-      },
-      {
-        label: '4',
-        children: [
-          {
-            label: '7',
-          },
-          {
-            label: '12',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: 'one',
-  },
-]
 </script>
 
 <template>
@@ -171,7 +127,12 @@ const a = [
         <!-- <template v-for="(item, index) in a" :key="index">
           <component :is="item.component">{{ item.groupName || 'test' }}</component>
         </template> -->
-        <MenuTree v-for="item in a" :book="item" :key="item.id" index="1" />
+        <MenuTree
+          v-for="item in docStore.currentDocState.docList"
+          :book="item"
+          :key="item.id"
+          index="1"
+        />
       </ElMenu>
 
       <!-- 侧边栏展缩按钮 -->

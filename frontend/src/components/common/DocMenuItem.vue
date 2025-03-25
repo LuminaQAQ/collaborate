@@ -31,7 +31,7 @@ const methods = {
   >
     <el-menu-item class="cl-doc-menu" :index="`/${book.email}/${book.book_id}/${book.id}`">
       <template #title>
-        {{ book.label }}
+        {{ book.title }}
       </template>
     </el-menu-item>
     <section class="addition-wrap">

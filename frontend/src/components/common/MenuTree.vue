@@ -45,15 +45,15 @@
 </style>
 
 <template>
-  <template v-if="book.children?.length">
+  <template v-if="book.type === 'group'">
     <el-sub-menu
       class="cl-sub-menu-item"
-      :index="book.label"
+      :index="`/group/${book.email}/${book.book_id}/${book.id}`"
       @mouseenter="state.isHover = true"
       @mouseleave="state.isHover = false"
     >
       <template #title>
-        <span>{{ book.label }}</span>
+        <span>{{ book.name }}</span>
         <section class="addition-wrap">
           <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
             <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>

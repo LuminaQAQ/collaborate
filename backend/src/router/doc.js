@@ -27,16 +27,10 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
   const { book_id } = req.query;
 
   try {
-    // const result = await db("docs")
-    //   .join("users")
-    //   .join("books", "docs.book_id", "books.id")
-    //   .select(["docs.*", "users.email"])
-    //   .where({ book_id })
-    //   .orderBy("docs.id")
-    // const [{ name, description }] = await db("books").select(["name", "description"]).where({ id: book_id })
-    // return res.status(200).send({ msg: "ok", docList: result, bookName: name, bookDescription: description })
-
-    const group = await db("doc_group").select("*").where({ book_id })
+    const group = await db("doc_group")
+      .join("users")
+      .select(["doc_group.*", "users.email"])
+      .where({ book_id })
     const doc = await db("docs")
       .join("users")
       .join("books", "docs.book_id", "books.id")
@@ -44,40 +38,21 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .where({ book_id })
       .orderBy("docs.id")
 
-
-    /**
-     * 
-     * @param {Array} group 
-     * @returns 
-     */
-    const fn = (group, grade) => {
-      const childTree = [];
-      for (let i = 0; i < group.length; i++) {
-        const item = group[i]
-        if (item.parent_id) continue;
-        childTree.push(item);
+    const tree = [];
+    const groupMap = group.reduce((pre, cur) => pre.set(cur.id, { ...cur, type: "group", children: [] }), new Map())
+    doc.forEach(item => {
+      if (!item.parent_id) tree.push(item);
+      else {
+        const parent = groupMap.get(item.parent_id);
+        if (parent) parent.children.push(item);
       }
+    })
+    groupMap.forEach(item => {
+      const parent = groupMap.get(item.parent_id);
+      if (parent) parent.children.push(item);
+    })
 
-      return childTree
-
-      // return childTree.length ? fn(childTree, 0) : ;
-
-      // const result = [];
-
-      // for (let i = 0; i < result.length; i++) {
-      //   const item = data[i]
-      //   if (!item.parent_id) result.push(item);
-      //   else return fn()
-      // }
-
-      // // if (data)
-      // return result;
-    }
-
-    console.log(fn(group));
-
-
-    return res.send({ group, doc })
+    return res.send({ docList: [...tree, ...groupMap.values()] })
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }
