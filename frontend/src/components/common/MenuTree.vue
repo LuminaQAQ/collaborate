@@ -27,18 +27,23 @@
   }
 }
 
-.addition-wrap {
-  position: absolute;
-  right: 2rem;
-  top: -50%;
-  transform: translate(0, -25%);
-  .more {
-    cursor: pointer;
-    padding: 0.25rem;
-    border-radius: 5px;
+.cl-sub-menu-wrap {
+  position: relative;
 
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.05);
+  .addition-wrap {
+    position: absolute;
+    right: 3rem;
+    top: 1.15rem;
+    font-size: 16px;
+    // transform: translate(0, -50%);
+    .more {
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 5px;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
     }
   }
 }
@@ -47,32 +52,36 @@
 <template>
   <section>
     <template v-if="book.type === 'group'">
-      <el-sub-menu
-        class="cl-sub-menu-item"
-        :index="`/${book.email}/${book.book_id}/group_${book.id}`"
-        @mouseenter.stop="state.isHover = true"
-        @mouseleave.stop="state.isHover = false"
+      <section
+        class="cl-sub-menu-wrap"
+        @mouseenter.stop.prevent="state.isHover = true"
+        @mouseleave.stop.prevent="state.isHover = false"
       >
-        <template #title>
-          <span>{{ book.name }}</span>
-          <section class="addition-wrap">
-            <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-              <ElIcon class="more" v-if="state.isHover"
-                ><MoreFilled style="rotate: 90deg" />
-              </ElIcon>
-              <template #dropdown>
-                <el-dropdown-menu @mouseenter="state.isHover = true">
-                  <el-dropdown-item>复制到...</el-dropdown-item>
-                  <el-dropdown-item>移动到...</el-dropdown-item>
-                  <ElDivider />
-                  <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </section>
-        </template>
-        <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
-      </el-sub-menu>
+        <el-sub-menu
+          class="cl-sub-menu-item"
+          :index="`/${book.email}/${book.book_id}/group_${book.id}`"
+        >
+          <template #title>
+            <span>{{ book.name }}</span>
+          </template>
+          <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
+        </el-sub-menu>
+        <section class="addition-wrap">
+          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+            <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
+            <template #dropdown>
+              <el-dropdown-menu @mouseenter="state.isHover = true">
+                <el-dropdown-item>重命名...</el-dropdown-item>
+                <ElDivider />
+                <el-dropdown-item>复制到...</el-dropdown-item>
+                <el-dropdown-item>移动到...</el-dropdown-item>
+                <ElDivider />
+                <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </section>
+      </section>
     </template>
     <template v-else>
       <DocMenuItem :book="book" />
@@ -94,10 +103,6 @@ const props = defineProps({
   id: Number,
   parentIndex: String || null,
 })
-
-console.log(props.book)
-
-const store = useDocStore()
 
 const state = reactive({
   isHover: false,
