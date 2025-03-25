@@ -24,6 +24,7 @@ import {
   ElMain,
   ElMenu,
   ElMenuItem,
+  ElScrollbar,
   ElSubMenu,
 } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -122,18 +123,11 @@ watch(route, () => {
       </ElHeader>
 
       <!-- 文档列表  -->
-      <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
-        <!-- <DocMenuItem v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" /> -->
-        <!-- <template v-for="(item, index) in a" :key="index">
-          <component :is="item.component">{{ item.groupName || 'test' }}</component>
-        </template> -->
-        <MenuTree
-          v-for="item in docStore.currentDocState.docList"
-          :book="item"
-          :key="item.id"
-          index="1"
-        />
-      </ElMenu>
+      <ElScrollbar>
+        <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
+          <MenuTree v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
+        </ElMenu>
+      </ElScrollbar>
 
       <!-- 侧边栏展缩按钮 -->
       <el-icon

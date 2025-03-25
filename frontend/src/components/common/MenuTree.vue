@@ -45,35 +45,40 @@
 </style>
 
 <template>
-  <template v-if="book.type === 'group'">
-    <el-sub-menu
-      class="cl-sub-menu-item"
-      :index="`/group/${book.email}/${book.book_id}/${book.id}`"
-      @mouseenter="state.isHover = true"
-      @mouseleave="state.isHover = false"
-    >
-      <template #title>
-        <span>{{ book.name }}</span>
-        <section class="addition-wrap">
-          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-            <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
-            <template #dropdown>
-              <el-dropdown-menu @mouseenter="state.isHover = true">
-                <el-dropdown-item>复制到...</el-dropdown-item>
-                <el-dropdown-item>移动到...</el-dropdown-item>
-                <ElDivider />
-                <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </section>
-      </template>
-      <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
-    </el-sub-menu>
-  </template>
-  <template v-else>
-    <DocMenuItem :book="book" />
-  </template>
+  <section>
+    <template v-if="book.type === 'group'">
+      <el-sub-menu
+        class="cl-sub-menu-item"
+        :index="`/${book.email}/${book.book_id}/group_${book.id}`"
+        @mouseenter.stop="state.isHover = true"
+        @mouseleave.stop="state.isHover = false"
+      >
+        <template #title>
+          <span>{{ book.name }}</span>
+          <section class="addition-wrap">
+            <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+              <ElIcon class="more" v-if="state.isHover"
+                ><MoreFilled style="rotate: 90deg" />
+              </ElIcon>
+              <template #dropdown>
+                <el-dropdown-menu @mouseenter="state.isHover = true">
+                  <el-dropdown-item>复制到...</el-dropdown-item>
+                  <el-dropdown-item>移动到...</el-dropdown-item>
+                  <ElDivider />
+                  <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </section>
+        </template>
+        <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
+      </el-sub-menu>
+    </template>
+    <template v-else>
+      <DocMenuItem :book="book" />
+      <!-- <p>{{ 'doc' }}</p> -->
+    </template>
+  </section>
 </template>
 
 <script setup>
@@ -87,7 +92,10 @@ import DocMenuItem from './DocMenuItem.vue'
 const props = defineProps({
   book: Object,
   id: Number,
+  parentIndex: String || null,
 })
+
+console.log(props.book)
 
 const store = useDocStore()
 

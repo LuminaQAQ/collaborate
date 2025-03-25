@@ -38,21 +38,40 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .where({ book_id })
       .orderBy("docs.id")
 
-    const tree = [];
-    const groupMap = group.reduce((pre, cur) => pre.set(cur.id, { ...cur, type: "group", children: [] }), new Map())
+    const tree = []
+    /**
+     * @type {Map}
+     */
+    const groupMap = group.reduce((map, cur) => map.set(cur.id, { ...cur, type: "group", children: [] }), new Map())
     doc.forEach(item => {
-      if (!item.parent_id) tree.push(item);
-      else {
-        const parent = groupMap.get(item.parent_id);
-        if (parent) parent.children.push(item);
-      }
-    })
-    groupMap.forEach(item => {
-      const parent = groupMap.get(item.parent_id);
-      if (parent) parent.children.push(item);
-    })
+      if (!item.parent_id) return tree.push(item);
 
-    return res.send({ docList: [...tree, ...groupMap.values()] })
+      const parent = groupMap.get(item.parent_id);
+      parent.children.push(item)
+    })
+    /**
+     *
+     * @param {Map} map
+     */
+    const builder = (map) => {
+      const cache = new Map()
+      map.forEach(item => {
+        if (!item.parent_id) return;
+
+        const parent = map.get(item.parent_id);
+        parent.children.push(item)
+        cache.set(item.id, item.parent_id)
+      })
+
+      if (cache.size > 0) {
+        map.forEach(item => {
+          if (item.parent_id) map.delete(item.id);
+        })
+        return map;
+      }
+    }
+
+    return res.send({ docList: [...tree, ...builder(groupMap).values()] })
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }
