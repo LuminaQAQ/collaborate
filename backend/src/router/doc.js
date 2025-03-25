@@ -27,14 +27,57 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
   const { book_id } = req.query;
 
   try {
-    const result = await db("docs")
+    // const result = await db("docs")
+    //   .join("users")
+    //   .join("books", "docs.book_id", "books.id")
+    //   .select(["docs.*", "users.email"])
+    //   .where({ book_id })
+    //   .orderBy("docs.id")
+    // const [{ name, description }] = await db("books").select(["name", "description"]).where({ id: book_id })
+    // return res.status(200).send({ msg: "ok", docList: result, bookName: name, bookDescription: description })
+
+    const group = await db("doc_group").select("*").where({ book_id })
+    const doc = await db("docs")
       .join("users")
       .join("books", "docs.book_id", "books.id")
       .select(["docs.*", "users.email"])
       .where({ book_id })
       .orderBy("docs.id")
-    const [{ name, description }] = await db("books").select(["name", "description"]).where({ id: book_id })
-    return res.status(200).send({ msg: "ok", docList: result, bookName: name, bookDescription: description })
+
+
+    /**
+     * 
+     * @param {Array} group 
+     * @returns 
+     */
+    const fn = (group, grade) => {
+      const childTree = [];
+      for (let i = 0; i < group.length; i++) {
+        const item = group[i]
+        if (item.parent_id) continue;
+        childTree.push(item);
+      }
+
+      return childTree
+
+      // return childTree.length ? fn(childTree, 0) : ;
+
+      // const result = [];
+
+      // for (let i = 0; i < result.length; i++) {
+      //   const item = data[i]
+      //   if (!item.parent_id) result.push(item);
+      //   else return fn()
+      // }
+
+      // // if (data)
+      // return result;
+    }
+
+    console.log(fn(group));
+
+
+    return res.send({ group, doc })
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }
@@ -59,10 +102,10 @@ docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
 
 docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
   const { id } = req.user;
-  const { book_id } = req.body;
+  const { book_id, parent_id } = req.body;
 
   try {
-    const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id }).select("id as doc_id");
+    const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id, parent_id: parent_id || null }).select("id as doc_id");
 
     return res.status(200).send({ msg: "创建成功！", doc_id })
   } catch (error) {
@@ -72,15 +115,15 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
 
 docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
   // const { id } = req.user;
-  // const { book_id } = req.body;
+  const { name, book_id, parent_id } = req.body;
 
-  // try {
-  //   const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id }).select("id as doc_id");
+  try {
+    const [doc_group_id] = await db("doc_group").insert({ name, parent_id: parent_id || null, book_id, }).select("id as doc_group_id");
 
-  //   return res.status(200).send({ msg: "创建成功！", doc_id })
-  // } catch (error) {
-  //   next(new InternalServerError(500, "创建失败！", error.message))
-  // }
+    return res.status(200).send({ msg: "创建成功！", doc_group_id })
+  } catch (error) {
+    next(new InternalServerError(500, "创建失败！", error.message))
+  }
 })
 
 docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {

@@ -27,6 +27,7 @@ const initDocsTable = async () => {
             table.text("content").notNullable()
             table.integer("creator_id").notNullable().unsigned()
             table.integer("book_id").notNullable().unsigned()
+            table.integer("parent_id").unsigned()
             table.timestamp("created_at").defaultTo(db.fn.now())
             table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
         }).catch(err => { throw err })
@@ -95,10 +96,11 @@ const initDocGroupTable = async () => {
     const isExists = await db.schema.hasTable("doc_group")
 
     if (!isExists) {
-        db.schema.createTable("book_permissions", table => {
+        db.schema.createTable("doc_group", table => {
             table.increments("id").primary().unsigned()
+            table.string("name").notNullable()
+            table.integer("parent_id").unsigned()
             table.integer("book_id").notNullable().unsigned()
-            table.integer("parent_id").notNullable().unsigned()
         }).catch(err => { throw err })
     }
 }
@@ -110,6 +112,7 @@ const initTables = () => {
     initFileTable();
     initBooksTable();
     initBookPermissionsTable();
+    initDocGroupTable();
 }
 
 module.exports = initTables;

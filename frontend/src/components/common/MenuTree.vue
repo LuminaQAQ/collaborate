@@ -25,20 +25,20 @@
       background: none;
     }
   }
+}
 
-  .addition-wrap {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translate(0, -50%);
-    .more {
-      cursor: pointer;
-      padding: 0.25rem;
-      border-radius: 5px;
+.addition-wrap {
+  position: absolute;
+  right: 2rem;
+  top: -50%;
+  transform: translate(0, -25%);
+  .more {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 5px;
 
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
   }
 }
@@ -46,25 +46,27 @@
 
 <template>
   <template v-if="book.children?.length">
-    <el-sub-menu class="cl-sub-menu-item" :index="book.label">
+    <el-sub-menu
+      class="cl-sub-menu-item"
+      :index="book.label"
+      @mouseenter="state.isHover = true"
+      @mouseleave="state.isHover = false"
+    >
       <template #title>
         <span>{{ book.label }}</span>
-        <!-- <ElIcon><MoreFilled /> </ElIcon> -->
-        <!-- <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-          <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
-          <template #dropdown>
-            <el-dropdown-menu @mouseenter="state.isHover = true">
-              <el-dropdown-item>复制链接</el-dropdown-item>
-              <el-dropdown-item>在新标签页打开</el-dropdown-item>
-              <ElDivider />
-              <el-dropdown-item>复制</el-dropdown-item>
-              <el-dropdown-item>移动</el-dropdown-item>
-              <el-dropdown-item>导出</el-dropdown-item>
-              <ElDivider />
-              <el-dropdown-item @click="methods.handleDocDel">删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown> -->
+        <section class="addition-wrap">
+          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+            <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
+            <template #dropdown>
+              <el-dropdown-menu @mouseenter="state.isHover = true">
+                <el-dropdown-item>复制到...</el-dropdown-item>
+                <el-dropdown-item>移动到...</el-dropdown-item>
+                <ElDivider />
+                <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </section>
       </template>
       <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
     </el-sub-menu>
@@ -98,8 +100,8 @@ const methods = {
     state.isHover = true
     if (!flag) state.isHover = false
   },
-  async handleDocDel() {
-    await store.delDoc(props.book.id)
+  async handleDocGroupDel() {
+    console.log(props.book)
   },
 }
 </script>
