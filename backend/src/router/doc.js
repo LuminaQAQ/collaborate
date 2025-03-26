@@ -39,11 +39,10 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .select(["docs.*", "users.email"])
       .where({ book_id })
       .orderBy("docs.id")
+    const [{ bookName, bookDescription }] = await db("books")
+      .select(["name as bookName", "description as bookDescription"])
 
-    const tree = []
-    /**
-     * @type {Map}
-     */
+    const tree = [];
     const groupMap = group.reduce((map, cur) => map.set(cur.id, { ...cur, type: "group", children: [] }), new Map())
     doc.forEach(item => {
       if (!item.parent_id) return tree.push(item);
@@ -51,10 +50,6 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       const parent = groupMap.get(item.parent_id);
       parent.children.push(item)
     })
-    /**
-     *
-     * @param {Map} map
-     */
     const builder = (map) => {
       const cache = new Map()
       map.forEach(item => {
@@ -73,7 +68,7 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       }
     }
 
-    return res.send({ docList: [...tree, ...builder(groupMap).values()] })
+    return res.send({ bookName, bookDescription, docList: [...tree, ...builder(groupMap).values()] })
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }

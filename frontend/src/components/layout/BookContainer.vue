@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, watch } from 'vue'
+import { onMounted, reactive, watch } from 'vue'
 
 import {
   ArrowRightBold,

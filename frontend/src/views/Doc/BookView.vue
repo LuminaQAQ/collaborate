@@ -1,4 +1,5 @@
 <script setup>
+import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import router from '@/router'
 import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
@@ -24,16 +25,12 @@ const store = useDocStore()
       <section class="statistic-wrap">
         <small>{{ store.currentDocState.bookDesc || '暂无简介' }}</small>
       </section>
-      <!-- <section class="statistic-wrap">
-        <span class="doc-num">0文档</span>
-        <span class="doc-character-num">0字</span>
-      </section> -->
       <section class="collaborate-wrap">
         <ElAvatar :size="30">user</ElAvatar>
       </section>
     </header>
-    <main class="cl-book__main">
-      <section
+    <main class="cl-book__main" v-if="store.currentDocState.docList.length">
+      <!-- <section
         class="cl-doc-list-item"
         v-for="item in store.currentDocState.docList"
         :key="item.id"
@@ -42,7 +39,8 @@ const store = useDocStore()
         <span>{{ item.title }}</span>
         <span class="doc-list-chain"></span>
         <span>{{ item.created_at.slice(0, 10) }}</span>
-      </section>
+      </section> -->
+      <CatalogueTree v-for="item in store.currentDocState.docList" :item="item" />
     </main>
   </section>
 </template>
@@ -92,18 +90,6 @@ const store = useDocStore()
 
   .cl-book__main {
     padding: 1rem 1.5rem;
-    .cl-doc-list-item {
-      display: flex;
-      margin: 1rem 0;
-
-      .doc-list-chain {
-        flex: 1;
-        margin: 0 1rem;
-
-        background-image: radial-gradient(circle, #000 1px, transparent 1px);
-        background-size: 10px;
-      }
-    }
   }
 }
 </style>

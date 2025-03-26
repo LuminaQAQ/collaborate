@@ -121,7 +121,7 @@ const methods = {
     if (!flag) state.isHover = false
   },
   async handleDocGroupDel() {
-    console.log(props.book)
+    // const { book } = props
   },
 }
 </script>
