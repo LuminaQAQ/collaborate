@@ -85,7 +85,7 @@
             <template #dropdown>
               <el-dropdown-menu @mouseenter="state.isHover = true">
                 <AddDoc :parent_id="book.id" />
-                <el-dropdown-item>添加分组</el-dropdown-item>
+                <AddGroup :parent_id="book.id" />
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -105,6 +105,7 @@ import { ElDivider } from 'element-plus'
 import { reactive } from 'vue'
 import DocMenuItem from './DocMenuItem.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
+import AddGroup from '../dropdown/AddGroup.vue'
 
 const props = defineProps({
   book: Object,

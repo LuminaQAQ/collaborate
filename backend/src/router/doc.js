@@ -7,6 +7,7 @@ const upload = require("../middleware/uploadMiddleware");
 
 const docRouter = express.Router();
 
+// 获取文档库列表
 docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
   const { email, id } = req.user;
 
@@ -23,6 +24,7 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 获取文档列表
 docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
   const { book_id } = req.query;
 
@@ -77,6 +79,7 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 创建文档库
 docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
   const { email } = req.user;
   const { name, description } = req.body
@@ -94,6 +97,7 @@ docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 创建文档
 docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
   const { id } = req.user;
   const { book_id, parent_id } = req.body;
@@ -107,12 +111,12 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 创建文档分组
 docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
-  // const { id } = req.user;
   const { name, book_id, parent_id } = req.body;
 
   try {
-    const [doc_group_id] = await db("doc_group").insert({ name, parent_id: parent_id || null, book_id, }).select("id as doc_group_id");
+    const [doc_group_id] = await db("doc_group").insert({ name: name || "新分组", parent_id: parent_id || null, book_id, }).select("id as doc_group_id");
 
     return res.status(200).send({ msg: "创建成功！", doc_group_id })
   } catch (error) {
@@ -120,6 +124,7 @@ docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 获取当前文档信息
 docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
   const { book_id, doc_id } = req.query;
 
@@ -132,6 +137,7 @@ docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 更新文档信息
 docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id, title, content } = req.body;
 
@@ -144,6 +150,7 @@ docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 删除文档
 docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id } = req.body;
 
@@ -156,6 +163,7 @@ docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 上传文档内的图片
 docRouter.post("/docImageUpload", upload.single("img"), async (req, res, next) => {
   const { name } = req.body;
 

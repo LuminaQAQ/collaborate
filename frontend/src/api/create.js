@@ -36,3 +36,21 @@ export const requestCreateDoc = (docInfo) => {
     data: docInfo
   })
 }
+
+/**
+ * @typedef docGroupInfo
+ * @property {number} book_id
+ * @property {String | Number | null} parent_id
+ */
+
+/**
+ * 创建分组文件夹
+ * @param {docGroupInfo} docGroupInfo 
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestCreateDocGroup = (docGroupInfo) => {
+  return request(apiList.createApi.createDocGroup, {
+    method: "post",
+    data: docGroupInfo
+  })
+}

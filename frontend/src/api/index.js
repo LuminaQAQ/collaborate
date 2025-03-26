@@ -26,7 +26,8 @@ export const apiList = {
   },
   createApi: {
     createBook: "/api/createBook",
-    createDoc: "/api/createDoc"
+    createDoc: "/api/createDoc",
+    createDocGroup: "/api/createDocGroup"
   },
   docApi: {
     fetchDoc: "/api/doc",

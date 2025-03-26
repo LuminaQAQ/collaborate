@@ -33,6 +33,7 @@ import { requestCreateDoc } from '@/api/create'
 import DocMenuItem from '../common/DocMenuItem.vue'
 import MenuTree from '../common/MenuTree.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
+import AddGroup from '../dropdown/AddGroup.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -115,7 +116,7 @@ watch(route, () => {
           <template #dropdown>
             <el-dropdown-menu>
               <AddDoc />
-              <el-dropdown-item :icon="Folder">新建分组</el-dropdown-item>
+              <AddGroup />
             </el-dropdown-menu>
           </template>
         </el-dropdown>
