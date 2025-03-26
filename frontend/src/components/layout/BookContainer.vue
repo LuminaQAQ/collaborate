@@ -32,6 +32,7 @@ import { useDocStore } from '@/stores/doc'
 import { requestCreateDoc } from '@/api/create'
 import DocMenuItem from '../common/DocMenuItem.vue'
 import MenuTree from '../common/MenuTree.vue'
+import AddDoc from '../dropdown/AddDoc.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -113,9 +114,7 @@ watch(route, () => {
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item :icon="Document" @click="methods.handleCreateDoc">
-                新建文档
-              </el-dropdown-item>
+              <AddDoc />
               <el-dropdown-item :icon="Folder">新建分组</el-dropdown-item>
             </el-dropdown-menu>
           </template>

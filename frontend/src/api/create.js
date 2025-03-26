@@ -22,6 +22,7 @@ export const requestCreateBook = (bookinfo) => {
 /**
  * @typedef docInfo
  * @property {number} book_id
+ * @property {String | Number | null} parent_id
  */
 
 /**

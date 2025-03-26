@@ -1,11 +1,4 @@
 <style lang="scss" scoped>
-.cl-sub-menu-item {
-  .el-icon {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
-}
 .el-divider {
   margin: 0.5rem 0;
 }
@@ -32,14 +25,14 @@
 
   .addition-wrap {
     position: absolute;
-    right: 3rem;
+    right: 2.25rem;
     top: 1.15rem;
-    font-size: 16px;
-    // transform: translate(0, -50%);
-    .more {
+    .el-icon {
       cursor: pointer;
       padding: 0.25rem;
       border-radius: 5px;
+      font-size: 14px;
+      width: 14px;
 
       &:hover {
         background-color: rgba(0, 0, 0, 0.05);
@@ -67,8 +60,11 @@
           <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
         </el-sub-menu>
         <section class="addition-wrap">
+          <!-- 更多设置 -->
           <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-            <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
+            <ElIcon class="more" size="14" v-if="state.isHover">
+              <MoreFilled style="rotate: 90deg" />
+            </ElIcon>
             <template #dropdown>
               <el-dropdown-menu @mouseenter="state.isHover = true">
                 <el-dropdown-item>重命名...</el-dropdown-item>
@@ -80,28 +76,38 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+
+          <!-- 添加操作 -->
+          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+            <ElIcon class="more" size="14" v-if="state.isHover">
+              <Plus style="rotate: 90deg" />
+            </ElIcon>
+            <template #dropdown>
+              <el-dropdown-menu @mouseenter="state.isHover = true">
+                <AddDoc :parent_id="book.id" />
+                <el-dropdown-item>添加分组</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </section>
       </section>
     </template>
     <template v-else>
       <DocMenuItem :book="book" />
-      <!-- <p>{{ 'doc' }}</p> -->
     </template>
   </section>
 </template>
 
 <script setup>
-import { MoreFilled } from '@element-plus/icons-vue/dist/index.js'
+import { MoreFilled, Plus } from '@element-plus/icons-vue/dist/index.js'
 import { ElIcon } from 'element-plus'
-import { useDocStore } from '@/stores/doc'
 import { ElDivider } from 'element-plus'
 import { reactive } from 'vue'
 import DocMenuItem from './DocMenuItem.vue'
+import AddDoc from '../dropdown/AddDoc.vue'
 
 const props = defineProps({
   book: Object,
-  id: Number,
-  parentIndex: String || null,
 })
 
 const state = reactive({
