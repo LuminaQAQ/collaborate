@@ -72,7 +72,8 @@
                 <el-dropdown-item>复制到...</el-dropdown-item>
                 <el-dropdown-item>移动到...</el-dropdown-item>
                 <ElDivider />
-                <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item>
+                <!-- <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item> -->
+                <DelGroup :group="book" />
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -106,6 +107,7 @@ import { reactive } from 'vue'
 import DocMenuItem from './DocMenuItem.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
 import AddGroup from '../dropdown/AddGroup.vue'
+import DelGroup from '../dropdown/DelGroup.vue'
 
 const props = defineProps({
   book: Object,

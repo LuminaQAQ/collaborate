@@ -26,20 +26,11 @@ const store = useDocStore()
         <small>{{ store.currentDocState.bookDesc || '暂无简介' }}</small>
       </section>
       <section class="collaborate-wrap">
-        <ElAvatar :size="30">user</ElAvatar>
+        <ElAvatar :size="34">user</ElAvatar>
       </section>
     </header>
     <main class="cl-book__main" v-if="store.currentDocState.docList.length">
-      <!-- <section
-        class="cl-doc-list-item"
-        v-for="item in store.currentDocState.docList"
-        :key="item.id"
-        @click="router.push(`/${item.email}/${item.book_id}/${item.id}`)"
-      >
-        <span>{{ item.title }}</span>
-        <span class="doc-list-chain"></span>
-        <span>{{ item.created_at.slice(0, 10) }}</span>
-      </section> -->
+      <h1>目录</h1>
       <CatalogueTree v-for="item in store.currentDocState.docList" :item="item" />
     </main>
   </section>
@@ -54,9 +45,9 @@ const store = useDocStore()
 
   box-sizing: border-box;
   box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 
   .cl-book__header {
-    margin-bottom: 2rem;
     .statistic-wrap,
     .collaborate-wrap {
       margin: 0.75rem 0;
