@@ -28,6 +28,7 @@
     right: 2.25rem;
     top: 1.15rem;
     .el-icon {
+      transition: opacity 0.2s;
       cursor: pointer;
       padding: 0.25rem;
       border-radius: 5px;
@@ -46,8 +47,8 @@
   <template v-if="book.type === 'group'">
     <section
       class="cl-sub-menu-wrap"
-      @mouseenter.stop.prevent="state.isHover = true"
-      @mouseleave.stop.prevent="state.isHover = false"
+      @mouseenter="methods.handleIconshow(true)"
+      @mouseleave="methods.handleIconshow(false)"
     >
       <el-sub-menu
         class="cl-sub-menu-item"
@@ -61,7 +62,14 @@
       <section class="addition-wrap">
         <!-- 更多设置 -->
         <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-          <ElIcon class="more" size="14" v-if="state.isHover">
+          <ElIcon
+            class="more"
+            size="14"
+            :style="{
+              visibility: state.isHover ? 'visible' : 'hidden',
+              opacity: state.isHover ? 1 : 0,
+            }"
+          >
             <MoreFilled style="rotate: 90deg" />
           </ElIcon>
           <template #dropdown>
@@ -78,7 +86,14 @@
 
         <!-- 添加操作 -->
         <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-          <ElIcon class="more" size="14" v-if="state.isHover">
+          <ElIcon
+            class="more"
+            size="14"
+            :style="{
+              visibility: state.isHover ? 'visible' : 'hidden',
+              opacity: state.isHover ? 1 : 0,
+            }"
+          >
             <Plus style="rotate: 90deg" />
           </ElIcon>
           <template #dropdown>
@@ -118,6 +133,11 @@ const methods = {
   handleDropdownCollapse(flag) {
     state.isHover = true
     if (!flag) state.isHover = false
+  },
+  handleIconshow(flag) {
+    if (state.isOpen) return
+
+    state.isHover = flag
   },
   async handleDocGroupDel() {
     // const { book } = props
