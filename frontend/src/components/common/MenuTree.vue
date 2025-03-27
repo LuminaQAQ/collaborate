@@ -43,60 +43,57 @@
 </style>
 
 <template>
-  <section>
-    <template v-if="book.type === 'group'">
-      <section
-        class="cl-sub-menu-wrap"
-        @mouseenter.stop.prevent="state.isHover = true"
-        @mouseleave.stop.prevent="state.isHover = false"
+  <template v-if="book.type === 'group'">
+    <section
+      class="cl-sub-menu-wrap"
+      @mouseenter.stop.prevent="state.isHover = true"
+      @mouseleave.stop.prevent="state.isHover = false"
+    >
+      <el-sub-menu
+        class="cl-sub-menu-item"
+        :index="`/${book.email}/${book.book_id}/group_${book.id}`"
       >
-        <el-sub-menu
-          class="cl-sub-menu-item"
-          :index="`/${book.email}/${book.book_id}/group_${book.id}`"
-        >
-          <template #title>
-            <span>{{ book.name }}</span>
+        <template #title>
+          <span>{{ book.name }}</span>
+        </template>
+        <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
+      </el-sub-menu>
+      <section class="addition-wrap">
+        <!-- 更多设置 -->
+        <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+          <ElIcon class="more" size="14" v-if="state.isHover">
+            <MoreFilled style="rotate: 90deg" />
+          </ElIcon>
+          <template #dropdown>
+            <el-dropdown-menu @mouseenter="state.isHover = true">
+              <el-dropdown-item>重命名...</el-dropdown-item>
+              <ElDivider />
+              <el-dropdown-item>复制到...</el-dropdown-item>
+              <el-dropdown-item>移动到...</el-dropdown-item>
+              <ElDivider />
+              <DelGroup :group="book" />
+            </el-dropdown-menu>
           </template>
-          <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
-        </el-sub-menu>
-        <section class="addition-wrap">
-          <!-- 更多设置 -->
-          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-            <ElIcon class="more" size="14" v-if="state.isHover">
-              <MoreFilled style="rotate: 90deg" />
-            </ElIcon>
-            <template #dropdown>
-              <el-dropdown-menu @mouseenter="state.isHover = true">
-                <el-dropdown-item>重命名...</el-dropdown-item>
-                <ElDivider />
-                <el-dropdown-item>复制到...</el-dropdown-item>
-                <el-dropdown-item>移动到...</el-dropdown-item>
-                <ElDivider />
-                <!-- <el-dropdown-item @click="methods.handleDocGroupDel">删除分组</el-dropdown-item> -->
-                <DelGroup :group="book" />
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
+        </el-dropdown>
 
-          <!-- 添加操作 -->
-          <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-            <ElIcon class="more" size="14" v-if="state.isHover">
-              <Plus style="rotate: 90deg" />
-            </ElIcon>
-            <template #dropdown>
-              <el-dropdown-menu @mouseenter="state.isHover = true">
-                <AddDoc :parent_id="book.id" />
-                <AddGroup :parent_id="book.id" />
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </section>
+        <!-- 添加操作 -->
+        <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
+          <ElIcon class="more" size="14" v-if="state.isHover">
+            <Plus style="rotate: 90deg" />
+          </ElIcon>
+          <template #dropdown>
+            <el-dropdown-menu @mouseenter="state.isHover = true">
+              <AddDoc :parent_id="book.id" />
+              <AddGroup :parent_id="book.id" />
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </section>
-    </template>
-    <template v-else>
-      <DocMenuItem :book="book" />
-    </template>
-  </section>
+    </section>
+  </template>
+  <template v-else>
+    <DocMenuItem :book="book" />
+  </template>
 </template>
 
 <script setup>

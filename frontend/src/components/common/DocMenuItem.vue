@@ -2,7 +2,7 @@
 import { useDocStore } from '@/stores/doc'
 import { MoreFilled } from '@element-plus/icons-vue/dist/index.js'
 import { ElDivider } from 'element-plus'
-import { reactive } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 
 const props = defineProps({ book: Object })
 
@@ -10,12 +10,19 @@ const store = useDocStore()
 
 const state = reactive({
   isHover: false,
+  isOpen: false,
 })
 
 const methods = {
   handleDropdownCollapse(flag) {
     state.isHover = true
     if (!flag) state.isHover = false
+    state.isOpen = flag
+  },
+  handleIconshow(flag) {
+    if (state.isOpen) return
+
+    state.isHover = flag
   },
   async handleDocDel() {
     await store.delDoc(props.book.id)
@@ -26,8 +33,8 @@ const methods = {
 <template>
   <section
     class="cl-doc-item-wrap"
-    @mouseenter="state.isHover = true"
-    @mouseleave="state.isHover = false"
+    @mouseenter="methods.handleIconshow(true)"
+    @mouseleave="methods.handleIconshow(false)"
   >
     <el-menu-item class="cl-doc-menu" :index="`/${book.email}/${book.book_id}/${book.id}`">
       <template #title>
@@ -36,7 +43,14 @@ const methods = {
     </el-menu-item>
     <section class="addition-wrap">
       <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
-        <ElIcon class="more" v-if="state.isHover"><MoreFilled style="rotate: 90deg" /> </ElIcon>
+        <ElIcon
+          class="more"
+          :style="{
+            visibility: state.isHover ? 'visible' : 'hidden',
+            opacity: state.isHover ? 1 : 0,
+          }"
+          ><MoreFilled style="rotate: 90deg" />
+        </ElIcon>
         <template #dropdown>
           <el-dropdown-menu @mouseenter="state.isHover = true">
             <el-dropdown-item>复制链接</el-dropdown-item>
@@ -81,6 +95,7 @@ const methods = {
     top: 50%;
     transform: translate(0, -50%);
     .more {
+      transition: opacity 0.2s;
       cursor: pointer;
       padding: 0.25rem;
       border-radius: 5px;
