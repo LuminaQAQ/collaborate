@@ -163,9 +163,13 @@ docRouter.post("/delDocGroup", jwtMiddleware, async (req, res, next) => {
   const { groupList, docList } = req.body;
 
   try {
-    console.log(groupList, docList);
-
-    // await db("docs").delete().where({ id: doc_id })
+    const del = async (table, list) => {
+      for (const k of list) {
+        await db(table).delete().where({ id: k })
+      }
+    }
+    await del("doc_group", groupList);
+    await del("docs", docList);
 
     return res.send({ msg: "ok" })
   } catch (error) {

@@ -57,10 +57,12 @@ const methods = {
   },
 }
 
-docStore.fetchDocList()
-
 watch(route, () => {
   state.key = route.fullPath
+})
+
+onMounted(() => {
+  docStore.fetchDocList()
 })
 </script>
 
@@ -124,7 +126,12 @@ watch(route, () => {
 
       <!-- 文档列表  -->
       <ElScrollbar>
-        <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
+        <ElMenu
+          class="el-menu-vertical-demo"
+          :router="true"
+          :default-active="route.path"
+          v-if="docStore.currentDocState.docList.length > 0"
+        >
           <MenuTree v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
         </ElMenu>
       </ElScrollbar>

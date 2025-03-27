@@ -82,16 +82,17 @@ export const requestDocDel = (data) => {
 }
 
 /**
- * @typedef DocDelData
- * @property {number} doc_id
+ * @typedef GroupDelData
+ * @property {number[]} groupList 分组的 `id` 数组
+ * @property {number[]} docList 文档的 `id` 数组
  */
 /**
  *
- * @param {DocDelData} data
+ * @param {GroupDelData} data
  * @returns {import("axios").AxiosPromise}
  */
-export const requestDocDel = (data) => {
-  return request(apiList.docApi.delDoc, {
+export const requestGroupDel = (data) => {
+  return request(apiList.docApi.delDocGroup, {
     method: "post",
     data
   });
