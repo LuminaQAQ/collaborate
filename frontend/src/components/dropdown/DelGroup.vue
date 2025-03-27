@@ -19,20 +19,29 @@ const flat = (children) => {
   const ary = []
 
   children.forEach((child) => {
-    if (child.children && child?.children?.length > 0) return flat(child.children)
-    else return ary.push(child)
+    if (child?.children?.length > 0) return ary.push(...flat(child.children), child)
+    else ary.push(child)
   })
+
+  return ary
 }
 
 const handleCreateFolder = async () => {
-  //   const { book } = route.params
-  console.log(flat(props.group.children))
+  const flatAry = flat(props.group.children)
+  const [groupList, docList] = flatAry.reduce(
+    ([group, doc], item) => {
+      if (item.type === 'group') return [[...group, item.id], [...doc]]
+      else return [[...group], [...doc, item.id]]
+    },
+    [[], []],
+  )
+
   try {
     // await requestCreateDocGroup({
     //   book_id: Number(book),
     //   parent_id: Number(props.parent_id) || null,
     // })
-    // await docStore.fetchDocList()
+    await docStore.fetchDocList()
   } catch {}
 }
 </script>

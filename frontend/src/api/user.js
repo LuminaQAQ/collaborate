@@ -75,7 +75,23 @@ export const requestDocUpdate = (data) => {
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDocDel = (data) => {
-  return request(apiList.docApi.delDpc, {
+  return request(apiList.docApi.delDoc, {
+    method: "post",
+    data
+  });
+}
+
+/**
+ * @typedef DocDelData
+ * @property {number} doc_id
+ */
+/**
+ *
+ * @param {DocDelData} data
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestDocDel = (data) => {
+  return request(apiList.docApi.delDoc, {
     method: "post",
     data
   });

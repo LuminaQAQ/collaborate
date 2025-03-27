@@ -158,6 +158,21 @@ docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
   }
 })
 
+// 删除分组
+docRouter.post("/delDocGroup", jwtMiddleware, async (req, res, next) => {
+  const { groupList, docList } = req.body;
+
+  try {
+    console.log(groupList, docList);
+
+    // await db("docs").delete().where({ id: doc_id })
+
+    return res.send({ msg: "ok" })
+  } catch (error) {
+    next(new InternalServerError(500, "文档删除失败！", error.message))
+  }
+})
+
 // 上传文档内的图片
 docRouter.post("/docImageUpload", upload.single("img"), async (req, res, next) => {
   const { name } = req.body;
