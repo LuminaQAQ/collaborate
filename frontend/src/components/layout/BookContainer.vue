@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, watch } from 'vue'
+import { onMounted, onUnmounted, reactive, watch } from 'vue'
 
 import {
   ArrowRightBold,
@@ -63,6 +63,10 @@ watch(route, () => {
 
 onMounted(() => {
   docStore.fetchDocList()
+})
+
+onUnmounted(() => {
+  docStore.restoreCurrentState()
 })
 </script>
 

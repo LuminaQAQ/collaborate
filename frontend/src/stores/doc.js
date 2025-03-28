@@ -57,11 +57,19 @@ export const useDocStore = defineStore("doc", () => {
     return router.replace(`/${route.params.user}/${route.params.book}`);
   })
 
+  const restoreCurrentState = () => {
+    for (const k in currentDocState) {
+      if (typeof currentDocState[k] === "string") currentDocState[k] = "";
+      else if (Array.isArray(currentDocState[k])) currentDocState[k] = [];
+    }
+  }
+
   return {
     currentDocState,
     fetchDocList,
     fetchDoc,
     updateDoc,
-    delDoc
+    delDoc,
+    restoreCurrentState
   }
 })

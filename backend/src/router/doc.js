@@ -41,6 +41,7 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .orderBy("docs.id")
     const [{ bookName, bookDescription }] = await db("books")
       .select(["name as bookName", "description as bookDescription"])
+      .where({ id: book_id })
 
     const tree = [];
     const groupMap = group.reduce((map, cur) => map.set(cur.id, { ...cur, type: "group", children: [] }), new Map())
@@ -64,8 +65,9 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
         map.forEach(item => {
           if (item.parent_id) map.delete(item.id);
         })
-        return map;
       }
+
+      return map;
     }
 
     return res.send({ bookName, bookDescription, docList: [...tree, ...builder(groupMap).values()] })
