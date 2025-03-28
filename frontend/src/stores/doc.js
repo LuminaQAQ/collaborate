@@ -9,6 +9,7 @@ export const useDocStore = defineStore("doc", () => {
   const route = useRoute();
 
   const currentDocState = reactive({
+    isLoading: true,
     bookName: "",
     bookDesc: "",
     title: "",

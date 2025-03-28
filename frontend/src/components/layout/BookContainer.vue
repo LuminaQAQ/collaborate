@@ -25,6 +25,8 @@ import {
   ElMenu,
   ElMenuItem,
   ElScrollbar,
+  ElSkeleton,
+  ElSkeletonItem,
   ElSubMenu,
 } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
@@ -61,8 +63,11 @@ watch(route, () => {
   state.key = route.fullPath
 })
 
-onMounted(() => {
-  docStore.fetchDocList()
+onMounted(async () => {
+  try {
+    await docStore.fetchDocList()
+    docStore.currentDocState.isLoading = false
+  } catch (error) {}
 })
 
 onUnmounted(() => {
@@ -87,57 +92,96 @@ onUnmounted(() => {
 
       <!-- 顶部-文档库相关：文档库名、文档设置 -->
       <ElHeader style="display: flex; align-items: center">
-        <section
-          class="book-home-btn"
-          @click="router.push(`/${route.params.user}/${route.params.book}`)"
-        >
-          <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
-          <span>{{ docStore.currentDocState.bookName }}</span>
-        </section>
-        <el-dropdown class="cl-book-dropdown" trigger="click">
-          <span class="el-dropdown-link">
-            <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item :icon="Lock">权限</el-dropdown-item>
-              <el-dropdown-item :icon="Histogram">统计</el-dropdown-item>
-              <el-dropdown-item :icon="List">目录管理</el-dropdown-item>
-              <el-dropdown-item :icon="Setting">更多设置</el-dropdown-item>
-            </el-dropdown-menu>
+        <ElSkeleton animated :loading="docStore.currentDocState.isLoading">
+          <template #template>
+            <ElSkeletonItem variant="h1" />
           </template>
-        </el-dropdown>
+          <template #default>
+            <section
+              class="book-home-btn"
+              @click="router.push(`/${route.params.user}/${route.params.book}`)"
+            >
+              <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
+              <span>{{ docStore.currentDocState.bookName }}</span>
+            </section>
+            <el-dropdown class="cl-book-dropdown" trigger="click">
+              <span class="el-dropdown-link">
+                <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :icon="Lock">权限</el-dropdown-item>
+                  <el-dropdown-item :icon="Histogram">统计</el-dropdown-item>
+                  <el-dropdown-item :icon="List">目录管理</el-dropdown-item>
+                  <el-dropdown-item :icon="Setting">更多设置</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </ElSkeleton>
       </ElHeader>
 
       <ElDivider />
 
       <!-- 顶部-搜索 -->
       <ElHeader class="cl-search-addtion-wrap">
-        <el-input v-model="state.searchValue" placeholder="搜索" :prefix-icon="Search" />
-
-        <el-dropdown class="cl-addtion-dropdown" trigger="hover">
-          <span class="el-dropdown-link">
-            <el-icon class="el-icon--right" size="16"><Plus /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <AddDoc />
-              <AddGroup />
-            </el-dropdown-menu>
+        <ElSkeleton animated :loading="docStore.currentDocState.isLoading">
+          <template #template>
+            <div style="display: flex">
+              <el-skeleton-item
+                variant="h1"
+                style="width: 80%; height: 1.5rem; margin: 0.5rem 0.25rem"
+              />
+              <el-skeleton-item
+                variant="h1"
+                style="width: 20%; height: 1.5rem; margin: 0.5rem 0.25rem"
+              />
+            </div>
           </template>
-        </el-dropdown>
+
+          <template #default>
+            <el-input v-model="state.searchValue" placeholder="搜索" :prefix-icon="Search" />
+            <el-dropdown class="cl-addtion-dropdown" trigger="hover">
+              <span class="el-dropdown-link">
+                <el-icon class="el-icon--right" size="16"><Plus /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <AddDoc />
+                  <AddGroup />
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </ElSkeleton>
       </ElHeader>
 
       <!-- 文档列表  -->
       <ElScrollbar>
-        <ElMenu
-          class="el-menu-vertical-demo"
-          :router="true"
-          :default-active="route.path"
-          v-if="docStore.currentDocState.docList.length > 0"
-        >
-          <MenuTree v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
-        </ElMenu>
+        <ElSkeleton animated :loading="docStore.currentDocState.isLoading">
+          <template #template>
+            <el-skeleton-item
+              variant="h3"
+              v-for="item in 5"
+              style="height: 1.5rem; margin: 0.5rem 0.25rem"
+            />
+          </template>
+
+          <template #default>
+            <ElMenu
+              class="el-menu-vertical-demo"
+              :router="true"
+              :default-active="route.path"
+              v-if="docStore.currentDocState.docList.length > 0"
+            >
+              <MenuTree
+                v-for="item in docStore.currentDocState.docList"
+                :book="item"
+                :key="item.id"
+              />
+            </ElMenu>
+          </template>
+        </ElSkeleton>
       </ElScrollbar>
 
       <!-- 侧边栏展缩按钮 -->

@@ -3,7 +3,7 @@ import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import router from '@/router'
 import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
-import { ElAvatar, ElIcon } from 'element-plus'
+import { ElAvatar, ElIcon, ElSkeleton, ElSkeletonItem } from 'element-plus'
 
 const store = useDocStore()
 </script>
@@ -29,10 +29,16 @@ const store = useDocStore()
         <ElAvatar :size="34">user</ElAvatar>
       </section>
     </header>
-    <main class="cl-book__main" v-if="store.currentDocState.docList.length">
+    <main class="cl-book__main">
       <h1>目录</h1>
       <CatalogueTree v-for="item in store.currentDocState.docList" :item="item" />
     </main>
+    <ElSkeleton animated :loading="store.currentDocState.isLoading">
+      <template #template>
+        <ElSkeleton />
+      </template>
+      <template #default> </template>
+    </ElSkeleton>
   </section>
 </template>
 
