@@ -18,6 +18,7 @@ import {
 import {
   ElContainer,
   ElDivider,
+  ElEmpty,
   ElHeader,
   ElIcon,
   ElInput,
@@ -36,6 +37,7 @@ import DocMenuItem from '../common/DocMenuItem.vue'
 import MenuTree from '../common/MenuTree.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
 import AddGroup from '../dropdown/AddGroup.vue'
+import CreateDoc from '../common/CreateDoc.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -168,18 +170,15 @@ onUnmounted(() => {
           </template>
 
           <template #default>
-            <ElMenu
-              class="el-menu-vertical-demo"
-              :router="true"
-              :default-active="route.path"
-              v-if="docStore.currentDocState.docList.length > 0"
-            >
-              <MenuTree
-                v-for="item in docStore.currentDocState.docList"
-                :book="item"
-                :key="item.id"
-              />
-            </ElMenu>
+            <template v-if="docStore.currentDocState.docList.length > 0">
+              <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
+                <MenuTree
+                  v-for="item in docStore.currentDocState.docList"
+                  :book="item"
+                  :key="item.id"
+                />
+              </ElMenu>
+            </template>
           </template>
         </ElSkeleton>
       </ElScrollbar>
