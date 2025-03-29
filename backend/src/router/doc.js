@@ -127,11 +127,193 @@ docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
 })
 
 // 获取当前文档信息
+const template = {
+  "meta": {
+    "abilities": {
+      "create": true,
+      "destroy": true,
+      "update": true,
+      "read": true,
+      "export": true,
+      "manage": true,
+      "join": true,
+      "share": true,
+      "force_delete": true,
+      "create_collaborator": true,
+      "destroy_comment": true
+    },
+    "latestReviewStatus": -1,
+    "matchCondition": {
+      "editType": "Lake",
+      "useEditorTileRendering": true,
+      "useEditorTileRenderingForOT": true,
+      "useEditorDelayTileChange": true,
+      "useEditorVirtualRendering": false,
+      "useEditorVirtualRenderingForOT": false
+    },
+    "collab": {
+      "host": "wss://collab.yuque.com",
+      "id": "yuque/prod/doc/212953678",
+      "token": "4gVwNP1_FUZPMXNYwi9kHQ==|JTsTFyDxkg5N0fdA7a4wQLtWo77FOX7CRFiqJk1Ppol4M7G34QaZ6AE7MzpW831ZFezhRO6m6Xnm505hOYE84iwIs_VLwfMB6NyYJ82z4JcTNOh1nxCXSne_iUXZVX6y1wdbGwNBXy1lAVb8DiyHuZjZbP_DfIi1ctwd_wN97oIhWYETnusoFqG-LY4tKvkTs3k54A4ieuZk9nk6GepXe3d_U9O2QUghcGK08tybw1zNWZoolimWA2ADUgJfK6SW8p3AaX2wZQRpAbNffPOb-RYQJAlnf1JovrqzJeAzKGE9L6stG1nY1hjyaErQ-8wHBezAuN-sluQU8K1TB3pzuQ75UVWrHlWoM-vJol05p46_WvOK8pbxrUa3d_FYHYSbzqv6wLJ6F-DWKcN8_wztxXYMPNy4pZu9n0xE_O-8KJ7A_7dWSHdwFYhUm-6GrKreEm2nZlKToSW0p8jCWQgt_QwJZpRG5Ur-F1De0ERKf3tbDNpyplCJNvn3140ePuGTvnMRpz1Tv0vrTk_7kAqHqYX36bkaSbeLqVo7TYiV7Dc="
+    }
+  },
+  "data": {
+    "id": 212953678,
+    "space_id": 0,
+    "type": "Doc",
+    "sub_type": null,
+    "title": "无标题文档",
+    "tag": null,
+    "title_draft": null,
+    "slug": "mp9yl3twyflznezg",
+    "user_id": 44393491,
+    "book_id": 63030179,
+    "last_editor_id": 44393491,
+    "cover": null,
+    "description": "",
+    "custom_description": "",
+    "body": "",
+    "body_draft": "",
+    "body_asl": "",
+    "body_draft_asl": "",
+    "format": "lake",
+    "origin_format": "lake",
+    "status": 0,
+    "read_status": 0,
+    "view_status": 0,
+    "public": 0,
+    "draft_version": 0,
+    "comments_count": 0,
+    "like": {
+      "count": 0,
+      "actioned": null
+    },
+    "likes_count": 0,
+    "abilities": {
+      "create": true,
+      "destroy": true,
+      "update": true,
+      "read": true,
+      "export": true,
+      "manage": true,
+      "join": true,
+      "share": true,
+      "force_delete": true,
+      "create_collaborator": true,
+      "destroy_comment": true
+    },
+    "content_updated_at": "2025-03-29T15:14:34.000Z",
+    "created_at": "2025-03-29T15:14:34.000Z",
+    "updated_at": "2025-03-29T15:14:34.000Z",
+    "published_at": null,
+    "first_published_at": null,
+    "pinned_at": null,
+    "hits": 0,
+    "word_count": 0,
+    "editor_meta": null,
+    "editor_meta_draft": null,
+    "marked": true,
+    "mark": {
+      "action_name": "mark_doc",
+      "id": 133472998427,
+      "created_at": "2025-03-29T16:03:54.000Z",
+      "updated_at": "2025-03-29T16:03:54.000Z",
+      "space_id": 0,
+      "action_type": "mark",
+      "action_option": "doc",
+      "action_setting_type": "default",
+      "user_id": 44393491,
+      "organization_id": 0,
+      "target_type": "Doc",
+      "target_id": 212953678,
+      "target_book_id": 63030179,
+      "target_group_id": 44393491,
+      "title": "无标题文档"
+    },
+    "meta": {
+
+    },
+    "collab": {
+      "host": "wss://collab.yuque.com",
+      "id": "yuque/prod/doc/212953678",
+      "token": "4gVwNP1_FUZPMXNYwi9kHQ==|JTsTFyDxkg5N0fdA7a4wQLtWo77FOX7CRFiqJk1Ppol4M7G34QaZ6AE7MzpW831ZFezhRO6m6Xnm505hOYE84iwIs_VLwfMB6NyYJ82z4JcTNOh1nxCXSne_iUXZVX6y1wdbGwNBXy1lAVb8DiyHuZjZbP_DfIi1ctwd_wN97oIhWYETnusoFqG-LY4tKvkTs3k54A4ieuZk9nk6GepXe3d_U9O2QUghcGK08tybw1zNWZoolimWA2ADUgJfK6SW8p3AaX2wZQRpAbNffPOb-RYQJAlnf1JovrqzJeAzKGE9L6stG1nY1hjyaErQ-8wHBezAuN-sluQU8K1TB3pzuQ75UVWrHlWoM-vJol05p46_WvOK8pbxrUa3d_FYHYSbzqv6wLJ6F-DWKcN8_wztxXYMPNy4pZu9n0xE_O-8KJ7A_7dWSHdwFYhUm-6GrKreEm2nZlKToSW0p8jCWQgt_QwJZpRG5Ur-F1De0ERKf3tbDNpyplCJNvn3140ePuGTvnMRpz1Tv0vrTk_7kAqHqYX36bkaSbeLqVo7TYiV7Dc="
+    },
+    "doc_dynamic_data": [],
+    "region": "福建",
+    "indexed_level": 0,
+    "privacy_migrated": true,
+    "share_expired_time": null,
+    "password": null,
+    "book": null,
+    "user": {
+      "id": 44393491,
+      "type": "User",
+      "login": "luolin-r0hmx",
+      "name": "洛霖",
+      "description": "",
+      "avatar": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
+      "avatar_url": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
+      "followers_count": 0,
+      "following_count": 0,
+      "role": 1,
+      "status": 1,
+      "public": 1,
+      "scene": null,
+      "source": "index",
+      "created_at": "2024-05-11T04:39:40.000Z",
+      "updated_at": "2025-03-29T15:14:34.000Z",
+      "expired_at": "2025-02-26T15:59:59.000Z",
+      "isPaid": false,
+      "member_level": 1,
+      "memberLevelName": "专业会员",
+      "hasMemberLevel": true,
+      "isTopLevel": false,
+      "isNewbie": false,
+      "members_count": 0,
+      "profile": null,
+      "organizationUser": null,
+      "_serializer": "web.user"
+    },
+    "last_editor": {
+      "id": 44393491,
+      "type": "User",
+      "login": "luolin-r0hmx",
+      "name": "洛霖",
+      "description": "",
+      "avatar": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
+      "avatar_url": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
+      "followers_count": 0,
+      "following_count": 0,
+      "role": 1,
+      "status": 1,
+      "public": 1,
+      "scene": null,
+      "source": "index",
+      "created_at": "2024-05-11T04:39:40.000Z",
+      "updated_at": "2025-03-29T15:14:34.000Z",
+      "expired_at": "2025-02-26T15:59:59.000Z",
+      "isPaid": false,
+      "member_level": 1,
+      "memberLevelName": "专业会员",
+      "hasMemberLevel": true,
+      "isTopLevel": false,
+      "isNewbie": false,
+      "members_count": 0,
+      "profile": null,
+      "organizationUser": null,
+      "_serializer": "web.user"
+    },
+    "server_time": 1743264380148,
+    "locker": null,
+    "contributors": [],
+    "_serializer": "web.doc_raw"
+  }
+}
 docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
   const { book_id, doc_id } = req.query;
 
   try {
-    const [result] = await db("docs").select(["title", "content"]).where({ id: doc_id, book_id, })
+    const [result] = await db("docs").select("*").where({ id: doc_id, book_id, })
 
     return res.send(result)
   } catch (error) {

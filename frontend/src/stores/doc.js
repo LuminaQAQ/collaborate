@@ -14,7 +14,8 @@ export const useDocStore = defineStore("doc", () => {
     bookDesc: "",
     title: "",
     content: "",
-    docList: []
+    docList: [],
+    docInfo: {}
   })
 
   const fetchDocList = () => requestDocList({
@@ -34,6 +35,9 @@ export const useDocStore = defineStore("doc", () => {
     if (!result.data) return router.push(`/${route.params.user}/${route.params.book}`);
 
     const { title, content } = result.data
+    currentDocState.docInfo = result.data
+    console.log(currentDocState.docInfo);
+
 
     currentDocState.title = title
     currentDocState.content = content
