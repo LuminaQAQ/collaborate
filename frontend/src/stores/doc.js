@@ -2,7 +2,7 @@ import { requestDoc, requestDocDel, requestDocList, requestDocUpdate } from "@/a
 import router from "@/router";
 import { ElMessage } from "element-plus";
 import { defineStore } from "pinia";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 
 export const useDocStore = defineStore("doc", () => {
@@ -63,6 +63,8 @@ export const useDocStore = defineStore("doc", () => {
       if (typeof currentDocState[k] === "string") currentDocState[k] = "";
       else if (Array.isArray(currentDocState[k])) currentDocState[k] = [];
     }
+
+    currentDocState.isLoading = true;
   }
 
   return {

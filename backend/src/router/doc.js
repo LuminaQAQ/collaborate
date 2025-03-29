@@ -1,4 +1,5 @@
 const express = require("express");
+const zlib = require("node:zlib");
 
 const jwtMiddleware = require("../middleware/jwtMiddleware");
 const db = require("../lib/db");
@@ -70,7 +71,11 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       return map;
     }
 
-    return res.send({ bookName, bookDescription, docList: [...tree, ...builder(groupMap).values()] })
+    const result = JSON.stringify({ bookName, bookDescription, docList: [...tree, ...builder(groupMap).values()] });
+    const zip = zlib.gzipSync(result);
+    res.setHeader("content-encoding", "gzip");
+
+    return res.send(zip)
   } catch (error) {
     next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }

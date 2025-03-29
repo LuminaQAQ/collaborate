@@ -4,19 +4,6 @@
 
   display: flex;
   justify-content: space-between;
-
-  .doc-addition-wrap {
-    > .el-icon {
-      margin: 0 0.25rem;
-      padding: 0.5rem;
-      border-radius: 5px;
-      cursor: pointer;
-
-      &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
-      }
-    }
-  }
 }
 </style>
 
@@ -28,11 +15,13 @@
       </section>
 
       <section class="doc-addition-wrap">
-        <ElIcon size="21" title="收藏"><Star /> </ElIcon>
-        <ElIcon size="21" title="协作"><FolderAdd /> </ElIcon>
-        <ElIcon size="21" title="分享"><Share /> </ElIcon>
-        <ElIcon size="21" title="历史版本"><MostlyCloudy /> </ElIcon>
-        <ElIcon size="21" title="设置"><SetUp /> </ElIcon>
+        <ClIconButtonGroup size="21px">
+          <ClIconButton title="收藏" :icon="Star" />
+          <ClIconButton title="协作" :icon="FolderAdd" />
+          <ClIconButton title="分享" :icon="Share" />
+          <ClIconButton title="历史版本" :icon="MostlyCloudy" />
+          <ClIconButton title="设置" :icon="SetUp" />
+        </ClIconButtonGroup>
       </section>
     </ElHeader>
     <ElMain>
@@ -48,6 +37,8 @@
 </template>
 
 <script setup>
+import ClIconButton from '@/components/common/ClIconButton.vue'
+import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
