@@ -107,7 +107,6 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
 
   try {
     const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id, parent_id: parent_id || null }).select("id as doc_id");
-    await db("docs_version").insert({ doc_id, version: 1, content: "", creator_id: id })
 
     return res.status(200).send({ msg: "创建成功！", doc_id })
   } catch (error) {
@@ -328,8 +327,13 @@ docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id, title, content } = req.body;
 
   try {
+    if (!content || content === "") {
+      await db("docs").update({ title }).where({ id: doc_id });
+      return res.send({ msg: "ok" });
+    }
+
     const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1)
-    if (generateHash(lastVersion.content) === generateHash(content)) return res.send({ msg: "ok" })
+    if (lastVersion?.content && generateHash(lastVersion.content) === generateHash(content)) return res.send({ msg: "ok" })
 
     await db("docs").update({ title, content }).where({ id: doc_id })
 
@@ -340,7 +344,7 @@ docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
       version: version['max(`version`)'] + 1,
       content
     })
-    
+
     return res.send({ msg: "ok" })
   } catch (error) {
     next(new InternalServerError(500, "文档保存失败！", error.message))
@@ -353,6 +357,7 @@ docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
 
   try {
     await db("docs").delete().where({ id: doc_id })
+    await db("docs_version").delete().where({ doc_id })
 
     return res.send({ msg: "ok" })
   } catch (error) {

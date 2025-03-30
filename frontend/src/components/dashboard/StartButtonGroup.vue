@@ -6,8 +6,8 @@ import { reactive } from 'vue'
 
 import { requestCreateBook } from '@/api/create'
 import StartButton from './StartButton.vue'
-import CreateBook from '../common/CreateBook.vue'
-import CreateDoc from '../common/CreateDoc.vue'
+import CreateBook from '../tools/CreateBook.vue'
+import CreateDoc from '../tools/CreateDoc.vue'
 
 const state = reactive({
   createBookModelIsOpen: false,

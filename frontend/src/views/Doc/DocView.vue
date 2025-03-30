@@ -19,7 +19,7 @@
           <CollectionTool />
           <ClIconButton title="协作" :icon="FolderAdd" />
           <ClIconButton title="分享" :icon="Share" />
-          <ClIconButton title="历史版本" :icon="MostlyCloudy" />
+          <HistoryTool @restore="methods.handleRestore" />
           <ClIconButton title="设置" :icon="SetUp" />
         </ClIconButtonGroup>
       </section>
@@ -40,6 +40,7 @@
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import CollectionTool from '@/components/tools/CollectionTool.vue'
+import HistoryTool from '@/components/tools/HistoryTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'

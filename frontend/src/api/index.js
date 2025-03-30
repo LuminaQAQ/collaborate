@@ -34,5 +34,9 @@ export const apiList = {
     updateDoc: "/api/updateDoc",
     delDoc: "/api/delDoc",
     delDocGroup: "/api/delDocGroup"
+  },
+  historyApi: {
+    fetchDocHistory: "/api/historyList",
+    fetchDocHistoryDetail: "/api/historyDetail"
   }
 }

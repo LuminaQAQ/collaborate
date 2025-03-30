@@ -36,8 +36,6 @@ export const useDocStore = defineStore("doc", () => {
 
     const { title, content } = result.data
     currentDocState.docInfo = result.data
-    console.log(currentDocState.docInfo);
-
 
     currentDocState.title = title
     currentDocState.content = content

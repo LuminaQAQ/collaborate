@@ -5,6 +5,7 @@ const cors = require("cors");
 const loginRouter = require("./src/router/login.js");
 const homeRouter = require("./src/router/home.js");
 const docRouter = require("./src/router/doc.js");
+const historyRouter = require("./src/router/history.js");
 
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
@@ -22,6 +23,7 @@ app.use("/files", express.static("./uploads"))
 app.use("/api", loginRouter)
 app.use("/api", homeRouter)
 app.use("/api", docRouter)
+app.use("/api", historyRouter)
 app.use(errorMiddleware);
 
 app.listen(3000, () => {

@@ -2,7 +2,7 @@
 import { reactive } from 'vue'
 
 import { ElDialog } from 'element-plus'
-import BookItem from './BookItem.vue'
+import BookItem from '../common/BookItem.vue'
 
 import { requestBookList } from '@/api/user'
 

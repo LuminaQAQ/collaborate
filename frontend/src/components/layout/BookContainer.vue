@@ -37,7 +37,7 @@ import DocMenuItem from '../common/DocMenuItem.vue'
 import MenuTree from '../common/MenuTree.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
 import AddGroup from '../dropdown/AddGroup.vue'
-import CreateDoc from '../common/CreateDoc.vue'
+import CreateDoc from '../tools/CreateDoc.vue'
 
 const route = useRoute()
 const router = useRouter()
