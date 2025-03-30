@@ -5,6 +5,7 @@ const jwtMiddleware = require("../middleware/jwtMiddleware");
 const db = require("../lib/db");
 const { InternalServerError } = require("../middleware/errorMiddleware");
 const upload = require("../middleware/uploadMiddleware");
+const generateHash = require("../utils/generateHash");
 
 const docRouter = express.Router();
 
@@ -106,6 +107,7 @@ docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
 
   try {
     const [doc_id] = await db("docs").insert({ book_id, title: "无标题文档", content: "", creator_id: id, parent_id: parent_id || null }).select("id as doc_id");
+    await db("docs_version").insert({ doc_id, version: 1, content: "", creator_id: id })
 
     return res.status(200).send({ msg: "创建成功！", doc_id })
   } catch (error) {
@@ -326,8 +328,19 @@ docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id, title, content } = req.body;
 
   try {
+    const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1)
+    if (generateHash(lastVersion.content) === generateHash(content)) return res.send({ msg: "ok" })
+
     await db("docs").update({ title, content }).where({ id: doc_id })
 
+    const [version] = await db("docs_version").max("version").where({ doc_id })
+    await db("docs_version").insert({
+      creator_id: req.user.id,
+      doc_id,
+      version: version['max(`version`)'] + 1,
+      content
+    })
+    
     return res.send({ msg: "ok" })
   } catch (error) {
     next(new InternalServerError(500, "文档保存失败！", error.message))

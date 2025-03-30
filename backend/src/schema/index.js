@@ -25,11 +25,27 @@ const initDocsTable = async () => {
             table.increments("id").primary().unique().unsigned()
             table.string("title").notNullable()
             table.text("content").notNullable()
+            table.integer("version").notNullable().defaultTo(1)
             table.integer("creator_id").notNullable().unsigned()
             table.integer("book_id").notNullable().unsigned()
             table.integer("parent_id").unsigned()
             table.timestamp("created_at").defaultTo(db.fn.now())
             table.timestamp("updated_at").defaultTo(db.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+        }).catch(err => { throw err })
+    }
+}
+
+const initDocsVersionTable = async () => {
+    const isExists = await db.schema.hasTable("docs_version")
+
+    if (!isExists) {
+        db.schema.createTable("docs_version", table => {
+            table.increments("id").primary().unique().unsigned()
+            table.integer("doc_id").notNullable().unsigned()
+            table.integer("version").notNullable()
+            table.text("content").notNullable()
+            table.integer("creator_id").notNullable().unsigned()
+            table.timestamp("created_at").defaultTo(db.fn.now())
         }).catch(err => { throw err })
     }
 }
@@ -44,22 +60,6 @@ const initDocPermissionsTable = async () => {
             table.integer("user_id").notNullable().unsigned()
             table.enum("permission", ["owner", "editor", "viewer"]).notNullable().defaultTo("viewer")
             table.timestamp("granted_at").defaultTo(db.fn.now())
-        }).catch(err => { throw err })
-    }
-}
-
-const initFileTable = async () => {
-    const isExists = await db.schema.hasTable("file")
-
-    if (!isExists) {
-        db.schema.createTable("file", table => {
-            table.increments("id").primary().unsigned()
-            table.string("filename").notNullable()
-            table.string("path").notNullable()
-            table.string("mime_type").notNullable()
-            table.integer("size").notNullable().unsigned()
-            table.integer("uploader_id").notNullable().unsigned()
-            table.timestamp("created_at").defaultTo(db.fn.now())
         }).catch(err => { throw err })
     }
 }
@@ -108,8 +108,8 @@ const initDocGroupTable = async () => {
 const initTables = () => {
     initUserTable();
     initDocsTable();
+    initDocsVersionTable();
     initDocPermissionsTable();
-    initFileTable();
     initBooksTable();
     initBookPermissionsTable();
     initDocGroupTable();
