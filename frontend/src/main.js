@@ -19,11 +19,11 @@ import App from './App.vue'
 import router from './router'
 
 VueMarkdownEditor.use(vuepressTheme, {
-    Prism
+  Prism
 });
 
 VMdPreview.use(vuepressTheme, {
-    Prism
+  Prism
 });
 
 const app = createApp(App)
@@ -34,7 +34,9 @@ app.use(VMdPreview);
 app.use(VueMarkdownEditor);
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
-    app.component(key, component)
+  app.component(key, component)
 }
+
+app.directive
 
 app.mount('#app')

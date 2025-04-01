@@ -12,6 +12,9 @@ import {
 } from '@element-plus/icons-vue'
 import router from '@/router'
 import { requestBookList } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const state = reactive({
   isCollapse: true,
@@ -24,7 +27,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
 
 <template>
   <el-aside
-    width="auto"
+    width="200px"
     @mouseover="state.isMenuHover = true"
     @mouseout="state.isMenuHover = false"
   >
@@ -33,7 +36,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
       class="el-menu-vertical-demo"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="state.isCollapse"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
     >
       <el-menu-item index="/dashboard">
         <el-icon><Clock /></el-icon>
@@ -56,7 +59,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
       style="flex: 1 0"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="state.isCollapse"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
     >
       <el-sub-menu index="/books">
         <template #title>
@@ -79,7 +82,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
       class="el-menu-vertical-demo"
       :router="true"
       :default-active="router.currentRoute.value.path.toString()"
-      :collapse="state.isCollapse"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
     >
       <el-menu-item index="/settings">
         <el-icon><Setting /></el-icon>
@@ -88,10 +91,12 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
     </el-menu>
     <el-icon
       class="collapse-icon"
-      @click="state.isCollapse = !state.isCollapse"
+      @click="
+        userStore.layoutState.mainAsideIsCollapse = !userStore.layoutState.mainAsideIsCollapse
+      "
       v-show="state.isMenuHover"
     >
-      <ArrowRightBold v-if="state.isCollapse" />
+      <ArrowRightBold v-if="userStore.layoutState.mainAsideIsCollapse" />
       <ArrowLeftBold v-else />
     </el-icon>
   </el-aside>

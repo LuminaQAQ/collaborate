@@ -37,6 +37,8 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
       .select(["book_permissions.*", "users.email"])
       .where({ "book_permissions.book_id": book_id, user_id: req.user.id });
 
+    console.log(role);
+
     if (!role) return next(new InternalServerError(403, "权限不足！"));
 
   } catch (error) {
