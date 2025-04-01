@@ -46,7 +46,7 @@ const logout = async () => {
       <div class="cl-logo-wrap">
         <img src="@/assets/logo.svg" alt="logo" />
       </div>
-      <span style="text-wrap: nowrap; margin-right: 0.5rem">云迹</span>
+      <span class="cl-product-name-wrap">云迹</span>
       <el-autocomplete
         v-model="state"
         :fetch-suggestions="querySearchAsync"
@@ -90,6 +90,12 @@ const logout = async () => {
     display: flex;
     align-items: center;
     justify-content: center;
+
+    .cl-product-name-wrap {
+      font-weight: 600;
+      white-space: nowrap;
+      margin-right: 0.5rem;
+    }
 
     .cl-logo-wrap {
       width: 1.75rem;
