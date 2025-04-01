@@ -36,6 +36,7 @@
             @click="sendVerifyCode"
             :loading="verifyCodeStatus.sendCodeLoaded"
             :style="{ color: verifyCodeStatus.sendCodeLoaded ? 'inherit' : '#409eff' }"
+            style="width: 8.5rem"
           >
             {{ verifyCodeStatus.sendCodeText }}
           </el-button>
@@ -112,7 +113,7 @@ const formRef = ref<FormInstance>()
 const registerForm = reactive<FormItem>({
   email: '1710884533@qq.com',
   pwd: '123456',
-  pwd_confirm: '',
+  pwd_confirm: '123456',
   code: '',
 })
 
@@ -125,13 +126,13 @@ const sendVerifyCode = () => {
 
   verifyCodeStatus.sendCodeLoaded = true
   let waitTime = 60
-  verifyCodeStatus.sendCodeText = `${(waitTime -= 1)}秒后可重新发送`
+  verifyCodeStatus.sendCodeText = `重新发送(${(waitTime -= 1)})`
   let timer = setInterval(() => {
-    verifyCodeStatus.sendCodeText = `${(waitTime -= 1)}秒后可重新发送`
+    verifyCodeStatus.sendCodeText = `重新发送(${(waitTime -= 1)})`
     if (waitTime <= 0) {
       clearInterval(timer)
       verifyCodeStatus.sendCodeLoaded = false
-      verifyCodeStatus.sendCodeText = '发送验证码'
+      verifyCodeStatus.sendCodeText = '获取验证码'
       timer = null
     }
   }, 1000)
@@ -148,19 +149,13 @@ const submitForm = (formEl: FormInstance | undefined) => {
       })
         .then((res) => {
           ElMessage('注册成功！')
+          emits('toLogin')
         })
         .catch((err) => {
           console.log(err)
         })
     }
   })
-}
-
-const toLogin = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-
-  formEl.resetFields()
-  emits('toLogin')
 }
 </script>
 
