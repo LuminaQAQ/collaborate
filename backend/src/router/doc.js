@@ -30,6 +30,20 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
   const { book_id } = req.query;
 
+  // 校验用户权限
+  try {
+    const [role] = await db("book_permissions")
+      .join("users", "book_permissions.user_id", "users.id")
+      .select(["book_permissions.*", "users.email"])
+      .where({ "book_permissions.book_id": book_id, user_id: req.user.id });
+
+    if (!role) return next(new InternalServerError(403, "权限不足！"));
+
+  } catch (error) {
+    next(new InternalServerError(500, "文档列表获取失败！", error.message));
+  }
+
+  // 实际逻辑
   try {
     const group = await db("doc_group")
       .join("users")
