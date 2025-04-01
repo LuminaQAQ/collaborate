@@ -35,7 +35,7 @@ const methods = {
     })
       .then((res) => {
         state.historyList = res.data.list
-        state.isReady = true
+        state.isReady = false
         state.activeHistoryItem = res.data.list[0].id
 
         methods.handleHistoryItem(res.data.list[0].id)
@@ -66,9 +66,9 @@ const methods = {
 
     if (diffDays < 1) {
       fullDate = `今天`
-    } else if (diffHours < 2) {
+    } else if (diffDays < 2) {
       fullDate = `昨天`
-    } else if (diffMinutes > 3) {
+    } else if (diffDays < 3) {
       fullDate = `前天`
     } else {
       fullDate = `${time?.slice(0, 10)}`
@@ -103,9 +103,14 @@ const methods = {
         >
           <template #extra>
             <div class="flex items-center">
-              <ElButton type="primary" @click="methods.handleRestore" :disabled="state.isReady"
-                >恢复此记录</ElButton
+              <ElButton
+                v-if="state.historyList.length > 0"
+                type="primary"
+                @click="methods.handleRestore"
+                :disabled="state.isReady"
               >
+                恢复此记录
+              </ElButton>
             </div>
           </template>
         </ElPageHeader>
