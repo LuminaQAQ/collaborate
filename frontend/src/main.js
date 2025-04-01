@@ -37,6 +37,9 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-app.directive
+app.directive("permission", (el, binding) => {
+  console.log(el, binding);
+
+})
 
 app.mount('#app')

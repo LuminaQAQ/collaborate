@@ -14,6 +14,8 @@ export const useUserStore = defineStore("user", () => {
     mainAsideIsCollapse: false,
   })
 
+  // const operatePermissions
+
   return {
     token,
     layoutState,

@@ -10,7 +10,7 @@
 <template>
   <ElContainer v-if="isLoad">
     <ElHeader>
-      <section>
+      <section v-permission="'test'">
         <ElInput v-model="docStore.currentDocState.title" />
       </section>
 
