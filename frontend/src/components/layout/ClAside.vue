@@ -27,7 +27,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
 
 <template>
   <el-aside
-    width="200px"
+    :width="userStore.layoutState.mainAsideIsCollapse ? 'calc-size(auto)' : '200px'"
     @mouseover="state.isMenuHover = true"
     @mouseout="state.isMenuHover = false"
   >
@@ -108,6 +108,8 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
   position: relative;
   border-right: 0;
 
+  width: auto;
+  will-change: width;
   transition: width 0.3s;
 }
 
