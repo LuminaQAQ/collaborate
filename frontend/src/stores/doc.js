@@ -14,6 +14,10 @@ export const useDocStore = defineStore("doc", () => {
     bookDesc: "",
     title: "",
     content: "",
+    role: {
+      book: "",
+      doc: ""
+    },
     docList: [],
     docInfo: {}
   })
@@ -21,10 +25,11 @@ export const useDocStore = defineStore("doc", () => {
   const fetchDocList = () => requestDocList({
     book_id: route.params.book
   }).then((res) => {
-    const { docList, bookName, bookDescription } = res.data
+    const { docList, bookName, bookDescription, role } = res.data
     currentDocState.docList = docList;
     currentDocState.bookName = bookName;
     currentDocState.bookDesc = bookDescription;
+    if (role) currentDocState.role.book = role.split(":")[1];
   })
 
   const fetchDoc = () => requestDoc({

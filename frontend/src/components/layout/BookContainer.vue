@@ -106,7 +106,11 @@ onUnmounted(() => {
               <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
               <span>{{ docStore.currentDocState.bookName }}</span>
             </section>
-            <el-dropdown class="cl-book-dropdown" trigger="click">
+            <el-dropdown
+              class="cl-book-dropdown"
+              trigger="click"
+              v-permission="['book:owner', 'book:editor']"
+            >
               <span class="el-dropdown-link">
                 <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
               </span>

@@ -10,7 +10,7 @@
 <template>
   <ElContainer v-if="isLoad">
     <ElHeader>
-      <section v-permission="'test'">
+      <section>
         <ElInput v-model="docStore.currentDocState.title" />
       </section>
 
@@ -19,7 +19,10 @@
           <CollectionTool />
           <ClIconButton title="协作" :icon="FolderAdd" />
           <ClIconButton title="分享" :icon="Share" />
-          <HistoryTool @restore="methods.handleRestore" />
+          <HistoryTool
+            v-permission="['role:owner.', 'role:editor']"
+            @restore="methods.handleRestore"
+          />
           <ClIconButton title="设置" :icon="SetUp" />
         </ClIconButtonGroup>
       </section>

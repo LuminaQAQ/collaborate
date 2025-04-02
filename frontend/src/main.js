@@ -17,6 +17,8 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import { useUserStore } from './stores/user';
+import permission from './directive/permission';
 
 VueMarkdownEditor.use(vuepressTheme, {
   Prism
@@ -32,14 +34,10 @@ app.use(ElementPlus)
 app.use(router)
 app.use(VMdPreview);
 app.use(VueMarkdownEditor);
+app.use(permission)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
-
-app.directive("permission", (el, binding) => {
-  console.log(el, binding);
-
-})
 
 app.mount('#app')
