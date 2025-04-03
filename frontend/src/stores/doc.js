@@ -22,6 +22,21 @@ export const useDocStore = defineStore("doc", () => {
     docInfo: {}
   })
 
+  const handleRole = {
+    isOwner(type) {
+      return currentDocState.role[type] === "owner"
+    },
+    isEditor(type) {
+      return currentDocState.role[type] === "editor"
+    },
+    isViewer(type) {
+      return currentDocState.role[type] === "viewer"
+    },
+    isOwnerOrEditor(type) {
+      return currentDocState.role[type] === "owner" || currentDocState.role[type] === "editor"
+    }
+  }
+
   const fetchDocList = () => requestDocList({
     book_id: route.params.book
   }).then((res) => {
@@ -39,11 +54,12 @@ export const useDocStore = defineStore("doc", () => {
   }).then((result) => {
     if (!result.data) return router.push(`/${route.params.user}/${route.params.book}`);
 
-    const { title, content } = result.data
+    const { title, content, role } = result.data
     currentDocState.docInfo = result.data
 
     currentDocState.title = title
     currentDocState.content = content
+    if (role) currentDocState.role.doc = role.split(":")[1];
   }).catch((err) => {
     console.log(err)
   })
@@ -80,6 +96,7 @@ export const useDocStore = defineStore("doc", () => {
     fetchDoc,
     updateDoc,
     delDoc,
-    restoreCurrentState
+    restoreCurrentState,
+    handleRole
   }
 })

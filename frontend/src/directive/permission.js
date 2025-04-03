@@ -1,4 +1,24 @@
 import { useDocStore } from "@/stores/doc";
+/**
+ * 
+ * @param {import("vue").VueElement} el 
+ * @param {import("vue").DirectiveBinding} binding 
+ * @returns 
+ */
+const handlePermission = (el, binding) => {
+    const docStore = useDocStore();
+    if (!docStore.currentDocState.role.book && !docStore.currentDocState.role.doc) return;
+
+    if (Array.isArray(binding.value)) {
+        const isLegal = binding.value.some(item => {
+            const [type, permission] = item.split(":");
+
+            return docStore.currentDocState.role[type] === permission;
+        })
+
+        if (!isLegal) el.parentNode?.removeChild(el);
+    }
+}
 
 export default {
     /**
@@ -8,18 +28,7 @@ export default {
     install(app) {
         app.directive("permission", {
             mounted(el, binding) {
-                const docStore = useDocStore();
-                if (Array.isArray(binding.value)) {
-                    const isLegal = binding.value.some(item => {
-                        const [type, permission] = item.split(":");
-
-                        console.log(docStore.currentDocState[type], permission)
-
-                        return docStore.currentDocState[type] === permission;
-                    })
-
-                    if (!isLegal) el.parentNode.removeChild(el);
-                }
+                handlePermission(el, binding);
             }
         })
     }

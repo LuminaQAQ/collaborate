@@ -6,6 +6,7 @@ const db = require("../lib/db");
 const { InternalServerError } = require("../middleware/errorMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const generateHash = require("../utils/generateHash");
+const bookPermissionMiddleware = require("../middleware/roleMiddleware");
 
 const docRouter = express.Router();
 
@@ -27,32 +28,16 @@ docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
 })
 
 // 获取文档列表
-docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
+docRouter.get("/docList", jwtMiddleware, bookPermissionMiddleware, async (req, res, next) => {
   const { book_id } = req.query;
-  let role = null;
 
-  // 校验用户权限
-  try {
-    const [permission] = await db("book_permissions")
-      .join("users", "book_permissions.user_id", "users.id")
-      .select(["book_permissions.*", "users.email"])
-      .where({ "book_permissions.book_id": book_id, user_id: req.user.id });
-
-    if (!permission) return next(new InternalServerError(403, "权限不足！"));
-
-    role = `book:${permission.permission}`;
-  } catch (error) {
-    next(new InternalServerError(500, "文档列表获取失败！", error.message));
-  }
-
-  // 实际逻辑
   try {
     const group = await db("doc_group")
       .join("users")
       .select(["doc_group.*", "users.email"])
       .where({ book_id })
     const doc = await db("docs")
-      .join("users")
+      .join("users", "users.id", "docs.creator_id")
       .join("books", "docs.book_id", "books.id")
       .select(["docs.*", "users.email"])
       .where({ book_id })
@@ -91,9 +76,10 @@ docRouter.get("/docList", jwtMiddleware, async (req, res, next) => {
     const result = JSON.stringify({
       bookName,
       bookDescription,
-      role,
+      role: req.user.role,
       docList: [...tree, ...builder(groupMap).values()]
     });
+
     const zip = zlib.gzipSync(result);
     res.setHeader("content-encoding", "gzip");
 
@@ -331,11 +317,31 @@ const template = {
     "_serializer": "web.doc_raw"
   }
 }
-docRouter.get("/doc", jwtMiddleware, async (req, res, next) => {
+docRouter.get("/doc", jwtMiddleware, bookPermissionMiddleware, async (req, res, next) => {
   const { book_id, doc_id } = req.query;
+  let role = null;
+
+  // 校验用户权限
+  try {
+    if (req.user.role) {
+      role = req.user.role;
+    } else {
+      const [permission] = await db("doc_permissions")
+        .join("users", "doc_permissions.user_id", "users.id")
+        .select(["doc_permissions.*", "users.email"])
+        .where({ "doc_permissions.doc_id": doc_id, user_id: req.user.id });
+
+      if (!permission) return next(new InternalServerError(403, "权限不足！"));
+
+      role = `doc:${permission.permission}`;
+    }
+  } catch (error) {
+    next(new InternalServerError(403, "文档列表获取失败！", error.message));
+  }
 
   try {
     const [result] = await db("docs").select("*").where({ id: doc_id, book_id, })
+    result.role = role;
 
     return res.send(result)
   } catch (error) {

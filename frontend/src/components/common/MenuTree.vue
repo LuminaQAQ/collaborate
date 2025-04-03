@@ -59,7 +59,7 @@
         </template>
         <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
       </el-sub-menu>
-      <section class="addition-wrap">
+      <section class="addition-wrap" v-permission="['book:owner', 'book:editor']">
         <!-- 更多设置 -->
         <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
           <ElIcon

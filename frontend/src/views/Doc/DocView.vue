@@ -11,30 +11,40 @@
   <ElContainer v-if="isLoad">
     <ElHeader>
       <section>
-        <ElInput v-model="docStore.currentDocState.title" />
+        <ElInput
+          v-if="docStore.handleRole.isOwnerOrEditor('doc')"
+          v-model="docStore.currentDocState.title"
+        />
+        <h2 v-else>
+          {{ docStore.currentDocState.title }}
+        </h2>
       </section>
 
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
           <CollectionTool />
-          <ClIconButton title="协作" :icon="FolderAdd" />
-          <ClIconButton title="分享" :icon="Share" />
+          <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
+          <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" />
           <HistoryTool
-            v-permission="['role:owner.', 'role:editor']"
             @restore="methods.handleRestore"
+            v-permission="['doc:owner', 'doc:editor']"
           />
-          <ClIconButton title="设置" :icon="SetUp" />
+          <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" />
         </ClIconButtonGroup>
       </section>
     </ElHeader>
     <ElMain>
-      <v-md-editor
-        ref="md"
-        height="100%"
-        v-model="docStore.currentDocState.content"
-        :disabled-menus="[]"
-        @upload-image="methods.handleUploadImage"
-      />
+      <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
+        <v-md-editor
+          height="100%"
+          v-model="docStore.currentDocState.content"
+          :disabled-menus="[]"
+          @upload-image="methods.handleUploadImage"
+        />
+      </template>
+      <template v-else>
+        <v-md-preview :text="docStore.currentDocState.content" />
+      </template>
     </ElMain>
   </ElContainer>
 </template>

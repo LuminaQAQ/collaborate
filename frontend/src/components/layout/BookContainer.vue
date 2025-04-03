@@ -38,6 +38,7 @@ import MenuTree from '../common/MenuTree.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
 import AddGroup from '../dropdown/AddGroup.vue'
 import CreateDoc from '../tools/CreateDoc.vue'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
@@ -48,16 +49,55 @@ const state = reactive({
   isMenuHover: true,
   searchValue: '',
   key: route.fullPath,
+  bookOptionsDropdown: [
+    {
+      label: '权限',
+      icon: Lock,
+      click: () => {},
+    },
+    {
+      label: '统计',
+      icon: Histogram,
+      click: () => {},
+      permission: ['book:owner'],
+    },
+    {
+      label: '目录管理',
+      icon: List,
+      click: () => {},
+      permission: ['book:owner', 'book:editor'],
+    },
+    {
+      label: '更多设置',
+      icon: Setting,
+      click: () => {},
+      permission: ['book:owner', 'book:editor'],
+    },
+  ],
 })
 
 const methods = {
-  handleCreateDoc: async () => {
-    const { user, book } = route.params
-    try {
-      const res = await requestCreateDoc({ book_id: book })
-      await docStore.fetchDocList()
-      router.replace(`/${user}/${book}/${res.data.doc_id}`)
-    } catch {}
+  /**
+   * @typedef {Object} option
+   * @property {String} label
+   * @property {Function} click
+   * @property {Array<String>} permission
+   * @returns {option}
+   */
+  /**
+   * @param {Array<option>} options
+   */
+  handlePermission(options) {
+    return options.filter((item) => {
+      if (!item.permission) return true
+
+      const isLegal = item.permission.some((v) => {
+        const [type, permission] = v.split(':')
+        return docStore.currentDocState.role[type] === permission
+      })
+
+      return isLegal
+    })
   },
 }
 
@@ -68,6 +108,7 @@ watch(route, () => {
 onMounted(async () => {
   try {
     await docStore.fetchDocList()
+    state.bookOptionsDropdown = methods.handlePermission(state.bookOptionsDropdown)
     docStore.currentDocState.isLoading = false
   } catch (error) {}
 })
@@ -106,20 +147,21 @@ onUnmounted(() => {
               <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
               <span>{{ docStore.currentDocState.bookName }}</span>
             </section>
-            <el-dropdown
-              class="cl-book-dropdown"
-              trigger="click"
-              v-permission="['book:owner', 'book:editor']"
-            >
+            <el-dropdown class="cl-book-dropdown" trigger="click">
               <span class="el-dropdown-link">
                 <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :icon="Lock">权限</el-dropdown-item>
-                  <el-dropdown-item :icon="Histogram">统计</el-dropdown-item>
-                  <el-dropdown-item :icon="List">目录管理</el-dropdown-item>
-                  <el-dropdown-item :icon="Setting">更多设置</el-dropdown-item>
+                  <el-dropdown-item
+                    v-for="item in state.bookOptionsDropdown"
+                    :key="item.label"
+                    :icon="item.icon"
+                    :v-permission="item.permission"
+                    @click="item.click"
+                  >
+                    {{ item.label }}
+                  </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -147,7 +189,11 @@ onUnmounted(() => {
 
           <template #default>
             <el-input v-model="state.searchValue" placeholder="搜索" :prefix-icon="Search" />
-            <el-dropdown class="cl-addtion-dropdown" trigger="hover">
+            <el-dropdown
+              class="cl-addtion-dropdown"
+              trigger="hover"
+              v-permission="['book:owner', 'book:editor']"
+            >
               <span class="el-dropdown-link">
                 <el-icon class="el-icon--right" size="16"><Plus /></el-icon>
               </span>

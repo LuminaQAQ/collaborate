@@ -41,7 +41,7 @@ const methods = {
         {{ book.title }}
       </template>
     </el-menu-item>
-    <section class="addition-wrap">
+    <section class="addition-wrap" v-permission="['book:owner', 'book:editor']">
       <el-dropdown trigger="click" @visible-change="methods.handleDropdownCollapse">
         <ElIcon
           class="more"

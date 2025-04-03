@@ -27,8 +27,16 @@ const store = useDocStore()
             <div class="title-setting">
               <ClIconButtonGroup size="20px">
                 <ClIconButton :icon="Star" title="收藏" />
-                <ClIconButton :icon="Share" title="分享" />
-                <ClIconButton :icon="More" title="设置" />
+                <ClIconButton
+                  :icon="Share"
+                  title="分享"
+                  v-permission="['book:owner', 'book:editor']"
+                />
+                <ClIconButton
+                  :icon="More"
+                  title="设置"
+                  v-permission="['book:owner', 'book:editor']"
+                />
               </ClIconButtonGroup>
             </div>
           </section>
