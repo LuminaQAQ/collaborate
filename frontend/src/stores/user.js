@@ -1,4 +1,5 @@
 import { requestLogin } from "@/api/auth";
+import { requestBookList } from "@/api/user";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 import { defineStore } from "pinia"
@@ -10,7 +11,8 @@ export const useUserStore = defineStore("user", () => {
   const user = reactive({
     username: "",
     avatar: "",
-    email: ""
+    email: "",
+    bookList: []
   })
 
   const layoutState = reactive({
@@ -35,6 +37,11 @@ export const useUserStore = defineStore("user", () => {
 
           router.replace('/dashboard')
         })
+        .catch((err) => console.log(err))
+    },
+    fetchBookList() {
+      requestBookList()
+        .then((res) => (user.bookList = res.data.bookList))
         .catch((err) => console.log(err))
     }
   }

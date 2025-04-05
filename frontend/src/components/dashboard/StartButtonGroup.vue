@@ -8,6 +8,9 @@ import { requestCreateBook } from '@/api/create'
 import StartButton from './StartButton.vue'
 import CreateBook from '../tools/CreateBook.vue'
 import CreateDoc from '../tools/CreateDoc.vue'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const state = reactive({
   createBookModelIsOpen: false,
@@ -57,7 +60,7 @@ const handleCreateBookModelClose = (flag) => {
   state.createBookModelIsOpen = flag
 }
 
-const handleCreateBookModelSubmit = async (bookInfo, reset) => {
+const handleCreateBookModelSubmit = async (bookInfo, reset, errorFn) => {
   const { bookName, bookDesc } = bookInfo
 
   try {
@@ -68,8 +71,10 @@ const handleCreateBookModelSubmit = async (bookInfo, reset) => {
 
     ElMessage.success('创建成功！')
     state.createBookModelIsOpen = false
+    userStore.methods.fetchBookList()
     reset()
   } catch {
+    errorFn()
     ElMessage.error('创建失败！')
   }
 }

@@ -36,6 +36,9 @@ const handleSubmit = () => {
         state.bookDesc = ''
         state.isLoading = false
       },
+      function errorFn() {
+        state.isLoading = false
+      },
     ),
       (state.isLoading = true)
   }

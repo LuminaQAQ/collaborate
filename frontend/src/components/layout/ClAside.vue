@@ -19,10 +19,9 @@ const userStore = useUserStore()
 const state = reactive({
   isCollapse: true,
   isMenuHover: true,
-  bookList: [],
 })
 
-requestBookList().then((res) => (state.bookList = res.data.bookList))
+userStore.methods.fetchBookList()
 </script>
 
 <template>
@@ -68,7 +67,7 @@ requestBookList().then((res) => (state.bookList = res.data.bookList))
         </template>
         <el-menu-item-group>
           <el-menu-item
-            v-for="item in state.bookList"
+            v-for="item in userStore.user.bookList"
             :key="item.id"
             :index="`${item.email}/${item.id}`"
           >

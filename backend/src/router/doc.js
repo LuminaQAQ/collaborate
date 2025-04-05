@@ -7,6 +7,7 @@ const { InternalServerError } = require("../middleware/errorMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const generateHash = require("../utils/generateHash");
 const bookPermissionMiddleware = require("../middleware/roleMiddleware");
+const { getVersionString } = require("../lib/mailer");
 
 const docRouter = express.Router();
 
@@ -97,13 +98,14 @@ docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
   try {
     const [result] = await db("users").select("id").where({ email })
 
-    await db("books").insert({ name, description, creator_id: result.id })
+    const [book_id] = await db("books").insert({ name, description, creator_id: result.id })
+    await db("book_permissions").insert({ book_id, user_id: result.id, permission: "owner" })
 
     return res.status(200).send({
       msg: "创建成功！"
     })
   } catch (error) {
-    return next(new InternalServerError(500, "创建失败！",))
+    return next(new InternalServerError(500, "创建失败！", error.message))
   }
 })
 
