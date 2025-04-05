@@ -16,9 +16,9 @@ if (route.name === 'Share') {
       bookToken,
     },
   }).then((res) => {
-    const { user, bookId } = res.data
+    const { user, book_id } = res.data
 
-    router.replace(`/${user}/${bookId}`)
+    router.replace(`/${user}/${book_id}`)
   })
 }
 </script>

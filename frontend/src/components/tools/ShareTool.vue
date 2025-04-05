@@ -3,7 +3,7 @@ import { Link, Share, User } from '@element-plus/icons-vue/dist/index.js'
 import { useDocStore } from '@/stores/doc'
 import ClIconButton from '../common/ClIconButton.vue'
 import ClListItem from '../common/ClListItem.vue'
-import { reactive } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import { ElIcon, ElPageHeader, ElSelect } from 'element-plus'
 import { request } from '@/utils/request'
 import { useRoute } from 'vue-router'
@@ -11,35 +11,48 @@ import { useRoute } from 'vue-router'
 const docStore = useDocStore()
 const route = useRoute()
 
+const isHome = ref(true)
+
 const state = reactive({
   shareUrl: '',
+  isLoading: true,
   visible: false,
-  isHome: true,
   selectValue: 1,
 })
 
 const methods = {
   handleShare() {
-    state.isHome = false
+    isHome.value = false
   },
   handleBack() {
-    state.isHome = true
+    isHome.value = true
   },
   handleSelect(value) {
-    console.log(value)
+    state.isLoading = true
+    request
+      .get('/api/bookJoinURL', {
+        params: {
+          book_id: route.params.book,
+          role: state.selectValue || 1,
+        },
+      })
+      .then((res) => {
+        state.isLoading = false
+        state.shareUrl = `${window.location.origin}/g/share?token=${res.data.token}`
+      })
+  },
+  handleCopy() {
+    window.navigator.clipboard.writeText(state.shareUrl)
   },
 }
 
-request
-  .get('/api/bookJoinURL', {
-    params: {
-      book_id: route.params.book,
-      role: state.selectValue,
-    },
-  })
-  .then((res) => {
-    state.shareUrl = `${window.location.origin}/g/share?token=${res.data.bookToken}`
-  })
+methods.handleCopy()
+
+watch(isHome, (val) => {
+  console.log(val)
+
+  if (!val) methods.handleSelect()
+})
 </script>
 
 <template>
@@ -54,7 +67,7 @@ request
         />
       </template>
       <template #default>
-        <template v-if="state.isHome">
+        <template v-if="isHome">
           <ClListItem>
             <template #title> 分享 </template>
             <template #content>
@@ -74,8 +87,13 @@ request
           <ElPageHeader title=" " content="链接添加协作者" @back="methods.handleBack" />
           <p>拿到链接的人可获得 {{ state.selectValue === 1 ? '阅读' : '编辑' }} 权限</p>
           <section class="share-url-wrap">
-            <ElInput v-model="state.shareUrl" />
-            <ElButton type="primary" @click="methods.handleCopy" style="margin-left: 10px">
+            <ElInput v-model="state.shareUrl" disabled />
+            <ElButton
+              type="primary"
+              @click="methods.handleCopy"
+              :disabled="state.isLoading"
+              style="margin-left: 10px"
+            >
               复制链接
             </ElButton>
           </section>
@@ -93,6 +111,7 @@ request
                   placeholder="请选择"
                   size="small"
                   style="width: 100px"
+                  :disabled="state.isLoading"
                   @change="methods.handleSelect"
                 >
                   <ElOption label="可阅读" :value="1" />

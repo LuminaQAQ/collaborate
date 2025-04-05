@@ -8,6 +8,14 @@ const bookPermissionMiddleware = require("../middleware/roleMiddleware");
 const redis = require("../lib/redis");
 const bookRouter = express.Router();
 
+/**
+ * 
+ * @param {Number | String} role 
+ */
+const handleRole = (role) => {
+    return role && Number(role) === 2 ? "editor" : "viewer"
+}
+
 // 获取文档库列表
 bookRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
     const { email, id } = req.user;
@@ -49,20 +57,22 @@ bookRouter.get("/bookJoinURL", jwtMiddleware, bookPermissionMiddleware, async (r
         const { book_id, role } = req.query;
         const { email } = req.user;
 
-        if (await redis.get(`book:share:token:${book_id}`)) return res.status(200).send({
+        const token = await redis.get(`book:share:token:${handleRole(role)}:${book_id}`)
+
+        if (token) return res.status(200).send({
             msg: "ok",
-            bookToken
+            token
         })
 
         const bookToken = sign({
             book_id, email,
-            role: role && Number(role) === 1 ? "viewer" : "editor"
+            role: handleRole(role)
         }, "book-share-token", { expiresIn: "24h" })
-        await redis.set(`book:share:token:${bookToken}`, book_id, "EX", 24 * 60 * 60)
+        await redis.set(`book:share:token:${handleRole(role)}:${book_id}`, bookToken, "EX", 24 * 60 * 60)
 
         return res.status(200).send({
             msg: "ok",
-            bookToken
+            token: bookToken
         })
     } catch (error) {
         return next(new InternalServerError(500, "获取失败！", error.message))
@@ -74,19 +84,25 @@ bookRouter.post("/bookJoin", jwtMiddleware, async (req, res, next) => {
         const { bookToken } = req.body
         const { email } = req.user
 
-        const bookId = await redis.get(`book:share:token:${bookToken}`)
-        if (!bookId) return res.status(404).send({ error: "邀请链接无效" })
         const isValid = verify(bookToken, "book-share-token")
         if (!isValid) return res.status(404).send({ error: "邀请链接无效" })
 
         const { book_id, role } = isValid
+        const token = await redis.get(`book:share:token:${isValid.role}:${book_id}`)
+        if (!token) return res.status(404).send({ error: "邀请链接无效" })
+
         const [result] = await db("users").select("id").where({ email })
         const hasPermission = await db("book_permissions").select("*").where({ book_id, user_id: result.id })
-        if (hasPermission.length > 0) return res.status(200).send({ msg: "ok", user: isValid.email, bookId })
+        const data = { msg: "ok", user: isValid.email, book_id }
+        if (hasPermission.length > 0) {
+            if (hasPermission[0].permission !== role) await db("book_permissions").update({ permission: role }).where({ book_id, user_id: result.id })
+
+            return res.status(200).send(data)
+        }
 
         await db("book_permissions").insert({ book_id, user_id: result.id, permission: role })
 
-        return res.status(200).send({ msg: "ok", user: isValid.email, bookId })
+        return res.status(200).send(data)
     } catch (error) {
         return next(new InternalServerError(500, "获取失败！", error.message))
     }
