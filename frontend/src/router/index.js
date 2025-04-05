@@ -68,6 +68,16 @@ const router = createRouter({
         }
       ]
     },
+    {
+      path: "/g",
+      children: [
+        {
+          path: "share",
+          name: "Share",
+          component: () => import("@/views/GlobalView.vue"),
+        }
+      ]
+    }
   ],
 })
 

@@ -2,6 +2,7 @@
 import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
+import ShareTool from '@/components/tools/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
 import { ElAvatar, ElEmpty, ElIcon, ElSkeleton, ElSkeletonItem } from 'element-plus'
@@ -27,11 +28,7 @@ const store = useDocStore()
             <div class="title-setting">
               <ClIconButtonGroup size="20px">
                 <ClIconButton :icon="Star" title="收藏" />
-                <ClIconButton
-                  :icon="Share"
-                  title="分享"
-                  v-permission="['book:owner', 'book:editor']"
-                />
+                <ShareTool />
                 <ClIconButton
                   :icon="More"
                   title="设置"

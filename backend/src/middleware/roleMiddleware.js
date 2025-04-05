@@ -8,7 +8,8 @@ const { InternalServerError } = require("./errorMiddleware");
  * @param {import("express").NextFunction} next 
  */
 const bookPermissionMiddleware = async (req, res, next) => {
-    const { book_id } = req.query;
+    const { book_id } = req.query || req.params;
+
     // 校验用户权限
     try {
         const [permission] = await db("book_permissions")
@@ -16,7 +17,7 @@ const bookPermissionMiddleware = async (req, res, next) => {
             .select(["book_permissions.*", "users.email"])
             .where({ "book_permissions.book_id": book_id, user_id: req.user.id });
 
-        if (!permission) return next(new InternalServerError(403, "权限不足！"));
+        if (!permission) return res.status(403).send({ error: "权限不足！" });
 
         req.user.role = `book:${permission.permission}`;
         next()

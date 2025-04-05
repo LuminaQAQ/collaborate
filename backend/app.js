@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const loginRouter = require("./src/router/login.js");
 const homeRouter = require("./src/router/home.js");
+const bookRouter = require("./src/router/book.js");
 const docRouter = require("./src/router/doc.js");
 const historyRouter = require("./src/router/history.js");
 
@@ -24,6 +25,7 @@ app.use("/api", loginRouter)
 app.use("/api", homeRouter)
 app.use("/api", docRouter)
 app.use("/api", historyRouter)
+app.use("/api", bookRouter)
 app.use(errorMiddleware);
 
 app.listen(3000, () => {

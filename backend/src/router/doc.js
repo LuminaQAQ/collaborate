@@ -7,7 +7,6 @@ const { InternalServerError } = require("../middleware/errorMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const generateHash = require("../utils/generateHash");
 const bookPermissionMiddleware = require("../middleware/roleMiddleware");
-const { getVersionString } = require("../lib/mailer");
 
 const docRouter = express.Router();
 

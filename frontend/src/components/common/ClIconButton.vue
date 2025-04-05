@@ -3,7 +3,9 @@ defineProps(['size', 'icon', 'color'])
 </script>
 
 <template>
-  <ElIcon class="cl-icon-button" :title="title" :color="color"><component :is="icon" /> </ElIcon>
+  <ElIcon class="cl-icon-button" :title="title" :color="color" :size="size">
+    <component :is="icon" />
+  </ElIcon>
 </template>
 
 <style lang="scss">
