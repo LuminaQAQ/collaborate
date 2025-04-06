@@ -1,5 +1,6 @@
 const express = require("express");
 const zlib = require("node:zlib");
+const { Server } = require("socket.io")
 
 const jwtMiddleware = require("../middleware/jwtMiddleware");
 const db = require("../lib/db");
@@ -9,23 +10,6 @@ const generateHash = require("../utils/generateHash");
 const bookPermissionMiddleware = require("../middleware/roleMiddleware");
 
 const docRouter = express.Router();
-
-// 获取文档库列表
-docRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
-  const { email, id } = req.user;
-
-  try {
-    const bookList = await db("books")
-      .join("users", "books.creator_id", "users.id")
-      .select(["books.id", "books.name", "books.description", "users.email"])
-      .where({ "books.creator_id": id })
-      .orderBy("books.id");
-
-    return res.status(200).send({ msg: "ok", bookList, email })
-  } catch (error) {
-    return next(new InternalServerError(500, "获取失败！", error.message))
-  }
-})
 
 // 获取文档列表
 docRouter.get("/docList", jwtMiddleware, bookPermissionMiddleware, async (req, res, next) => {
@@ -89,25 +73,6 @@ docRouter.get("/docList", jwtMiddleware, bookPermissionMiddleware, async (req, r
   }
 })
 
-// 创建文档库
-docRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
-  const { email } = req.user;
-  const { name, description } = req.body
-
-  try {
-    const [result] = await db("users").select("id").where({ email })
-
-    const [book_id] = await db("books").insert({ name, description, creator_id: result.id })
-    await db("book_permissions").insert({ book_id, user_id: result.id, permission: "owner" })
-
-    return res.status(200).send({
-      msg: "创建成功！"
-    })
-  } catch (error) {
-    return next(new InternalServerError(500, "创建失败！", error.message))
-  }
-})
-
 // 创建文档
 docRouter.post("/createDoc", jwtMiddleware, async (req, res, next) => {
   const { id } = req.user;
@@ -135,189 +100,7 @@ docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
   }
 })
 
-// 获取当前文档信息
-const template = {
-  "meta": {
-    "abilities": {
-      "create": true,
-      "destroy": true,
-      "update": true,
-      "read": true,
-      "export": true,
-      "manage": true,
-      "join": true,
-      "share": true,
-      "force_delete": true,
-      "create_collaborator": true,
-      "destroy_comment": true
-    },
-    "latestReviewStatus": -1,
-    "matchCondition": {
-      "editType": "Lake",
-      "useEditorTileRendering": true,
-      "useEditorTileRenderingForOT": true,
-      "useEditorDelayTileChange": true,
-      "useEditorVirtualRendering": false,
-      "useEditorVirtualRenderingForOT": false
-    },
-    "collab": {
-      "host": "wss://collab.yuque.com",
-      "id": "yuque/prod/doc/212953678",
-      "token": "4gVwNP1_FUZPMXNYwi9kHQ==|JTsTFyDxkg5N0fdA7a4wQLtWo77FOX7CRFiqJk1Ppol4M7G34QaZ6AE7MzpW831ZFezhRO6m6Xnm505hOYE84iwIs_VLwfMB6NyYJ82z4JcTNOh1nxCXSne_iUXZVX6y1wdbGwNBXy1lAVb8DiyHuZjZbP_DfIi1ctwd_wN97oIhWYETnusoFqG-LY4tKvkTs3k54A4ieuZk9nk6GepXe3d_U9O2QUghcGK08tybw1zNWZoolimWA2ADUgJfK6SW8p3AaX2wZQRpAbNffPOb-RYQJAlnf1JovrqzJeAzKGE9L6stG1nY1hjyaErQ-8wHBezAuN-sluQU8K1TB3pzuQ75UVWrHlWoM-vJol05p46_WvOK8pbxrUa3d_FYHYSbzqv6wLJ6F-DWKcN8_wztxXYMPNy4pZu9n0xE_O-8KJ7A_7dWSHdwFYhUm-6GrKreEm2nZlKToSW0p8jCWQgt_QwJZpRG5Ur-F1De0ERKf3tbDNpyplCJNvn3140ePuGTvnMRpz1Tv0vrTk_7kAqHqYX36bkaSbeLqVo7TYiV7Dc="
-    }
-  },
-  "data": {
-    "id": 212953678,
-    "space_id": 0,
-    "type": "Doc",
-    "sub_type": null,
-    "title": "无标题文档",
-    "tag": null,
-    "title_draft": null,
-    "slug": "mp9yl3twyflznezg",
-    "user_id": 44393491,
-    "book_id": 63030179,
-    "last_editor_id": 44393491,
-    "cover": null,
-    "description": "",
-    "custom_description": "",
-    "body": "",
-    "body_draft": "",
-    "body_asl": "",
-    "body_draft_asl": "",
-    "format": "lake",
-    "origin_format": "lake",
-    "status": 0,
-    "read_status": 0,
-    "view_status": 0,
-    "public": 0,
-    "draft_version": 0,
-    "comments_count": 0,
-    "like": {
-      "count": 0,
-      "actioned": null
-    },
-    "likes_count": 0,
-    "abilities": {
-      "create": true,
-      "destroy": true,
-      "update": true,
-      "read": true,
-      "export": true,
-      "manage": true,
-      "join": true,
-      "share": true,
-      "force_delete": true,
-      "create_collaborator": true,
-      "destroy_comment": true
-    },
-    "content_updated_at": "2025-03-29T15:14:34.000Z",
-    "created_at": "2025-03-29T15:14:34.000Z",
-    "updated_at": "2025-03-29T15:14:34.000Z",
-    "published_at": null,
-    "first_published_at": null,
-    "pinned_at": null,
-    "hits": 0,
-    "word_count": 0,
-    "editor_meta": null,
-    "editor_meta_draft": null,
-    "marked": true,
-    "mark": {
-      "action_name": "mark_doc",
-      "id": 133472998427,
-      "created_at": "2025-03-29T16:03:54.000Z",
-      "updated_at": "2025-03-29T16:03:54.000Z",
-      "space_id": 0,
-      "action_type": "mark",
-      "action_option": "doc",
-      "action_setting_type": "default",
-      "user_id": 44393491,
-      "organization_id": 0,
-      "target_type": "Doc",
-      "target_id": 212953678,
-      "target_book_id": 63030179,
-      "target_group_id": 44393491,
-      "title": "无标题文档"
-    },
-    "meta": {
-
-    },
-    "collab": {
-      "host": "wss://collab.yuque.com",
-      "id": "yuque/prod/doc/212953678",
-      "token": "4gVwNP1_FUZPMXNYwi9kHQ==|JTsTFyDxkg5N0fdA7a4wQLtWo77FOX7CRFiqJk1Ppol4M7G34QaZ6AE7MzpW831ZFezhRO6m6Xnm505hOYE84iwIs_VLwfMB6NyYJ82z4JcTNOh1nxCXSne_iUXZVX6y1wdbGwNBXy1lAVb8DiyHuZjZbP_DfIi1ctwd_wN97oIhWYETnusoFqG-LY4tKvkTs3k54A4ieuZk9nk6GepXe3d_U9O2QUghcGK08tybw1zNWZoolimWA2ADUgJfK6SW8p3AaX2wZQRpAbNffPOb-RYQJAlnf1JovrqzJeAzKGE9L6stG1nY1hjyaErQ-8wHBezAuN-sluQU8K1TB3pzuQ75UVWrHlWoM-vJol05p46_WvOK8pbxrUa3d_FYHYSbzqv6wLJ6F-DWKcN8_wztxXYMPNy4pZu9n0xE_O-8KJ7A_7dWSHdwFYhUm-6GrKreEm2nZlKToSW0p8jCWQgt_QwJZpRG5Ur-F1De0ERKf3tbDNpyplCJNvn3140ePuGTvnMRpz1Tv0vrTk_7kAqHqYX36bkaSbeLqVo7TYiV7Dc="
-    },
-    "doc_dynamic_data": [],
-    "region": "福建",
-    "indexed_level": 0,
-    "privacy_migrated": true,
-    "share_expired_time": null,
-    "password": null,
-    "book": null,
-    "user": {
-      "id": 44393491,
-      "type": "User",
-      "login": "luolin-r0hmx",
-      "name": "洛霖",
-      "description": "",
-      "avatar": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
-      "avatar_url": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
-      "followers_count": 0,
-      "following_count": 0,
-      "role": 1,
-      "status": 1,
-      "public": 1,
-      "scene": null,
-      "source": "index",
-      "created_at": "2024-05-11T04:39:40.000Z",
-      "updated_at": "2025-03-29T15:14:34.000Z",
-      "expired_at": "2025-02-26T15:59:59.000Z",
-      "isPaid": false,
-      "member_level": 1,
-      "memberLevelName": "专业会员",
-      "hasMemberLevel": true,
-      "isTopLevel": false,
-      "isNewbie": false,
-      "members_count": 0,
-      "profile": null,
-      "organizationUser": null,
-      "_serializer": "web.user"
-    },
-    "last_editor": {
-      "id": 44393491,
-      "type": "User",
-      "login": "luolin-r0hmx",
-      "name": "洛霖",
-      "description": "",
-      "avatar": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
-      "avatar_url": "https://cdn.nlark.com/yuque/0/2024/png/anonymous/1715402378741-yuque/__avatar/thirdpart_register/7867084d-2082-4087-a8d3-5ede4baff8ab.png",
-      "followers_count": 0,
-      "following_count": 0,
-      "role": 1,
-      "status": 1,
-      "public": 1,
-      "scene": null,
-      "source": "index",
-      "created_at": "2024-05-11T04:39:40.000Z",
-      "updated_at": "2025-03-29T15:14:34.000Z",
-      "expired_at": "2025-02-26T15:59:59.000Z",
-      "isPaid": false,
-      "member_level": 1,
-      "memberLevelName": "专业会员",
-      "hasMemberLevel": true,
-      "isTopLevel": false,
-      "isNewbie": false,
-      "members_count": 0,
-      "profile": null,
-      "organizationUser": null,
-      "_serializer": "web.user"
-    },
-    "server_time": 1743264380148,
-    "locker": null,
-    "contributors": [],
-    "_serializer": "web.doc_raw"
-  }
-}
+// 获取文档
 docRouter.get("/doc", jwtMiddleware, bookPermissionMiddleware, async (req, res, next) => {
   const { book_id, doc_id } = req.query;
   let role = null;
@@ -337,7 +120,7 @@ docRouter.get("/doc", jwtMiddleware, bookPermissionMiddleware, async (req, res, 
       role = `doc:${permission.permission}`;
     }
   } catch (error) {
-    next(new InternalServerError(403, "文档列表获取失败！", error.message));
+    next(new InternalServerError(500, "文档列表获取失败！", error.message));
   }
 
   try {
@@ -346,7 +129,7 @@ docRouter.get("/doc", jwtMiddleware, bookPermissionMiddleware, async (req, res, 
 
     return res.send(result)
   } catch (error) {
-
+    next(new InternalServerError(500, "文档获取失败！", error.message))
   }
 })
 

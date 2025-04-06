@@ -4,13 +4,44 @@ import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import ShareTool from '@/components/tools/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
+import { useUserStore } from '@/stores/user'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
 import { ElAvatar, ElEmpty, ElIcon, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { io } from 'socket.io-client'
+import { onMounted, onUnmounted } from 'vue'
 
 const store = useDocStore()
+let socket = null
+
+const methods = {
+  test() {
+    socket.emit('updateDoc', 'updateDoc')
+  },
+}
+
+onMounted(() => {
+  socket = io('http://localhost:3000', {
+    transports: ['websocket'],
+    reconnection: true,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 3000,
+    auth: {
+      token: useUserStore().token,
+    },
+  })
+
+  socket.on('updateDoc', (msg) => {
+    console.log(msg)
+  })
+})
+
+onUnmounted(() => {
+  if (socket) socket.disconnect()
+})
 </script>
 
 <template>
+  <button @click="methods.test">测试</button>
   <section class="cl-book-wrap">
     <header class="cl-book__header">
       <ElSkeleton animated :loading="store.currentDocState.isLoading">

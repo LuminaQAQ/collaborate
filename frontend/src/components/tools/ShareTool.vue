@@ -1,6 +1,5 @@
 <script setup>
 import { Link, Share, User } from '@element-plus/icons-vue/dist/index.js'
-import { useDocStore } from '@/stores/doc'
 import ClIconButton from '../common/ClIconButton.vue'
 import ClListItem from '../common/ClListItem.vue'
 import { reactive, ref, watch } from 'vue'
@@ -8,7 +7,6 @@ import { ElIcon, ElPageHeader, ElSelect } from 'element-plus'
 import { request } from '@/utils/request'
 import { useRoute } from 'vue-router'
 
-const docStore = useDocStore()
 const route = useRoute()
 
 const isHome = ref(true)
@@ -27,7 +25,7 @@ const methods = {
   handleBack() {
     isHome.value = true
   },
-  handleSelect(value) {
+  handleSelect() {
     state.isLoading = true
     request
       .get('/api/bookJoinURL', {
@@ -46,11 +44,7 @@ const methods = {
   },
 }
 
-methods.handleCopy()
-
 watch(isHome, (val) => {
-  console.log(val)
-
   if (!val) methods.handleSelect()
 })
 </script>
