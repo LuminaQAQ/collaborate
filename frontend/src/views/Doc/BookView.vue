@@ -12,7 +12,6 @@ const store = useDocStore()
 </script>
 
 <template>
-  <button @click="methods.test">测试</button>
   <section class="cl-book-wrap">
     <header class="cl-book__header">
       <ElSkeleton animated :loading="store.currentDocState.isLoading">

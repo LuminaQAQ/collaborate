@@ -33,14 +33,15 @@
         </ClIconButtonGroup>
       </section>
     </ElHeader>
-    <ElMain>
+    <ElMain id="editor-container">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <v-md-editor
+        <div id="editor" ref="editorRef"></div>
+        <!-- <v-md-editor
           height="100%"
           v-model="docStore.currentDocState.content"
           :disabled-menus="[]"
           @upload-image="methods.handleUploadImage"
-        />
+        /> -->
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -61,6 +62,13 @@ import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { io } from 'socket.io-client'
 import { useUserStore } from '@/stores/user'
+
+import Vditor from 'vditor'
+import 'vditor/dist/index.css'
+
+const editorRef = ref(null)
+let editor = ref(null)
+
 const docStore = useDocStore()
 let socket = null
 
@@ -100,13 +108,64 @@ const methods = {
     await docStore.fetchDoc()
     isLoad.value = true
   },
+  handleFocus() {
+    // socket.emit('updateDoc', 'updateDoc')
+    console.log(1)
+  },
 }
 
 const controller = new AbortController()
-onMounted(() => {
-  methods.initDoc()
+onMounted(async () => {
+  await methods.initDoc()
 
   if (!docStore.handleRole.isOwnerOrEditor('doc')) return
+
+  editor.value = new Vditor(editorRef.value, {
+    height: '100%',
+    mode: 'wysiwyg',
+    toolbar: [
+      'upload',
+      '|',
+      'undo',
+      'redo',
+      '|',
+      'headings',
+      'bold',
+      'italic',
+      'strike',
+      'inline-code',
+      '|',
+      'emoji',
+      'list',
+      'ordered-list',
+      'outdent',
+      'indent',
+      '|',
+      'check',
+      'line',
+      'quote',
+      'code',
+      '|',
+      'link',
+      'table',
+      'record',
+      'both',
+      'fullscreen',
+      'outline',
+      'export',
+      'help',
+      'br',
+    ],
+    cache: {
+      id: 'editor',
+    },
+    after: () => {
+      editor.value.setValue(docStore.currentDocState.content)
+    },
+    input: (content) => {
+      docStore.currentDocState.content = content
+    },
+  })
 
   socket = io('http://localhost:3000', {
     auth: {
@@ -117,7 +176,7 @@ onMounted(() => {
   socket.on('connection', () => {
     console.log('socket connected')
   })
-  
+
   document.addEventListener(
     'keydown',
     (e) => {
@@ -133,5 +192,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   controller.abort()
+
+  if (editor.value) editor.value.destroy()
 })
 </script>
