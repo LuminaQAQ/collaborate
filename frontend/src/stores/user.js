@@ -6,12 +6,11 @@ import { defineStore } from "pinia"
 import { reactive, ref } from "vue";
 
 export const useUserStore = defineStore("user", () => {
-  let token = ref(localStorage.getItem("token") || null);
-
   const user = reactive({
     username: "",
     avatar: "",
     email: "",
+    token: localStorage.getItem("token") || null,
     bookList: []
   })
 
@@ -47,7 +46,6 @@ export const useUserStore = defineStore("user", () => {
   }
 
   return {
-    token,
     layoutState,
     user,
     methods

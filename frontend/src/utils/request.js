@@ -17,7 +17,7 @@ export const request = axios.create({
 
 request.interceptors.request.use(config => {
   const useUser = useUserStore();
-  const token = useUser.token || localStorage.getItem("token");
+  const token = useUser.user.token || localStorage.getItem("token");
 
   if (token && !whiteList.includes(config.url)) {
     config.headers["Authorization"] = `Bearer ${token}`;
