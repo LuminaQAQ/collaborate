@@ -59,8 +59,11 @@ import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { io } from 'socket.io-client'
+import { useUserStore } from '@/stores/user'
 const docStore = useDocStore()
-const md = ref('')
+let socket = null
+
 const isLoad = ref(false)
 
 const methods = {
@@ -103,6 +106,18 @@ const controller = new AbortController()
 onMounted(() => {
   methods.initDoc()
 
+  if (!docStore.handleRole.isOwnerOrEditor('doc')) return
+
+  socket = io('http://localhost:3000', {
+    auth: {
+      token: useUserStore().user.token,
+    },
+  })
+
+  socket.on('connection', () => {
+    console.log('socket connected')
+  })
+  
   document.addEventListener(
     'keydown',
     (e) => {

@@ -81,6 +81,14 @@ export const useDocStore = defineStore("doc", () => {
     return router.replace(`/${route.params.user}/${route.params.book}`);
   })
 
+  const socketMethods = {
+    updateDoc: (data) => {
+      if (data.doc_id === route.params.doc) {
+        currentDocState.content = data.content
+      }
+    }
+  }
+
   const restoreCurrentState = () => {
     for (const k in currentDocState) {
       if (typeof currentDocState[k] === "string") currentDocState[k] = "";
