@@ -45,8 +45,12 @@ io.on("connection", (socket) => {
         io.emit('updateDoc', msg);
     });
 
-    socket.on("updateCursor", (pos) => {
-        io.emit("updateCursor", pos);
+    // socket.on("updateCursor", (pos) => {
+    //     io.emit("updateCursor", { user: socket.user.email, pos });
+    // })
+
+    socket.on("user/join", () => {
+        socket.emit("user/add", socket.user.email);
     })
 
     socket.on('disconnect', () => {

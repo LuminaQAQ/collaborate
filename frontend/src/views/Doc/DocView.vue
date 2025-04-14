@@ -60,17 +60,17 @@ import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { io } from 'socket.io-client'
-import { useUserStore } from '@/stores/user'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+
+import { socketIO } from '@/utils/socketIO'
 
 const editorRef = ref(null)
 let editor = ref(null)
 
 const docStore = useDocStore()
-let socket = null
+let socket = socketIO
 
 const isLoad = ref(false)
 
@@ -167,24 +167,21 @@ onMounted(async () => {
     input: (content) => {
       docStore.currentDocState.content = content
     },
-    // focus: () => {
-    //   methods.handleFocus()
-    // },
   })
 
-  socket = io('http://localhost:3000', {
-    auth: {
-      token: useUserStore().user.token,
-    },
+  socket.connect()
+  socket.emit('user/join')
+  socket.on('user/add', (user) => {
+    console.log(user)
   })
 
-  socket.on('connection', () => {
-    console.log('socket connected')
-  })
+  // socket.on('connection', () => {
+  //   console.log('socket connected')
+  // })
 
-  socket.on('updateCursor', (data) => {
-    console.log(data)
-  })
+  // socket.on('updateCursor', (data) => {
+  //   console.log(data)
+  // })
 
   document.addEventListener(
     'keydown',
@@ -203,5 +200,6 @@ onBeforeUnmount(() => {
   controller.abort()
 
   if (editor.value) editor.value.destroy()
+  if (socket) socket.disconnect()
 })
 </script>
