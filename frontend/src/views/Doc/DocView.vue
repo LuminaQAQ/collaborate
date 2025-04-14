@@ -35,7 +35,7 @@
     </ElHeader>
     <ElMain id="editor-container">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <div id="editor" ref="editorRef"></div>
+        <div id="editor" ref="editorRef" @click="methods.updateCursorPosition"></div>
         <!-- <v-md-editor
           height="100%"
           v-model="docStore.currentDocState.content"
@@ -76,6 +76,7 @@ const isLoad = ref(false)
 
 const methods = {
   handleSave() {
+    docStore.currentDocState.content = editor.value.getValue()
     docStore.updateDoc()
   },
   /**
@@ -108,9 +109,10 @@ const methods = {
     await docStore.fetchDoc()
     isLoad.value = true
   },
-  handleFocus() {
-    // socket.emit('updateDoc', 'updateDoc')
-    console.log(1)
+  updateCursorPosition() {
+    const { left, top } = editor.value.getCursorPosition()
+    if (!left && !top) return
+    socket.emit('updateCursor', { left, top })
   },
 }
 
@@ -165,6 +167,9 @@ onMounted(async () => {
     input: (content) => {
       docStore.currentDocState.content = content
     },
+    // focus: () => {
+    //   methods.handleFocus()
+    // },
   })
 
   socket = io('http://localhost:3000', {
@@ -175,6 +180,10 @@ onMounted(async () => {
 
   socket.on('connection', () => {
     console.log('socket connected')
+  })
+
+  socket.on('updateCursor', (data) => {
+    console.log(data)
   })
 
   document.addEventListener(

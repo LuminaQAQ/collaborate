@@ -45,6 +45,10 @@ io.on("connection", (socket) => {
         io.emit('updateDoc', msg);
     });
 
+    socket.on("updateCursor", (pos) => {
+        io.emit("updateCursor", pos);
+    })
+
     socket.on('disconnect', () => {
         console.log(`用户 ${socket.id} 已断开`);
     });
