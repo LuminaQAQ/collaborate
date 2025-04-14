@@ -64,13 +64,15 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 
-import { socketIO } from '@/utils/socketIO'
+import useSocket from '@/utils/socketIO'
+import { useRoute } from 'vue-router'
 
 const editorRef = ref(null)
 let editor = ref(null)
+const route = useRoute()
 
 const docStore = useDocStore()
-let socket = socketIO
+let socket = null
 
 const isLoad = ref(false)
 
@@ -169,10 +171,17 @@ onMounted(async () => {
     },
   })
 
-  socket.connect()
-  socket.emit('user/join')
-  socket.on('user/add', (user) => {
-    console.log(user)
+  // socket = socketIO
+  socket = useSocket().socket
+  socket.on('connect', () => {
+    socket.emit('user/join', {
+      docId: Number(route.params.doc),
+      bookId: Number(route.params.book),
+    })
+
+    socket.on('user/add', (user) => {
+      // console.log(user)
+    })
   })
 
   // socket.on('connection', () => {

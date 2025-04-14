@@ -21,7 +21,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: "http://localhost:5173"
+    cors: "*"
 })
 
 app.use(preventHotLinking)
@@ -39,18 +39,23 @@ app.use(errorMiddleware);
 io.use(socketIoTokenVerifyMiddleware);
 
 io.on("connection", (socket) => {
+    const state = new Map();
     console.log(`用户 ${socket.id} 已连接`, socket.user);
 
-    socket.on('updateDoc', (msg) => {
-        io.emit('updateDoc', msg);
-    });
+    // socket.on('updateDoc', (msg) => {
+    //     io.emit('updateDoc', msg);
+    // });
 
     // socket.on("updateCursor", (pos) => {
     //     io.emit("updateCursor", { user: socket.user.email, pos });
     // })
 
-    socket.on("user/join", () => {
-        socket.emit("user/add", socket.user.email);
+    socket.on("user/join", (user) => {
+        io.emit("user/add", { user, email: socket.user.email });
+    })
+
+    socket.on("user/leave", (user) => {
+        io.emit("user/remove", { user, email: socket.user.email });
     })
 
     socket.on('disconnect', () => {
