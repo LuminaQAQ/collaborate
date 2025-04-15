@@ -31,7 +31,11 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(config => {
   return config;
 }, err => {
-  if (err.status === 401) router.replace("/login");
+  const useUser = useUserStore();
+  if (err.status === 401) {
+    router.replace("/login");
+    useUser.methods.logout();
+  }
 
   ElMessage({ type: "error", message: err.response?.data?.error })
   return Promise.reject(err);

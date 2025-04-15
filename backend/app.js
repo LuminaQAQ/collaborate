@@ -10,11 +10,14 @@ const bookRouter = require("./src/router/book.js");
 const docRouter = require("./src/router/doc.js");
 const historyRouter = require("./src/router/history.js");
 
+const socketIoTokenVerifyMiddleware = require("./src/middleware/socket/tokenVerifyMiddleware.js");
+const socketOnConnect = require("./src/socket/doc.socket.js");
+
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
 const initTables = require("./src/schema/index.js");
 const preventHotLinking = require("./src/middleware/preventHotLinking.js");
-const socketIoTokenVerifyMiddleware = require("./src/middleware/socketIoTokenVerifyMiddleware.js");
+
 initTables();
 
 const app = express();
@@ -36,32 +39,9 @@ app.use("/api", historyRouter)
 app.use("/api", bookRouter)
 app.use(errorMiddleware);
 
-io.use(socketIoTokenVerifyMiddleware);
-
-io.on("connection", (socket) => {
-    const state = new Map();
-    console.log(`用户 ${socket.id} 已连接`, socket.user);
-
-    // socket.on('updateDoc', (msg) => {
-    //     io.emit('updateDoc', msg);
-    // });
-
-    // socket.on("updateCursor", (pos) => {
-    //     io.emit("updateCursor", { user: socket.user.email, pos });
-    // })
-
-    socket.on("user/join", (user) => {
-        io.emit("user/add", { user, email: socket.user.email });
-    })
-
-    socket.on("user/leave", (user) => {
-        io.emit("user/remove", { user, email: socket.user.email });
-    })
-
-    socket.on('disconnect', () => {
-        console.log(`用户 ${socket.id} 已断开`);
-    });
-})
+io.of("/doc")
+    .use(socketIoTokenVerifyMiddleware)
+    .on("connect", socketOnConnect)
 
 server.listen(3000, () => {
     console.log("服务器已启动在 3000 端口");

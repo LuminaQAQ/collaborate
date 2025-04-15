@@ -32,7 +32,7 @@ loginRouter.post("/login", async (req, res) => {
 
         const payload = { email, id: userinfo.id };
         const token = jwt.sign(payload, jwtSecretKey, { expiresIn: EX_TIME });
-        await redis.set(token, 1, "EX", EX_TIME);
+        await redis.set(`user:jwt:${token}`, 1, "EX", EX_TIME);
 
 
         return res.status(200).send({

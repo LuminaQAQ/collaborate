@@ -60,9 +60,7 @@ export const useDocStore = defineStore("doc", () => {
     currentDocState.title = title
     currentDocState.content = content
     if (role) currentDocState.role.doc = role.split(":")[1];
-  }).catch((err) => {
-    console.log(err)
-  })
+  }).catch((err) => { })
 
   const updateDoc = () => requestDocUpdate({
     doc_id: route.params.doc,

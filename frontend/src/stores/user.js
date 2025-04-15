@@ -36,12 +36,21 @@ export const useUserStore = defineStore("user", () => {
 
           router.replace('/dashboard')
         })
-        .catch((err) => console.log(err))
+        .catch((err) => { })
     },
     fetchBookList() {
       requestBookList()
         .then((res) => (user.bookList = res.data.bookList))
         .catch((err) => console.log(err))
+    },
+    logout() {
+      Object.assign(user, {
+        username: "",
+        avatar: "",
+        email: "",
+        token: null,
+        bookList: []
+      })
     }
   }
 

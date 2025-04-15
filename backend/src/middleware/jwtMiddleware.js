@@ -22,7 +22,7 @@ const jwtMiddleware = async (req, res, next) => {
         const SECRET_KEY = generateHash(jwtConfigs.options.secret);
 
         try {
-            const redisToken = await redis.get(token);
+            const redisToken = await redis.get(`user:jwt:${token}`);
 
             if (!redisToken) return res.status(401).send({ error: "token已失效!" })
 

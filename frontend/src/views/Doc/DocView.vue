@@ -64,7 +64,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
 
-import useSocket from '@/utils/socketIO'
+import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
 
 const editorRef = ref(null)
@@ -114,6 +114,21 @@ const methods = {
   updateCursorPosition() {
     const { left, top } = editor.value.getCursorPosition()
     if (!left && !top) return
+
+    const wrap = editorRef.value.querySelector('.vditor-content')
+    const div = document.createElement('div')
+    div.style.cssText = `
+      position: absolute;
+      top: ${top}px;
+      left: ${left}px;
+      width: 2px;
+      height: 12px;
+      transform: translate(50%, 50%);
+      background: red;
+      border-radius: 50%;
+      z-index: 999;
+    `
+    wrap.appendChild(div)
     socket.emit('updateCursor', { left, top })
   },
 }
@@ -171,16 +186,18 @@ onMounted(async () => {
     },
   })
 
-  // socket = socketIO
-  socket = useSocket().socket
+  socket = useSocket('/doc').socket
   socket.on('connect', () => {
-    socket.emit('user/join', {
-      docId: Number(route.params.doc),
+    socket.emit('doc/join', {
       bookId: Number(route.params.book),
+      docId: Number(route.params.doc),
+    })
+    socket.on('user/add', (user) => {
+      console.log(user)
     })
 
-    socket.on('user/add', (user) => {
-      // console.log(user)
+    socket.on('doc/cursor', (data) => {
+      console.log(data)
     })
   })
 
