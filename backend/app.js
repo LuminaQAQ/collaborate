@@ -17,6 +17,7 @@ const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
 const initTables = require("./src/schema/index.js");
 const preventHotLinking = require("./src/middleware/preventHotLinking.js");
+const socketIoErrorMiddleware = require("./src/middleware/socket/errorMiddleware.js");
 
 initTables();
 

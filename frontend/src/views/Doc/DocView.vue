@@ -115,21 +115,28 @@ const methods = {
     const { left, top } = editor.value.getCursorPosition()
     if (!left && !top) return
 
-    const wrap = editorRef.value.querySelector('.vditor-content')
-    const div = document.createElement('div')
-    div.style.cssText = `
-      position: absolute;
-      top: ${top}px;
-      left: ${left}px;
-      width: 2px;
-      height: 12px;
-      transform: translate(50%, 50%);
-      background: red;
-      border-radius: 50%;
-      z-index: 999;
-    `
-    wrap.appendChild(div)
-    socket.emit('updateCursor', { left, top })
+    // const editorContent = editorRef.value.querySelector('.vditor-content')
+    // const wrap = document.getSelection().getRangeAt(0).commonAncestorContainer.parentNode
+    // console.log(editorContent, wrap)
+
+    // const cursor = document.createElement('div')
+
+    // console.log()
+
+    // cursor.style.cssText = `
+    //   position: absolute;
+    //   top: ${top}px;
+    //   left: ${left}px;
+    //   width: 2px;
+    //   height: ${wrap.getBoundingClientRect().height}px;
+    //   transform: translate(-50%, -25%);
+    //   background: red;
+    //   border-radius: 50%;
+    //   z-index: 999;
+    // `
+    // editorContent.appendChild(cursor)
+
+    // socket.emit('updateCursor', { left, top })
   },
 }
 
@@ -196,7 +203,7 @@ onMounted(async () => {
       console.log(user)
     })
 
-    socket.on('doc/cursor', (data) => {
+    socket.on('user/update', (data) => {
       console.log(data)
     })
   })
@@ -215,7 +222,13 @@ onMounted(async () => {
       if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault()
 
-        methods.handleSave()
+        socket.emit('doc/update', {
+          doc_id: Number(route.params.doc),
+          title: docStore.currentDocState.bookName,
+          content: editor.value.getValue(),
+        })
+
+        // methods.handleSave()
       }
     },
     { signal: controller.signal },
