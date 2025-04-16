@@ -203,8 +203,12 @@ onMounted(async () => {
       console.log(user)
     })
 
-    socket.on('user/update', (data) => {
-      console.log(data)
+    socket.on('doc/update', ({ title, content }) => {
+      console.log(title, content)
+
+      docStore.currentDocState.title = title
+      docStore.currentDocState.content = content
+      editor.value.setValue(content)
     })
   })
 
@@ -223,12 +227,11 @@ onMounted(async () => {
         e.preventDefault()
 
         socket.emit('doc/update', {
+          book_id: Number(route.params.book),
           doc_id: Number(route.params.doc),
-          title: docStore.currentDocState.bookName,
+          title: docStore.currentDocState.title,
           content: editor.value.getValue(),
         })
-
-        // methods.handleSave()
       }
     },
     { signal: controller.signal },

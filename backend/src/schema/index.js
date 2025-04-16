@@ -43,6 +43,7 @@ const initDocsVersionTable = async () => {
             table.increments("id").primary().unique().unsigned()
             table.integer("doc_id").notNullable().unsigned()
             table.integer("version").notNullable()
+            table.string("title", 32).notNullable()
             table.text("content").notNullable()
             table.integer("creator_id").notNullable().unsigned()
             table.timestamp("created_at").defaultTo(db.fn.now())
