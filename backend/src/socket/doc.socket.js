@@ -54,7 +54,6 @@ const main = (socket, next) => {
                 content
             })
 
-
             socket.broadcast.to(roomId).emit("doc/update", {
                 title,
                 content

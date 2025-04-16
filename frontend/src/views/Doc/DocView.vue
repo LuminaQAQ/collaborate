@@ -35,7 +35,12 @@
     </ElHeader>
     <ElMain id="editor-container">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <div id="editor" ref="editorRef" @click="methods.updateCursorPosition"></div>
+        <div
+          id="editor"
+          ref="editorRef"
+          @click="methods.updateCursorPosition"
+          @input="methods.updateDocValue"
+        ></div>
         <!-- <v-md-editor
           height="100%"
           v-model="docStore.currentDocState.content"
@@ -59,7 +64,7 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
@@ -75,6 +80,10 @@ const docStore = useDocStore()
 let socket = null
 
 const isLoad = ref(false)
+
+const state = reactive({
+  isMulCollaborator: false,
+})
 
 const methods = {
   handleSave() {
@@ -138,6 +147,18 @@ const methods = {
 
     // socket.emit('updateCursor', { left, top })
   },
+
+  updateDocValue() {
+    docStore.currentDocState.content = content
+    if (state.isMulCollaborator) {
+      socket.emit('doc/update', {
+        book_id: Number(route.params.book),
+        doc_id: Number(route.params.doc),
+        title: docStore.currentDocState.title,
+        content,
+      })
+    }
+  },
 }
 
 const controller = new AbortController()
@@ -188,9 +209,18 @@ onMounted(async () => {
     after: () => {
       editor.value.setValue(docStore.currentDocState.content)
     },
-    input: (content) => {
-      docStore.currentDocState.content = content
-    },
+    // input: (content) => {
+    //   docStore.currentDocState.content = content
+
+    //   if (state.isMulCollaborator) {
+    //     socket.emit('doc/update', {
+    //       book_id: Number(route.params.book),
+    //       doc_id: Number(route.params.doc),
+    //       title: docStore.currentDocState.title,
+    //       content,
+    //     })
+    //   }
+    // },
   })
 
   socket = useSocket('/doc').socket
@@ -200,25 +230,15 @@ onMounted(async () => {
       docId: Number(route.params.doc),
     })
     socket.on('user/add', (user) => {
-      console.log(user)
+      state.isMulCollaborator = true
     })
 
     socket.on('doc/update', ({ title, content }) => {
-      console.log(title, content)
-
       docStore.currentDocState.title = title
       docStore.currentDocState.content = content
       editor.value.setValue(content)
     })
   })
-
-  // socket.on('connection', () => {
-  //   console.log('socket connected')
-  // })
-
-  // socket.on('updateCursor', (data) => {
-  //   console.log(data)
-  // })
 
   document.addEventListener(
     'keydown',
