@@ -223,22 +223,35 @@ onMounted(async () => {
     // },
   })
 
-  socket = useSocket('/doc').socket
+  const { socketIo, emit } = useSocket('/doc')
+  socket = socketIo
   socket.on('connect', () => {
-    socket.emit('doc/join', {
+    emit('doc/join', {
       bookId: Number(route.params.book),
       docId: Number(route.params.doc),
     })
-    socket.on('user/add', (user) => {
+
+    socket.on('user/change', (user) => {
+      console.log(user)
+
       state.isMulCollaborator = true
     })
-
-    socket.on('doc/update', ({ title, content }) => {
-      docStore.currentDocState.title = title
-      docStore.currentDocState.content = content
-      editor.value.setValue(content)
-    })
   })
+  // socket.on('connect', () => {
+  //   socket.emit('doc/join', {
+  //     bookId: Number(route.params.book),
+  //     docId: Number(route.params.doc),
+  //   })
+  //   socket.on('user/add', (user) => {
+  //     state.isMulCollaborator = true
+  //   })
+
+  //   socket.on('doc/update', ({ title, content }) => {
+  //     docStore.currentDocState.title = title
+  //     docStore.currentDocState.content = content
+  //     editor.value.setValue(content)
+  //   })
+  // })
 
   document.addEventListener(
     'keydown',

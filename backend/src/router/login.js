@@ -25,7 +25,7 @@ loginRouter.post("/login", async (req, res) => {
         const userIsExists = await db("users").select("*").where({ email, password_hash });
         if (!userIsExists.length) return res.status(401).send({ error: "邮箱或密码错误！" });
 
-        const EX_TIME = 2 * 60 * 60;
+        const EX_TIME = 6 * 60 * 60;
         const jwtSecretKey = generateHash(jwtConfigs.options.secret);
 
         const [userinfo] = userIsExists;
