@@ -100,7 +100,7 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
@@ -124,9 +124,9 @@ const state = reactive({
 const isMulCollaborator = computed(() => state.collaborators.length > 1)
 
 const methods = {
-  handleSave() {
+  handleSave(isAutoSava = false) {
     docStore.currentDocState.content = editor.value.getValue()
-    docStore.updateDoc()
+    docStore.updateDoc(isAutoSava)
   },
   /**
    *
@@ -195,8 +195,6 @@ const methods = {
         title: docStore.currentDocState.title,
         content,
       })
-    } else {
-      // methods.handleSave()
     }
   },
 }
@@ -273,7 +271,6 @@ onMounted(async () => {
 
     socket.on('collaborator/change', (collaborators) => {
       state.collaborators = collaborators
-      // methods.handleSave()
     })
 
     socket.on('doc/update', ({ title, content }) => {
@@ -296,13 +293,12 @@ onMounted(async () => {
   )
 })
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
   controller.abort()
 
-  if (socket) {
-    // methods.updateDocValue(true)
-    socket.disconnect()
-  }
+  if (socket) socket.disconnect()
   if (editor.value) editor.value.destroy()
+
+  docStore.restoreCurrentState()
 })
 </script>
