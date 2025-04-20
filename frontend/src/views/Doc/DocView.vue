@@ -33,6 +33,7 @@
         <ElInput
           v-if="docStore.handleRole.isOwnerOrEditor('doc')"
           v-model="docStore.currentDocState.title"
+          @input="methods.updateDocValue"
         />
         <h2 v-else>
           {{ docStore.currentDocState.title }}
@@ -186,16 +187,17 @@ const methods = {
   },
 
   updateDocValue() {
-    // const content = editor.value.getValue()
-    // docStore.currentDocState.content = content
-    // if (isMulCollaborator.value) {
-    //   socket.emit('doc/update', {
-    //     book_id: Number(route.params.book),
-    //     doc_id: Number(route.params.doc),
-    //     title: docStore.currentDocState.title,
-    //     content,
-    //   })
-    // }
+    const content = editor.value.getValue()
+    if (isMulCollaborator.value) {
+      socket.emit('doc/update', {
+        book_id: Number(route.params.book),
+        doc_id: Number(route.params.doc),
+        title: docStore.currentDocState.title,
+        content,
+      })
+    } else {
+      // methods.handleSave()
+    }
   },
 }
 
@@ -271,11 +273,10 @@ onMounted(async () => {
 
     socket.on('collaborator/change', (collaborators) => {
       state.collaborators = collaborators
+      // methods.handleSave()
     })
 
     socket.on('doc/update', ({ title, content }) => {
-      console.log(title, content)
-
       docStore.currentDocState.title = title
       docStore.currentDocState.content = content
       editor.value.setValue(content)
@@ -288,12 +289,7 @@ onMounted(async () => {
       if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault()
 
-        socket.emit('doc/update', {
-          book_id: Number(route.params.book),
-          doc_id: Number(route.params.doc),
-          title: docStore.currentDocState.title,
-          content: editor.value.getValue(),
-        })
+        methods.handleSave()
       }
     },
     { signal: controller.signal },
@@ -303,7 +299,10 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   controller.abort()
 
+  if (socket) {
+    // methods.updateDocValue(true)
+    socket.disconnect()
+  }
   if (editor.value) editor.value.destroy()
-  if (socket) socket.disconnect()
 })
 </script>

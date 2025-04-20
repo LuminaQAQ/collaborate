@@ -136,23 +136,40 @@ docRouter.get("/doc", jwtMiddleware, bookPermissionMiddleware, async (req, res, 
 // 更新文档信息
 docRouter.post("/updateDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id, title, content } = req.body;
+  const updateDoc = async ({ creator_id, doc_id, title, content }) => new Promise(async (resolve, reject) => {
+    const isNeedUpdate = new Promise(async (res, rej) => {
+      const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1);
+      if (!lastVersion) return res(lastVersion);
+      else {
+        const prevHash = generateHash(lastVersion.title + lastVersion.content);
+        const currHash = generateHash(title + content);
+
+        if (prevHash !== currHash) res();
+        else rej();
+      }
+    })
+
+    isNeedUpdate.then(async res => {
+      const [version] = await db("docs_version").max("version").where({ doc_id })
+
+      await db("docs").update({ title, content }).where({ id: doc_id })
+      await db("docs_version").insert({
+        creator_id,
+        doc_id,
+        version: version['max(`version`)'] + 1,
+        title,
+        content
+      })
+
+      resolve()
+    }).catch(err => resolve())
+  })
 
   try {
-    if (!content || content === "") {
-      await db("docs").update({ title }).where({ id: doc_id });
-      return res.send({ msg: "ok" });
-    }
-
-    const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1)
-    if (lastVersion?.content && generateHash(lastVersion.content) === generateHash(content)) return res.send({ msg: "ok" })
-
-    await db("docs").update({ title, content }).where({ id: doc_id })
-
-    const [version] = await db("docs_version").max("version").where({ doc_id })
-    await db("docs_version").insert({
+    await updateDoc({
       creator_id: req.user.id,
       doc_id,
-      version: version['max(`version`)'] + 1,
+      title,
       content
     })
 

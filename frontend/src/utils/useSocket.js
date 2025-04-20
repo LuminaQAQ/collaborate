@@ -10,8 +10,6 @@ export default function useSocket(nameSpace) {
 
     const emit = (eventName, data) => new Promise((resolve, reject) => {
         socketIo.emit(eventName, data, (res) => {
-            console.log(res);
-
             if (res.error) {
                 reject(res.error)
             } else {

@@ -63,12 +63,12 @@ export const useDocStore = defineStore("doc", () => {
     if (role) currentDocState.role.doc = role.split(":")[1];
   }).catch((err) => { })
 
-  const updateDoc = () => requestDocUpdate({
+  const updateDoc = (isAutoSave = false) => requestDocUpdate({
     doc_id: route.params.doc,
     title: currentDocState.title,
     content: currentDocState.content
   }).then((res) => {
-    ElMessage.success('保存成功！')
+    if (!isAutoSave) ElMessage.success('保存成功！')
     fetchDocList();
   })
 
@@ -79,14 +79,6 @@ export const useDocStore = defineStore("doc", () => {
     fetchDocList();
     return router.replace(`/${route.params.user}/${route.params.book}`);
   })
-
-  const socketMethods = {
-    updateDoc: (data) => {
-      if (data.doc_id === route.params.doc) {
-        currentDocState.content = data.content
-      }
-    }
-  }
 
   const restoreCurrentState = () => {
     // for (const k in currentDocState) {
