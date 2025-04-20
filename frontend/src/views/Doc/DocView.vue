@@ -5,6 +5,25 @@
   display: flex;
   justify-content: space-between;
 }
+
+.collaborator-wrap {
+  height: 100%;
+  margin: 0 auto 0 1rem;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+
+  & > .collaborator-item {
+    margin-right: 0.35rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
 </style>
 
 <template>
@@ -19,7 +38,23 @@
           {{ docStore.currentDocState.title }}
         </h2>
       </section>
-
+      <section class="collaborator-wrap" v-if="isMulCollaborator">
+        <section
+          class="collaborator-item"
+          v-for="item in state.collaborators.slice(0, 3)"
+          :key="item.id"
+          :title="item.username"
+        >
+          <template v-if="item.avatar">
+            <ElAvatar :src="item.avatar" />
+          </template>
+          <template v-else>
+            <ElAvatar :size="28">
+              {{ item.username }}
+            </ElAvatar>
+          </template>
+        </section>
+      </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
           <CollectionTool />
@@ -64,7 +99,7 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
@@ -82,8 +117,10 @@ let socket = null
 const isLoad = ref(false)
 
 const state = reactive({
-  isMulCollaborator: false,
+  collaborators: [],
 })
+
+const isMulCollaborator = computed(() => state.collaborators.length > 1)
 
 const methods = {
   handleSave() {
@@ -149,15 +186,16 @@ const methods = {
   },
 
   updateDocValue() {
-    docStore.currentDocState.content = content
-    if (state.isMulCollaborator) {
-      socket.emit('doc/update', {
-        book_id: Number(route.params.book),
-        doc_id: Number(route.params.doc),
-        title: docStore.currentDocState.title,
-        content,
-      })
-    }
+    // const content = editor.value.getValue()
+    // docStore.currentDocState.content = content
+    // if (isMulCollaborator.value) {
+    //   socket.emit('doc/update', {
+    //     book_id: Number(route.params.book),
+    //     doc_id: Number(route.params.doc),
+    //     title: docStore.currentDocState.title,
+    //     content,
+    //   })
+    // }
   },
 }
 
@@ -231,27 +269,18 @@ onMounted(async () => {
       docId: Number(route.params.doc),
     })
 
-    socket.on('user/change', (user) => {
-      console.log(user)
+    socket.on('collaborator/change', (collaborators) => {
+      state.collaborators = collaborators
+    })
 
-      state.isMulCollaborator = true
+    socket.on('doc/update', ({ title, content }) => {
+      console.log(title, content)
+
+      docStore.currentDocState.title = title
+      docStore.currentDocState.content = content
+      editor.value.setValue(content)
     })
   })
-  // socket.on('connect', () => {
-  //   socket.emit('doc/join', {
-  //     bookId: Number(route.params.book),
-  //     docId: Number(route.params.doc),
-  //   })
-  //   socket.on('user/add', (user) => {
-  //     state.isMulCollaborator = true
-  //   })
-
-  //   socket.on('doc/update', ({ title, content }) => {
-  //     docStore.currentDocState.title = title
-  //     docStore.currentDocState.content = content
-  //     editor.value.setValue(content)
-  //   })
-  // })
 
   document.addEventListener(
     'keydown',

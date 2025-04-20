@@ -18,6 +18,7 @@ export const useDocStore = defineStore("doc", () => {
       book: "",
       doc: ""
     },
+    collaborators: [],
     docList: [],
     docInfo: {}
   })
@@ -88,12 +89,27 @@ export const useDocStore = defineStore("doc", () => {
   }
 
   const restoreCurrentState = () => {
-    for (const k in currentDocState) {
-      if (typeof currentDocState[k] === "string") currentDocState[k] = "";
-      else if (Array.isArray(currentDocState[k])) currentDocState[k] = [];
-    }
+    // for (const k in currentDocState) {
+    //   if (typeof currentDocState[k] === "string") currentDocState[k] = "";
+    //   else if (Array.isArray(currentDocState[k])) currentDocState[k] = [];
+    // }
 
-    currentDocState.isLoading = true;
+    // currentDocState.isLoading = true;
+
+    Object.assign(currentDocState, {
+      isLoading: true,
+      bookName: "",
+      bookDesc: "",
+      title: "",
+      content: "",
+      role: {
+        book: "",
+        doc: ""
+      },
+      collaborators: [],
+      docList: [],
+      docInfo: {}
+    })
   }
 
   return {
