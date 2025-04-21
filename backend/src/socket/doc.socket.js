@@ -4,10 +4,6 @@ const generateHash = require("../utils/generateHash");
 
 const roomMap = new Map();
 
-// const docIsNeedUpdate = () => new Promise(async (resolve, reject) => {
-//     const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1);
-// })
-
 const updateDoc = async ({ creator_id, doc_id, title, content }) => new Promise(async (resolve, reject) => {
     const isNeedUpdate = new Promise(async (res, rej) => {
         const [lastVersion] = await db("docs_version").where({ doc_id }).orderBy("version", "desc").limit(1);
@@ -76,6 +72,10 @@ const socketOnConnect = (io, socket) => {
                     title,
                     content
                 });
+                // io.of("/doc").to(roomId).emit("doc/update", {
+                //     title,
+                //     content
+                // });
 
                 if (roomMap.get(roomId).timer) clearTimeout(roomMap.get(roomId).timer);
                 roomMap.get(roomId).timer = setTimeout(async () => {

@@ -244,6 +244,12 @@ onMounted(async () => {
     cache: {
       id: 'editor',
     },
+    counter: {
+      enable: true,
+    },
+    comment: {
+      enable: true,
+    },
     after: () => {
       editor.value.setValue(docStore.currentDocState.content)
     },
@@ -277,6 +283,8 @@ onMounted(async () => {
       docStore.currentDocState.title = title
       docStore.currentDocState.content = content
       editor.value.setValue(content)
+
+      // editor.value.updateValue(content)
     })
   })
 
