@@ -26,7 +26,9 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: "*"
+    cors: { origin: "*" },
+    allowEIO3: true,
+    transports: ['websocket'],
 })
 
 app.use(preventHotLinking)

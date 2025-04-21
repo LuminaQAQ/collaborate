@@ -1,4 +1,5 @@
 const { Socket } = require("socket.io");
+const Y = require("yjs");
 const db = require("../lib/db");
 const generateHash = require("../utils/generateHash");
 
@@ -50,7 +51,8 @@ const socketOnConnect = (io, socket) => {
         if (!roomMap.has(roomId)) {
             const roomData = {
                 members: new Map(),
-                timer: null
+                timer: null,
+                doc: new Y.Doc()
             };
             roomData.members.set(email, userInfo);
             roomMap.set(roomId, roomData);
@@ -61,36 +63,52 @@ const socketOnConnect = (io, socket) => {
         const persons = [...roomMap.get(roomId).members.values()].sort((a, b) => a.id - b.id);
         io.of("/doc").to(roomId).emit("collaborator/change", persons);
 
-        socket.on("doc/update", async ({ book_id, doc_id, title, content, isForce }) => {
-            const { email, id } = socket.user;
-            const roomId = `${book_id}-${doc_id}`;
+        const ydoc = roomMap.get(roomId).doc;
+        const encodedStateVector = Y.encodeStateVector(ydoc);
+        socket.emit('sync', encodedStateVector);
 
-            if (!roomMap.has(roomId)) return;
+        socket.on('update', (update) => {
+            Y.applyUpdate(ydoc, update, socket);
+            socket.to(roomName).emit('update', update);
+        });
 
-            try {
-                socket.broadcast.to(roomId).emit("doc/update", {
-                    title,
-                    content
-                });
-                // io.of("/doc").to(roomId).emit("doc/update", {
-                //     title,
-                //     content
-                // });
+        socket.on('sync-response', (update) => {
+            Y.applyUpdate(ydoc, update, socket);
+        });
 
-                if (roomMap.get(roomId).timer) clearTimeout(roomMap.get(roomId).timer);
-                roomMap.get(roomId).timer = setTimeout(async () => {
-                    clearTimeout(roomMap.get(roomId).timer);
-                    roomMap.get(roomId).timer = null;
-                    await updateDoc({ creator_id: id, doc_id, title, content })
-                }, 5 * 1000);
-            } catch (error) {
-                console.log(error);
-            }
-        })
+        // socket.on("doc/update", async ({ book_id, doc_id, title, content, isForce }) => {
+        //     const { email, id } = socket.user;
+        //     const roomId = `${book_id}-${doc_id}`;
+
+        //     if (!roomMap.has(roomId)) return;
+
+        //     try {
+        //         socket.broadcast.to(roomId).emit("doc/update", {
+        //             title,
+        //             content
+        //         });
+        //         // io.of("/doc").to(roomId).emit("doc/update", {
+        //         //     title,
+        //         //     content
+        //         // });
+
+        //         if (roomMap.get(roomId).timer) clearTimeout(roomMap.get(roomId).timer);
+        //         roomMap.get(roomId).timer = setTimeout(async () => {
+        //             clearTimeout(roomMap.get(roomId).timer);
+        //             roomMap.get(roomId).timer = null;
+        //             await updateDoc({ creator_id: id, doc_id, title, content })
+        //         }, 5 * 1000);
+        //     } catch (error) {
+        //         console.log(error);
+        //     }
+        // })
     })
 
     socket.on("disconnect", async () => {
         const { roomId, email } = socket.user;
+
+        if (!roomMap.has(roomId)) return;
+
         roomMap.get(roomId).members.delete(email);
         if (roomMap.get(roomId).members.size === 0) return roomMap.delete(roomId);
 

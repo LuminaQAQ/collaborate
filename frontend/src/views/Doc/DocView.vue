@@ -71,18 +71,20 @@
     </ElHeader>
     <ElMain id="editor-container">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <div
+        <!-- <div
           id="editor"
           ref="editorRef"
           @click="methods.updateCursorPosition"
           @input="methods.updateDocValue"
-        ></div>
+        ></div> -->
+        <!-- <div ref="editorRef"></div> -->
         <!-- <v-md-editor
           height="100%"
           v-model="docStore.currentDocState.content"
           :disabled-menus="[]"
           @upload-image="methods.handleUploadImage"
         /> -->
+        <PMEditor />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -104,12 +106,13 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+import PMEditor from '@/components/common/PMEditor/index.vue'
 
 import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
 
-const editorRef = ref(null)
-let editor = ref(null)
+// const editorRef = ref(null)
+// let editor = ref(null)
 const route = useRoute()
 
 const docStore = useDocStore()
@@ -205,88 +208,88 @@ onMounted(async () => {
 
   if (!docStore.handleRole.isOwnerOrEditor('doc')) return
 
-  editor.value = new Vditor(editorRef.value, {
-    height: '100%',
-    mode: 'wysiwyg',
-    toolbar: [
-      'upload',
-      '|',
-      'undo',
-      'redo',
-      '|',
-      'headings',
-      'bold',
-      'italic',
-      'strike',
-      'inline-code',
-      '|',
-      'emoji',
-      'list',
-      'ordered-list',
-      'outdent',
-      'indent',
-      '|',
-      'check',
-      'line',
-      'quote',
-      'code',
-      '|',
-      'link',
-      'table',
-      'record',
-      'both',
-      'fullscreen',
-      'outline',
-      'export',
-      'help',
-      'br',
-    ],
-    cache: {
-      id: 'editor',
-    },
-    counter: {
-      enable: true,
-    },
-    comment: {
-      enable: true,
-    },
-    after: () => {
-      editor.value.setValue(docStore.currentDocState.content)
-    },
-    // input: (content) => {
-    //   docStore.currentDocState.content = content
+  // editor.value = new Vditor(editorRef.value, {
+  //   height: '100%',
+  //   mode: 'wysiwyg',
+  //   toolbar: [
+  //     'upload',
+  //     '|',
+  //     'undo',
+  //     'redo',
+  //     '|',
+  //     'headings',
+  //     'bold',
+  //     'italic',
+  //     'strike',
+  //     'inline-code',
+  //     '|',
+  //     'emoji',
+  //     'list',
+  //     'ordered-list',
+  //     'outdent',
+  //     'indent',
+  //     '|',
+  //     'check',
+  //     'line',
+  //     'quote',
+  //     'code',
+  //     '|',
+  //     'link',
+  //     'table',
+  //     'record',
+  //     'both',
+  //     'fullscreen',
+  //     'outline',
+  //     'export',
+  //     'help',
+  //     'br',
+  //   ],
+  //   cache: {
+  //     id: 'editor',
+  //   },
+  //   counter: {
+  //     enable: true,
+  //   },
+  //   comment: {
+  //     enable: true,
+  //   },
+  //   after: () => {
+  //     editor.value.setValue(docStore.currentDocState.content)
+  //   },
+  //   // input: (content) => {
+  //   //   docStore.currentDocState.content = content
 
-    //   if (state.isMulCollaborator) {
-    //     socket.emit('doc/update', {
-    //       book_id: Number(route.params.book),
-    //       doc_id: Number(route.params.doc),
-    //       title: docStore.currentDocState.title,
-    //       content,
-    //     })
-    //   }
-    // },
-  })
+  //   //   if (state.isMulCollaborator) {
+  //   //     socket.emit('doc/update', {
+  //   //       book_id: Number(route.params.book),
+  //   //       doc_id: Number(route.params.doc),
+  //   //       title: docStore.currentDocState.title,
+  //   //       content,
+  //   //     })
+  //   //   }
+  //   // },
+  // })
 
-  const { socketIo, emit } = useSocket('/doc')
-  socket = socketIo
-  socket.on('connect', () => {
-    emit('doc/join', {
-      bookId: Number(route.params.book),
-      docId: Number(route.params.doc),
-    })
+  // const { socketIo, emit } = useSocket('/doc')
+  // socket = socketIo
+  // socket.on('connect', () => {
+  //   emit('doc/join', {
+  //     bookId: Number(route.params.book),
+  //     docId: Number(route.params.doc),
+  //   })
 
-    socket.on('collaborator/change', (collaborators) => {
-      state.collaborators = collaborators
-    })
+  //   socket.on('collaborator/change', (collaborators) => {
+  //     state.collaborators = collaborators
+  //   })
 
-    socket.on('doc/update', ({ title, content }) => {
-      docStore.currentDocState.title = title
-      docStore.currentDocState.content = content
-      editor.value.setValue(content)
+  //   socket.on('doc/update', ({ title, content }) => {
+  //     docStore.currentDocState.title = title
+  //     docStore.currentDocState.content = content
+  //     editor.value.setValue(content)
 
-      // editor.value.updateValue(content)
-    })
-  })
+  //     // editor.value.updateValue(content)
+  //   })
+  // })
 
   document.addEventListener(
     'keydown',
@@ -304,8 +307,8 @@ onMounted(async () => {
 onUnmounted(() => {
   controller.abort()
 
-  if (socket) socket.disconnect()
-  if (editor.value) editor.value.destroy()
+  // if (socket) socket.disconnect()
+  // if (editor.value) editor.value.destroy()
 
   docStore.restoreCurrentState()
 })
