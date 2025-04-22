@@ -48,32 +48,18 @@ io.of("/doc")
     .on("connect", (socket) => {
         socketOnConnect(io, socket);
     })
-// .on("connect", (socket) => {
-//     socket.on("doc/join", async ({ bookId, docId }) => {
-//         const roomId = `${bookId}-${docId}`;
-//         socket.roomId = roomId;
-//         const { email } = socket.user;
-//         socket.join(roomId);
 
-//         const [userInfo] = await db("users").select(["id", "username", "avatar"]).where({ email });
-
-//         if (!roomMap.has(roomId)) {
-//             const roomData = { members: new Map() };
-//             roomData.members.set(email, userInfo);
-//             roomMap.set(roomId, roomData);
-//         } else {
-//             roomMap.get(roomId).members.set(email, userInfo);
-//         }
-
-//         console.log(roomMap.get(roomId).members);
-
-//         // io.of("/doc").to(roomId).emit("user/add", [Object.fromEntries([...roomMap.get(roomId).members].filter(([key, value]) => key === email))]);
-//         io.of("/doc").to(roomId).emit("user/add", [Object.fromEntries([...roomMap.get(roomId).members])][0]);
-//     })
-
-//     socket.on("doc/leave", async ({ bookId, docId }) => {
-//         roomMap.get(`${bookId}-${docId}`).members.delete(socket.user.email);
-//     })
+// const { WebsocketProvider } = require("y-websocket");
+// const Y = require("yjs");
+// let doc = new Y.Doc()
+// const wsProvider = new WebsocketProvider(
+//     'ws://localhost:5000',
+//     '',
+//     doc,
+//     { WebSocketPolyfill: require('ws') }
+// )
+// wsProvider.on('status', event => {
+//     console.log(event.status)
 // })
 
 server.listen(3000, () => {

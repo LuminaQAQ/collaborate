@@ -25,16 +25,17 @@ let provider = null
 
 onMounted(() => {
   ydoc = new Y.Doc()
+  provider = new WebsocketProvider('ws://localhost:3000', 'doc', ydoc)
   //   const { socketIo, emit } = useSocket('/doc')
   const type = ydoc.getXmlFragment('prosemirror')
-  provider = useSocket('/doc', ydoc).socketIo
+  // provider = useSocket('/doc', ydoc).socketIo
 
   editor.value = new EditorView(editorRef.value, {
     state: EditorState.create({
       schema,
       plugins: [
         ySyncPlugin(type),
-        // yCursorPlugin(provider.awareness),
+        yCursorPlugin(provider.awareness),
         yUndoPlugin(),
         keymap({
           'Mod-z': undo,

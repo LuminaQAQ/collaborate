@@ -69,7 +69,7 @@ const socketOnConnect = (io, socket) => {
 
         socket.on('update', (update) => {
             Y.applyUpdate(ydoc, update, socket);
-            socket.to(roomName).emit('update', update);
+            socket.to(roomId).emit('update', update);
         });
 
         socket.on('sync-response', (update) => {
