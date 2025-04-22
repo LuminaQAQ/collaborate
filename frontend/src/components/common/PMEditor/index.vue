@@ -16,6 +16,8 @@ import './style/style.css'
 
 import { onMounted, ref } from 'vue'
 import useSocket from '@/utils/useSocket'
+import { io } from 'socket.io-client'
+import { useUserStore } from '@/stores/user'
 
 const editorRef = ref(null)
 const editor = ref(null)
@@ -25,8 +27,15 @@ let provider = null
 
 onMounted(() => {
   ydoc = new Y.Doc()
-  provider = new WebsocketProvider('ws://localhost:3000', 'doc', ydoc)
-  //   const { socketIo, emit } = useSocket('/doc')
+
+  // const socket = useSocket('/doc')
+  // socket.on('connect', () => {
+  //   console.log('socket connected')
+  // })
+  provider = new WebsocketProvider('ws://localhost:9000', 'doc', ydoc, {
+    params: { token: useUserStore().user.token },
+  })
+  // const { socketIo, emit } = useSocket('/doc')
   const type = ydoc.getXmlFragment('prosemirror')
   // provider = useSocket('/doc', ydoc).socketIo
 

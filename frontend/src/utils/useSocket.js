@@ -19,7 +19,7 @@ export class SocketIOProvider {
         this.socket.on('update', this.#onUpdate);
         this.socket.on('collaborator/change', this.#onCollaboratorChange);
 
-        this.ydoc.on('update', this.#onDocUpdate);
+        // this.ydoc.on('update', this.#onDocUpdate);
     }
 
     connect() {
@@ -50,8 +50,12 @@ export class SocketIOProvider {
     #onDisconnect = () => { };
 
     // 处理服务端发来的同步数据
+    /**
+     * 
+     * @param {ArrayBuffer} encodedStateVector 
+     */
     #onSync = (encodedStateVector) => {
-        const stateVector = Y.encodeStateVector(this.ydoc);
+        // const stateVector = Y.encodeStateVector(this.ydoc);
         const update = Y.encodeStateAsUpdate(this.ydoc, encodedStateVector);
         this.socket.emit('sync-response', update);
     };
@@ -82,7 +86,7 @@ export default function useSocket(nameSpace, ydoc) {
 
     const route = useRoute();
     const socketIo = new SocketIOProvider(
-        `http://localhost:3000${nameSpace}`,
+        `ws://localhost:3000${nameSpace}`,
         {
             bookId: Number(route.params.book),
             docId: Number(route.params.doc),

@@ -10,6 +10,8 @@ const generateHash = require("../../utils/generateHash");
  * @param {import("express").NextFunction} next 
  */
 const socketIoTokenVerifyMiddleware = async (socket, next) => {
+    console.log(socket.handshake.auth.token);
+
     const token = socket.handshake.auth.token;
 
     const redisToken = await redis.get(`user:jwt:${token}`);
