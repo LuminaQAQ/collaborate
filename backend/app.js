@@ -25,12 +25,6 @@ initTables();
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: { origin: "*" },
-    allowEIO3: true,
-    transports: ['websocket'],
-})
-
 app.use(preventHotLinking)
 app.use(cors())
 app.use(express.json())
@@ -43,24 +37,28 @@ app.use("/api", historyRouter)
 app.use("/api", bookRouter)
 app.use(errorMiddleware);
 
-// io.of("/doc")
-//     .use(socketIoTokenVerifyMiddleware)
-//     .on("connect", (socket) => {
-//         socketOnConnect(io, socket);
-//     })
-
-const { WebSocketServer } = require("ws");
-const wss = new WebSocketServer({
-    port: 9000,
-});
-
-console.log(" WS 服务初始化成功，连接地址：ws://localhost:9000");
-
-wss.on("connection", (ws, req) => {
-    console.log("Yjs 客户端连接 ws 服务");
-    // ws.send("我是服务端"); // 向当前客户端发送消息
-});
 
 server.listen(3000, () => {
     console.log("服务器已启动在 3000 端口");
 })
+
+const io = new Server(server, {
+    cors: { origin: "*" },
+    allowEIO3: true,
+    transports: ['websocket'],
+})
+
+io.of("/doc")
+    .use(socketIoTokenVerifyMiddleware)
+    .on("connect", (socket) => {
+        socketOnConnect(io, socket);
+    })
+
+const { WebSocketServer } = require("ws");
+
+const wss = new WebSocketServer({
+    port: 9000,
+});
+
+wss.on("connection", (socket) => {
+});
