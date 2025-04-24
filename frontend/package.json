@@ -15,6 +15,11 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
     "@kangc/v-md-editor": "^2.2.4",
+    "@milkdown/crepe": "^7.9.0",
+    "@milkdown/kit": "^7.9.0",
+    "@milkdown/plugin-collab": "^7.9.0",
+    "@milkdown/theme-nord": "^7.9.0",
+    "@milkdown/vue": "^7.9.0",
     "axios": "^1.8.2",
     "element-plus": "^2.9.6",
     "pinia": "^3.0.1",
@@ -28,7 +33,8 @@
     "vite-plugin-prismjs": "^0.0.11",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "y-prosemirror": "^1.3.3",
+    "y-prosemirror": "^1.3.4",
+    "y-protocols": "^1.0.6",
     "y-websocket": "^3.0.0",
     "yjs": "^13.6.26"
   },

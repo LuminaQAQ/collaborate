@@ -106,6 +106,7 @@ import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 import Vditor from 'vditor'
 import 'vditor/dist/index.css'
+import { MilkdownProvider } from '@milkdown/vue'
 import PMEditor from '@/components/common/PMEditor/index.vue'
 
 import useSocket from '@/utils/useSocket'
