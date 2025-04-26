@@ -42,18 +42,21 @@ app.use("/user", userRouter)
 app.use(errorMiddleware);
 
 
+require("./src/socket/index")(server)
+
+
 server.listen(3000, () => {
     console.log("服务器已启动在 3000 端口");
 })
 
-const io = new Server(server, {
-    cors: { origin: "*" },
-    allowEIO3: true,
-    transports: ['websocket'],
-})
+// const io = new Server(server, {
+//     cors: { origin: "*" },
+//     allowEIO3: true,
+//     transports: ['websocket'],
+// })
 
-io.of("/doc")
-    .use(socketIoTokenVerifyMiddleware)
-    .on("connect", (socket) => {
-        socketOnConnect(io, socket);
-    })
+// io.of("/doc")
+//     .use(socketIoTokenVerifyMiddleware)
+//     .on("connect", (socket) => {
+//         socketOnConnect(io, socket);
+//     })

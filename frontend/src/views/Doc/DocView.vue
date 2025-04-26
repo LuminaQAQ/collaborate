@@ -74,6 +74,7 @@
         <MDEditor
           @update="methods.handleUpdate"
           :room="`${route.params.book}-${route.params.doc}`"
+          :default-value="docStore.currentDocState.content"
         />
       </template>
       <template v-else>
@@ -99,6 +100,7 @@ import MDEditor from '@/components/common/MDEditor/index.vue'
 
 import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
+import DocSocket from '@/socket/doc'
 
 const route = useRoute()
 
@@ -194,12 +196,15 @@ onMounted(async () => {
   await methods.initDoc()
 
   if (!docStore.handleRole.isOwnerOrEditor('doc')) return
+
+  const { book, doc } = route.params
+  socket = new DocSocket({ bookId: Number(book), docId: Number(doc) })
 })
 
 onUnmounted(() => {
   controller.abort()
 
-  // if (socket) socket.disconnect()
+  if (socket) socket.disconnect()
   // if (editor.value) editor.value.destroy()
 
   docStore.restoreCurrentState()

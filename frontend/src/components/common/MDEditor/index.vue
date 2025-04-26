@@ -6,16 +6,23 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { CollabManager } from './utils/CollabManager'
 import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
-import { useDocStore } from '@/stores/doc'
 import { commonmark } from '@milkdown/kit/preset/commonmark'
 import { collab, collabServiceCtx } from '@milkdown/plugin-collab'
 import { Crepe } from '@milkdown/crepe'
 
-const emits = defineEmits(['update'])
+import '@milkdown/crepe/theme/common/style.css'
+import '@milkdown/crepe/theme/frame.css'
+import './style/style.css'
+
+const emits = defineEmits(['update', 'save'])
 const props = defineProps({
   room: {
     type: String,
     required: true,
+  },
+  defaultValue: {
+    type: String,
+    default: '',
   },
 })
 
@@ -29,13 +36,15 @@ const methods = {
   handleUpdate: (markdown) => {
     emits('update', markdown)
   },
+  handleSave: () => {
+    emits('save', editor.getMarkdown())
+  },
 }
 
 onMounted(async () => {
-  const docStore = useDocStore()
   editor = new Crepe({
     root: editorRef.value,
-    defaultValue: docStore.currentDocState.content,
+    defaultValue: props.defaultValue,
   })
 
   editor.editor
@@ -57,7 +66,7 @@ onMounted(async () => {
   editor.editor.action((ctx) => {
     const collabService = ctx.get(collabServiceCtx)
     collabManager = new CollabManager(collabService, props.room)
-    collabManager.flush(docStore.currentDocState.content)
+    collabManager.flush(props.defaultValue)
   })
 
   document.addEventListener(
@@ -66,7 +75,7 @@ onMounted(async () => {
       if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
         e.preventDefault()
 
-        docStore.currentDocState.content = editor.getMarkdown()
+        methods.handleSave()
       }
     },
     { signal: controller.signal },
@@ -75,6 +84,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   if (collabManager) collabManager.disconnect()
+  if (editor) editor.destroy()
   controller.abort()
 })
 </script>

@@ -1,18 +1,9 @@
-import { defaultValueCtx, Editor, rootCtx } from '@milkdown/kit/core'
-import { collab, CollabService, collabServiceCtx } from '@milkdown/plugin-collab'
-import { Crepe } from '@milkdown/crepe'
-import '@milkdown/crepe/theme/common/style.css'
-import '@milkdown/crepe/theme/frame.css'
-import { commonmark } from '@milkdown/kit/preset/commonmark'
-import { nord } from '@milkdown/theme-nord'
+import { CollabService } from '@milkdown/plugin-collab'
 import { WebsocketProvider } from 'y-websocket'
 import { Doc } from 'yjs'
-import '@milkdown/theme-nord/style.css'
-import '../style/style.css'
 
 import { useUserStore } from '@/stores/user'
 import { useDocStore } from '@/stores/doc'
-import { useRoute } from 'vue-router'
 
 const randomColor = () => Math.floor(Math.random() * 16777215).toString(16)
 
