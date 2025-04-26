@@ -4,11 +4,14 @@ const cors = require("cors");
 const http = require("http")
 const { Server } = require("socket.io");
 
+require("./src/ws/index.js")();
+
 const loginRouter = require("./src/router/login.js");
 const homeRouter = require("./src/router/home.js");
 const bookRouter = require("./src/router/book.js");
 const docRouter = require("./src/router/doc.js");
 const historyRouter = require("./src/router/history.js");
+const userRouter = require("./src/router/user/index.js");
 
 const socketIoTokenVerifyMiddleware = require("./src/middleware/socket/tokenVerifyMiddleware.js");
 const { socketOnConnect } = require("./src/socket/doc.socket.js");
@@ -35,6 +38,7 @@ app.use("/api", homeRouter)
 app.use("/api", docRouter)
 app.use("/api", historyRouter)
 app.use("/api", bookRouter)
+app.use("/user", userRouter)
 app.use(errorMiddleware);
 
 
@@ -53,12 +57,3 @@ io.of("/doc")
     .on("connect", (socket) => {
         socketOnConnect(io, socket);
     })
-
-const { WebSocketServer } = require("ws");
-
-const wss = new WebSocketServer({
-    port: 9000,
-});
-
-wss.on("connection", (socket) => {
-});

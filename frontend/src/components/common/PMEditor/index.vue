@@ -1,101 +1,60 @@
 <template>
-  <div ref="editorRoot"></div>
-  <!-- <Milkdown ref="editorRoot" /> -->
+  <div id="editorRef" ref="editorRef"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { defaultValueCtx, Editor, rootCtx } from '@milkdown/kit/core'
-import { collab, CollabService, collabServiceCtx } from '@milkdown/plugin-collab'
-import { commonmark } from '@milkdown/kit/preset/commonmark'
-import { nord } from '@milkdown/theme-nord'
-import { WebsocketProvider } from 'y-websocket'
-import { Doc } from 'yjs'
-import { Milkdown } from '@milkdown/vue'
-
-const markdown = `
-# Milkdown Vanilla Collab
-
-> You're scared of a world where you're needed.
-
----
-
-Now you can play!
-`
-
-const randomColor = () => Math.floor(Math.random() * 16777215).toString(16)
-
-const name = ['Alice', 'Bob', 'Charlie', 'David']
-
-const options = name.map((x) => ({
-  color: `#${randomColor()}`,
-  name: x,
-}))
+import { createEditor } from './utils/CollabManager'
+import { useUserStore } from '@/stores/user'
 
 const editorRef = ref(null)
-const wsUrl = 'ws://localhost:9000'
-
-class CollabManager {
-  private room = 'milkdown'
-  private doc!: Doc
-  private wsProvider!: WebsocketProvider
-
-  constructor(
-    private collabService: CollabService,
-    private area: HTMLElement,
-    private rndInt = Math.floor(Math.random() * 4),
-  ) {}
-
-  flush(template: string) {
-    this.doc?.destroy()
-    this.wsProvider?.destroy()
-
-    this.doc = new Doc()
-    this.wsProvider = new WebsocketProvider(wsUrl, this.room, this.doc, { connect: true })
-    this.wsProvider.awareness.setLocalStateField('user', options[this.rndInt])
-
-    this.collabService.bindDoc(this.doc).setAwareness(this.wsProvider.awareness)
-    this.wsProvider.once('synced', async (isSynced) => {
-      if (isSynced) {
-        this.collabService.applyTemplate(template).connect()
-      }
-    })
-  }
-
-  connect() {
-    this.wsProvider.connect()
-    this.collabService.connect()
-  }
-
-  disconnect() {
-    this.collabService.disconnect()
-    this.wsProvider.disconnect()
-  }
-}
+const userStore = useUserStore()
 
 onMounted(async () => {
-  const editor = await Editor.make().config(nord).use(commonmark).use(collab).create()
+  createEditor(editorRef.value)
+  // const editor = await Editor.make()
+  //   .config((ctx) => {
+  //     ctx.set(rootCtx, editorRef.value)
+  //     ctx.set(defaultValueCtx, markdown)
+  //   })
+  //   .config(nord)
+  //   .use(commonmark)
+  //   .use(collab)
+  //   .create()
 
-  const doc = new Doc()
-  const wsProvider = new WebsocketProvider('ws://localhost:9000', 'doc', doc)
+  // editor.action((ctx) => {
+  //   const collabService = ctx.get(collabServiceCtx)
+  //   const collabManager = new CollabManager(collabService, editorRef.value)
+  //   collabManager.flush(markdown)
+  // })
+  // const doc = new Doc()
+  // wsProvider = new WebsocketProvider('ws://localhost:9000', 'milkdown', doc)
 
-  editor.action((ctx) => {
-    const collabService = ctx.get(collabServiceCtx)
+  // editor.action((ctx) => {
+  //   const collabService = ctx.get(collabServiceCtx)
+  //   const collabManager = new CollabManager(collabService, editorRef.value)
+  //   collabManager.flush(markdown)
 
-    collabService
-      .bindDoc(doc)
-      .applyTemplate(markdown, (remoteNode, templateNode) => {
-        return true
-      })
-      .setAwareness(wsProvider.awareness)
-      .connect()
+  //   // collabService = ctx.get(collabServiceCtx)
+  //   // collabService
+  //   //   .bindDoc(doc)
+  //   //   .applyTemplate(markdown, (remoteNode, templateNode) => {
+  //   //     return true
+  //   //   })
+  //   //   .setAwareness(wsProvider.awareness)
+  //   //   .connect()
 
-    editor.action((ctx) => {
-      const collabService = ctx.get(collabServiceCtx)
-      const collabManager = new CollabManager(collabService, editorRef.value)
-      collabManager.flush(markdown)
-    })
-  })
+  //   editor.action((ctx) => {
+  //     const collabService = ctx.get(collabServiceCtx)
+  //     const collabManager = new CollabManager(collabService, editorRef.value)
+  //     collabManager.flush(markdown)
+  //   })
+  // })
+})
+
+onBeforeUnmount(() => {
+  // if (wsProvider) wsProvider.disconnect()
+  // if (collabService) collabService.disconnect()
 })
 </script>
 

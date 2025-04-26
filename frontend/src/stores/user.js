@@ -1,5 +1,5 @@
 import { requestLogin } from "@/api/auth";
-import { requestBookList } from "@/api/user";
+import { requestBookList, requestUserInfo } from "@/api/user";
 import router from "@/router";
 import { ElMessage } from "element-plus";
 import { defineStore } from "pinia"
@@ -10,6 +10,12 @@ export const useUserStore = defineStore("user", () => {
     username: "",
     avatar: "",
     email: "",
+    userInfo: {
+      username: "",
+      email: "",
+      created_at: "",
+      avatar: ""
+    },
     token: localStorage.getItem("token") || null,
     bookList: []
   })
@@ -37,6 +43,19 @@ export const useUserStore = defineStore("user", () => {
           router.replace('/dashboard')
         })
         .catch((err) => { })
+    },
+    fetchUserInfo() {
+      requestUserInfo()
+        .then((res) => {
+          user.userInfo = res.data
+
+          const { username, avatar, email, created_at } = res.data
+          user.username = username
+          user.avatar = avatar
+          user.email = email
+          user.created_at = created_at
+        })
+        .catch((err) => console.log(err))
     },
     fetchBookList() {
       requestBookList()

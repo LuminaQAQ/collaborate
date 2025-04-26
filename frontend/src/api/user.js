@@ -11,6 +11,12 @@ export const requestHomeData = () => {
   })
 }
 
+export const requestUserInfo = () => {
+  return request(apiList.userApi.userInfo, {
+    method: "get"
+  })
+}
+
 export const requestBookList = () => {
   return request(apiList.userApi.bookList, {
     method: "get"

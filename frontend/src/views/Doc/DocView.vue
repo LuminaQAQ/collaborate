@@ -84,7 +84,7 @@
           :disabled-menus="[]"
           @upload-image="methods.handleUploadImage"
         /> -->
-        <PMEditor />
+          <PMEditor />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -104,16 +104,12 @@ import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons
 import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
-import Vditor from 'vditor'
-import 'vditor/dist/index.css'
 import { MilkdownProvider } from '@milkdown/vue'
 import PMEditor from '@/components/common/PMEditor/index.vue'
 
 import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
 
-// const editorRef = ref(null)
-// let editor = ref(null)
 const route = useRoute()
 
 const docStore = useDocStore()
