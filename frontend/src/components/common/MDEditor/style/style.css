@@ -42,3 +42,12 @@
   padding-right: 2px;
   white-space: nowrap;
 }
+
+.milkdown .ProseMirror {
+  padding: 0;
+  padding-left: 60px;
+}
+
+.milkdown .milkdown-block-handle .operation-item {
+  box-sizing: border-box !important;
+}

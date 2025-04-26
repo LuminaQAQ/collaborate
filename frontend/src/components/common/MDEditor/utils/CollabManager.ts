@@ -1,34 +1,42 @@
 import { defaultValueCtx, Editor, rootCtx } from '@milkdown/kit/core'
 import { collab, CollabService, collabServiceCtx } from '@milkdown/plugin-collab'
+import { Crepe } from '@milkdown/crepe'
+import '@milkdown/crepe/theme/common/style.css'
+import '@milkdown/crepe/theme/frame.css'
 import { commonmark } from '@milkdown/kit/preset/commonmark'
 import { nord } from '@milkdown/theme-nord'
 import { WebsocketProvider } from 'y-websocket'
 import { Doc } from 'yjs'
 import '@milkdown/theme-nord/style.css'
 import '../style/style.css'
+
 import { useUserStore } from '@/stores/user'
 import { useDocStore } from '@/stores/doc'
-
-let markdown = ``
+import { useRoute } from 'vue-router'
 
 const randomColor = () => Math.floor(Math.random() * 16777215).toString(16)
 
 const wsUrl = 'ws://localhost:5000'
 
-class CollabManager {
-  private room = 'milkdown'
+export class CollabManager {
   private doc!: Doc
   private wsProvider!: WebsocketProvider
   private userStore = useUserStore()
+  private docStore = useDocStore()
 
-  constructor(private collabService: CollabService) {}
+  constructor(
+    private collabService: CollabService,
+    private room: String,
+  ) {}
 
   flush(template: string) {
     this.doc?.destroy()
     this.wsProvider?.destroy()
 
     this.doc = new Doc()
-    this.wsProvider = new WebsocketProvider(wsUrl, this.room, this.doc, { connect: true })
+    const { book_id, id } = this.docStore.currentDocState.docInfo
+
+    this.wsProvider = new WebsocketProvider(wsUrl, `${book_id}-${id}`, this.doc, { connect: true })
 
     this.wsProvider.awareness.setLocalStateField('user', {
       color: `#${randomColor()}`,
@@ -59,29 +67,4 @@ class CollabManager {
       .applyTemplate(template, () => true)
       .connect()
   }
-}
-
-export const createEditor = async (root: HTMLElement) => {
-  const docStore = useDocStore()
-  markdown = docStore.currentDocState.content
-
-  // console.log(docStore.currentDocState)
-
-  const editor = await Editor.make()
-    .config((ctx) => {
-      ctx.set(rootCtx, root)
-      ctx.set(defaultValueCtx, markdown)
-    })
-    .config(nord)
-    .use(commonmark)
-    .use(collab)
-    .create()
-
-  editor.action((ctx) => {
-    const collabService = ctx.get(collabServiceCtx)
-    const collabManager = new CollabManager(collabService)
-    collabManager.flush(markdown)
-  })
-
-  return editor
 }

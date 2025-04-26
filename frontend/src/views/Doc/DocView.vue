@@ -69,22 +69,12 @@
         </ClIconButtonGroup>
       </section>
     </ElHeader>
-    <ElMain id="editor-container">
+    <ElMain id="editor-container" style="overflow-x: hidden">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <!-- <div
-          id="editor"
-          ref="editorRef"
-          @click="methods.updateCursorPosition"
-          @input="methods.updateDocValue"
-        ></div> -->
-        <!-- <div ref="editorRef"></div> -->
-        <!-- <v-md-editor
-          height="100%"
-          v-model="docStore.currentDocState.content"
-          :disabled-menus="[]"
-          @upload-image="methods.handleUploadImage"
-        /> -->
-          <PMEditor />
+        <MDEditor
+          @update="methods.handleUpdate"
+          :room="`${route.params.book}-${route.params.doc}`"
+        />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -105,7 +95,7 @@ import { ElContainer, ElIcon, ElMain } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 import { MilkdownProvider } from '@milkdown/vue'
-import PMEditor from '@/components/common/PMEditor/index.vue'
+import MDEditor from '@/components/common/MDEditor/index.vue'
 
 import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
@@ -186,16 +176,16 @@ const methods = {
     // socket.emit('updateCursor', { left, top })
   },
 
-  updateDocValue() {
-    const content = editor.value.getValue()
-    if (isMulCollaborator.value) {
-      socket.emit('doc/update', {
-        book_id: Number(route.params.book),
-        doc_id: Number(route.params.doc),
-        title: docStore.currentDocState.title,
-        content,
-      })
-    }
+  handleUpdate(markdown) {
+    // const content = editor.value.getValue()
+    // if (isMulCollaborator.value) {
+    //   socket.emit('doc/update', {
+    //     book_id: Number(route.params.book),
+    //     doc_id: Number(route.params.doc),
+    //     title: docStore.currentDocState.title,
+    //     content,
+    //   })
+    // }
   },
 }
 
@@ -204,101 +194,6 @@ onMounted(async () => {
   await methods.initDoc()
 
   if (!docStore.handleRole.isOwnerOrEditor('doc')) return
-
-  // editor.value = new Vditor(editorRef.value, {
-  //   height: '100%',
-  //   mode: 'wysiwyg',
-  //   toolbar: [
-  //     'upload',
-  //     '|',
-  //     'undo',
-  //     'redo',
-  //     '|',
-  //     'headings',
-  //     'bold',
-  //     'italic',
-  //     'strike',
-  //     'inline-code',
-  //     '|',
-  //     'emoji',
-  //     'list',
-  //     'ordered-list',
-  //     'outdent',
-  //     'indent',
-  //     '|',
-  //     'check',
-  //     'line',
-  //     'quote',
-  //     'code',
-  //     '|',
-  //     'link',
-  //     'table',
-  //     'record',
-  //     'both',
-  //     'fullscreen',
-  //     'outline',
-  //     'export',
-  //     'help',
-  //     'br',
-  //   ],
-  //   cache: {
-  //     id: 'editor',
-  //   },
-  //   counter: {
-  //     enable: true,
-  //   },
-  //   comment: {
-  //     enable: true,
-  //   },
-  //   after: () => {
-  //     editor.value.setValue(docStore.currentDocState.content)
-  //   },
-  //   // input: (content) => {
-  //   //   docStore.currentDocState.content = content
-
-  //   //   if (state.isMulCollaborator) {
-  //   //     socket.emit('doc/update', {
-  //   //       book_id: Number(route.params.book),
-  //   //       doc_id: Number(route.params.doc),
-  //   //       title: docStore.currentDocState.title,
-  //   //       content,
-  //   //     })
-  //   //   }
-  //   // },
-  // })
-
-  // const { socketIo, emit } = useSocket('/doc')
-  // socket = socketIo
-  // socket.on('connect', () => {
-  //   emit('doc/join', {
-  //     bookId: Number(route.params.book),
-  //     docId: Number(route.params.doc),
-  //   })
-
-  //   socket.on('collaborator/change', (collaborators) => {
-  //     state.collaborators = collaborators
-  //   })
-
-  //   socket.on('doc/update', ({ title, content }) => {
-  //     docStore.currentDocState.title = title
-  //     docStore.currentDocState.content = content
-  //     editor.value.setValue(content)
-
-  //     // editor.value.updateValue(content)
-  //   })
-  // })
-
-  document.addEventListener(
-    'keydown',
-    (e) => {
-      if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
-        e.preventDefault()
-
-        methods.handleSave()
-      }
-    },
-    { signal: controller.signal },
-  )
 })
 
 onUnmounted(() => {
