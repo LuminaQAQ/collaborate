@@ -43,9 +43,17 @@
   white-space: nowrap;
 }
 
+.milkdown {
+  height: 100%;
+}
+
 .milkdown .ProseMirror {
+  margin: 0 auto;
   padding: 0;
   padding-left: 60px;
+  height: 100%;
+
+  max-width: 750px;
 }
 
 .milkdown .milkdown-block-handle .operation-item {
