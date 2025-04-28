@@ -26,7 +26,6 @@ import '@milkdown/crepe/theme/frame.css'
 import './style/style.css'
 
 import BlockEditConfigs from './configs/BlockEditConfigs'
-import { EditorInfoCtx } from '@milkdown/vue'
 
 const emits = defineEmits(['update', 'save'])
 const props = defineProps({
