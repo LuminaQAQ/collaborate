@@ -49,8 +49,8 @@ const methods = {
   handleUpdate: (markdown) => {
     emits('update', markdown)
   },
-  handleSave: () => {
-    emits('save', editor.getMarkdown())
+  handleSave: (isAutoSava = false) => {
+    emits('save', editor.getMarkdown(), isAutoSava)
   },
   handleInsertLink: (ctx) => {
     const view = ctx.get(editorViewCtx)

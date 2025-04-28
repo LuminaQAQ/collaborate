@@ -1,5 +1,4 @@
 const { Socket } = require("socket.io");
-const Y = require("yjs");
 const db = require("../lib/db");
 const generateHash = require("../utils/generateHash");
 
@@ -52,7 +51,6 @@ const socketOnConnect = (io, socket) => {
             const roomData = {
                 members: new Map(),
                 timer: null,
-                doc: new Y.Doc()
             };
             roomData.members.set(email, userInfo);
             roomMap.set(roomId, roomData);
@@ -62,19 +60,6 @@ const socketOnConnect = (io, socket) => {
 
         const persons = [...roomMap.get(roomId).members.values()].sort((a, b) => a.id - b.id);
         io.of("/doc").to(roomId).emit("collaborator/change", persons);
-
-        const ydoc = roomMap.get(roomId).doc;
-        const encodedStateVector = Y.encodeStateVector(ydoc);
-        socket.emit('sync', encodedStateVector);
-
-        socket.on('update', (update) => {
-            Y.applyUpdate(ydoc, update, socket);
-            socket.to(roomId).emit('update', update);
-        });
-
-        socket.on('sync-response', (update) => {
-            Y.applyUpdate(ydoc, update, socket);
-        });
 
         // socket.on("doc/update", async ({ book_id, doc_id, title, content, isForce }) => {
         //     const { email, id } = socket.user;

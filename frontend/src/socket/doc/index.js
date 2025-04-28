@@ -1,11 +1,10 @@
+import { useDocStore } from "@/stores/doc";
 import useSocket from "@/utils/useSocket";
 
 const methods = {
-    "doc/join": () => {
-
-    },
     "collaborator/change": (persons) => {
-        console.log(persons);
+        const docStore = useDocStore();
+        docStore.currentDocState.collaborators = persons;
     }
 }
 

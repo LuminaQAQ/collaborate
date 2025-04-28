@@ -33,7 +33,6 @@
         <ElInput
           v-if="docStore.handleRole.isOwnerOrEditor('doc')"
           v-model="docStore.currentDocState.title"
-          @input="methods.updateDocValue"
         />
         <h2 v-else>
           {{ docStore.currentDocState.title }}
@@ -42,9 +41,10 @@
       <section class="collaborator-wrap" v-if="isMulCollaborator">
         <section
           class="collaborator-item"
-          v-for="item in state.collaborators.slice(0, 3)"
+          v-for="item in docStore.currentDocState.collaborators.slice(0, 3)"
           :key="item.id"
           :title="item.username"
+          @click="methods.handleCollaboratorClick(item)"
         >
           <template v-if="item.avatar">
             <ElAvatar :src="item.avatar" />
@@ -73,6 +73,7 @@
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
         <MDEditor
           @update="methods.handleUpdate"
+          @save="methods.handleSave"
           :room="`${route.params.book}-${route.params.doc}`"
           :default-value="docStore.currentDocState.content"
         />
@@ -92,15 +93,15 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
-import { ElContainer, ElIcon, ElMain } from 'element-plus'
+import { ElContainer, ElIcon, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
-import { MilkdownProvider } from '@milkdown/vue'
 import MDEditor from '@/components/common/MDEditor/index.vue'
 
-import useSocket from '@/utils/useSocket'
 import { useRoute } from 'vue-router'
 import DocSocket from '@/socket/doc'
+
+import { toPersonalCenter } from '@/router/handler'
 
 const route = useRoute()
 
@@ -109,16 +110,25 @@ let socket = null
 
 const isLoad = ref(false)
 
-const state = reactive({
-  collaborators: [],
-})
-
-const isMulCollaborator = computed(() => state.collaborators.length > 1)
+const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
 
 const methods = {
-  handleSave(isAutoSava = false) {
-    docStore.currentDocState.content = editor.value.getValue()
+  async initDoc() {
+    await docStore.fetchDoc()
+    isLoad.value = true
+  },
+  handleSave(markdown, isAutoSava) {
+    if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')
+
+    docStore.currentDocState.content = markdown
+
     docStore.updateDoc(isAutoSava)
+  },
+  handleUpdate(markdown) {
+    docStore.currentDocState.content = markdown
+  },
+  handleCollaboratorClick(collaborator) {
+    toPersonalCenter(collaborator.email)
   },
   /**
    *
@@ -146,49 +156,6 @@ const methods = {
       })
     })
   },
-  async initDoc() {
-    await docStore.fetchDoc()
-    isLoad.value = true
-  },
-  updateCursorPosition() {
-    const { left, top } = editor.value.getCursorPosition()
-    if (!left && !top) return
-
-    // const editorContent = editorRef.value.querySelector('.vditor-content')
-    // const wrap = document.getSelection().getRangeAt(0).commonAncestorContainer.parentNode
-    // console.log(editorContent, wrap)
-
-    // const cursor = document.createElement('div')
-
-    // console.log()
-
-    // cursor.style.cssText = `
-    //   position: absolute;
-    //   top: ${top}px;
-    //   left: ${left}px;
-    //   width: 2px;
-    //   height: ${wrap.getBoundingClientRect().height}px;
-    //   transform: translate(-50%, -25%);
-    //   background: red;
-    //   border-radius: 50%;
-    //   z-index: 999;
-    // `
-    // editorContent.appendChild(cursor)
-
-    // socket.emit('updateCursor', { left, top })
-  },
-
-  handleUpdate(markdown) {
-    // const content = editor.value.getValue()
-    // if (isMulCollaborator.value) {
-    //   socket.emit('doc/update', {
-    //     book_id: Number(route.params.book),
-    //     doc_id: Number(route.params.doc),
-    //     title: docStore.currentDocState.title,
-    //     content,
-    //   })
-    // }
-  },
 }
 
 const controller = new AbortController()
@@ -205,7 +172,6 @@ onUnmounted(() => {
   controller.abort()
 
   if (socket) socket.disconnect()
-  // if (editor.value) editor.value.destroy()
 
   docStore.restoreCurrentState()
 })

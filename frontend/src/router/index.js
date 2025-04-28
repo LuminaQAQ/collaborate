@@ -46,8 +46,8 @@ const router = createRouter({
       component: AuthView,
     },
     {
-      path: "/:user",
-      name: "User",
+      path: "/user/:user",
+      name: "PersonalCenter",
       meta: { isAuth: true },
       component: () => import("@/views/User/PersonalView.vue")
     },
