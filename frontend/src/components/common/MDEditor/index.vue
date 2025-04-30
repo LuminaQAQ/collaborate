@@ -1,5 +1,6 @@
 <template>
   <el-scrollbar>
+    <div @click="methods.handleTest">1</div>
     <div id="editorRef" class="editor" ref="editorRef"></div>
   </el-scrollbar>
 </template>
@@ -19,7 +20,7 @@ import {
   linkTooltipState,
 } from '@milkdown/kit/component/link-tooltip'
 import { linkSchema } from '@milkdown/kit/preset/commonmark'
-import { editorViewCtx } from '@milkdown/kit/core'
+import { editorViewCtx, commandsCtx } from '@milkdown/kit/core'
 
 import '@milkdown/crepe/theme/common/style.css'
 import '@milkdown/crepe/theme/frame.css'
@@ -64,6 +65,12 @@ const methods = {
     if (has) return
 
     ctx.get(linkTooltipAPI.key).addLink(selection.from, selection.to)
+  },
+
+  handleTest() {
+    editor.editor.action((ctx) => {
+      ctx.get(commandsCtx).call('CreateCodeBlock')
+    })
   },
 }
 
