@@ -1,5 +1,5 @@
 <template>
-  <ElHeader>
+  <ElHeader style="user-select: none">
     <EditorToolbar v-if="editorIsInit" :editor="editor" />
   </ElHeader>
   <el-scrollbar style="overflow: auto">

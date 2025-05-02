@@ -3,15 +3,64 @@
     <span
       class="md-toolbar-icon"
       v-html="item.icon"
-      :title="item.title"
+      :title="item?.title"
       @click="handleClick(item.command)"
     ></span>
   </template>
+  <!-- <div v-for="command in commands" :key="command" @click="handleClick(command)">
+    {{ command }}
+  </div> -->
+
+  <!-- <span
+    v-for="icon in icons"
+    :key="icon"
+    @click="handleClick(icon)"
+    v-html="icon"
+    style="width: 2rem; height: 2rem; display: inline-block"
+  ></span> -->
 </template>
 
 <script setup>
 import { Crepe } from '@milkdown/crepe'
-import { boldIcon, italicIcon, strikethroughIcon, codeIcon, quoteIcon } from '../icons'
+import {
+  alignCenterIcon,
+  alignLeftIcon,
+  alignRightIcon,
+  boldIcon,
+  bulletIcon,
+  bulletListIcon,
+  captionIcon,
+  checkBoxCheckedIcon,
+  checkBoxUncheckedIcon,
+  chevronDownIcon,
+  clearIcon,
+  codeIcon,
+  confirmIcon,
+  copyIcon,
+  dividerIcon,
+  dragHandleIcon,
+  editIcon,
+  h1Icon,
+  h2Icon,
+  h3Icon,
+  h4Icon,
+  h5Icon,
+  h6Icon,
+  imageIcon,
+  italicIcon,
+  linkIcon,
+  menuIcon,
+  orderedListIcon,
+  plusIcon,
+  quoteIcon,
+  removeIcon,
+  searchIcon,
+  strikethroughIcon,
+  tableIcon,
+  textIcon,
+  todoListIcon,
+  functionsIcon,
+} from '../icons'
 import { commandsCtx } from '@milkdown/kit/core'
 
 const { editor } = defineProps({
@@ -19,6 +68,70 @@ const { editor } = defineProps({
     type: Crepe,
   },
 })
+
+const commands = [
+  'selectNodeForward',
+  'TurnIntoText',
+  'WrapInBlockquote',
+  'WrapInHeading',
+  'DowngradeHeading',
+  'CreateCodeBlock',
+  'InsertHardbreak',
+  'InsertHr',
+  'InsertImage',
+  'UpdateImage',
+  'WrapInOrderedList',
+  'WrapInBulletList',
+  'SinkListItem',
+  'SplitListItem',
+  'LiftListItem',
+  'LiftFirstListItem',
+  'ToggleEmphasis',
+  'ToggleInlineCode',
+  'ToggleStrong',
+  'ToggleLink',
+  'UpdateLink',
+]
+
+const icons = [
+  alignCenterIcon,
+  alignLeftIcon,
+  alignRightIcon,
+  boldIcon,
+  bulletIcon,
+  bulletListIcon,
+  captionIcon,
+  checkBoxCheckedIcon,
+  checkBoxUncheckedIcon,
+  chevronDownIcon,
+  clearIcon,
+  codeIcon,
+  confirmIcon,
+  copyIcon,
+  dividerIcon,
+  dragHandleIcon,
+  editIcon,
+  h1Icon,
+  h2Icon,
+  h3Icon,
+  h4Icon,
+  h5Icon,
+  h6Icon,
+  imageIcon,
+  italicIcon,
+  linkIcon,
+  menuIcon,
+  orderedListIcon,
+  plusIcon,
+  quoteIcon,
+  removeIcon,
+  searchIcon,
+  strikethroughIcon,
+  tableIcon,
+  textIcon,
+  todoListIcon,
+  functionsIcon,
+]
 
 const toolbarConfig = [
   {
@@ -37,7 +150,7 @@ const toolbarConfig = [
     command: 'ToggleStrikeThrough',
   },
   {
-    title: '代码\nCtrl E',
+    title: '行内代码\nCtrl E',
     icon: codeIcon,
     command: 'CreateCodeBlock',
   },
@@ -46,12 +159,29 @@ const toolbarConfig = [
     icon: quoteIcon,
     command: 'WrapInBlockquote',
   },
+  {
+    title: '链接\nCtrl L',
+    icon: linkIcon,
+    command: 'ToggleLink',
+  },
+  {
+    title: '有序列表\nCtrl O',
+    icon: orderedListIcon,
+    command: 'WrapInOrderedList',
+  },
+  {
+    title: '无序列表\nCtrl U',
+    icon: bulletListIcon,
+    command: 'WrapInBulletList',
+  },
 ]
 
 const handleClick = (command) => {
-  editor.editor.action((ctx) => {
-    ctx.get(commandsCtx).call(command)
-  })
+  try {
+    editor.editor.action((ctx) => {
+      ctx.get(commandsCtx).call(command)
+    })
+  } catch (error) {}
 }
 </script>
 
