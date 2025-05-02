@@ -4,6 +4,7 @@
 
   display: flex;
   justify-content: space-between;
+  padding: 0;
 }
 
 .collaborator-wrap {
@@ -69,7 +70,7 @@
         </ClIconButtonGroup>
       </section>
     </ElHeader>
-    <ElMain id="editor-container" style="overflow-x: hidden">
+    <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
         <MDEditor
           @update="methods.handleUpdate"

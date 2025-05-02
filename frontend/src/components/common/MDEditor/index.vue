@@ -1,6 +1,8 @@
 <template>
-  <el-scrollbar>
-    <div @click="methods.handleTest">1</div>
+  <ElHeader>
+    <EditorToolbar v-if="editorIsInit" :editor="editor" />
+  </ElHeader>
+  <el-scrollbar style="overflow: auto">
     <div id="editorRef" class="editor" ref="editorRef"></div>
   </el-scrollbar>
 </template>
@@ -27,6 +29,8 @@ import '@milkdown/crepe/theme/frame.css'
 import './style/style.css'
 
 import BlockEditConfigs from './configs/BlockEditConfigs'
+import EditorToolbar from './components/EditorToolbar.vue'
+import { ElHeader } from 'element-plus'
 
 const emits = defineEmits(['update', 'save'])
 const props = defineProps({
@@ -41,6 +45,7 @@ const props = defineProps({
 })
 
 const editorRef = ref(null)
+const editorIsInit = ref(false)
 let editor: Crepe = null
 let collabManager = null
 
@@ -65,12 +70,6 @@ const methods = {
     if (has) return
 
     ctx.get(linkTooltipAPI.key).addLink(selection.from, selection.to)
-  },
-
-  handleTest() {
-    editor.editor.action((ctx) => {
-      ctx.get(commandsCtx).call('CreateCodeBlock')
-    })
   },
 }
 
@@ -124,6 +123,8 @@ onMounted(async () => {
     },
     { signal: controller.signal },
   )
+
+  editorIsInit.value = true
 })
 
 onBeforeUnmount(() => {
@@ -134,6 +135,9 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+.el-header {
+  padding: 0;
+}
 .editor {
   height: 100%;
 }
