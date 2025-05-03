@@ -1,0 +1,23 @@
+.milkdown-menu {
+  --menu-bg: #fff;
+  --menu-border: none;
+}
+
+.milkdown-menu button {
+  color: black;
+}
+
+.milkdown-menu ul[role='menu'] {
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.milkdown-menu ul[role='menu'] li[role='menuitem'] {
+  color: black;
+}
+
+:-webkit-any(article, aside, nav, section) h1 {
+  font-size: 1.5em;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+}

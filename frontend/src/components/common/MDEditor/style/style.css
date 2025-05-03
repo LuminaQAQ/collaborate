@@ -1,5 +1,5 @@
-/* this is a rough fix for the first cursor position when the first paragraph is empty */
-.ProseMirror>.ProseMirror-yjs-cursor:first-child {
+this is a rough fix for the first cursor position when the first paragraph is empty
+.ProseMirror > .ProseMirror-yjs-cursor:first-child {
   margin-top: 16px;
 }
 
@@ -16,7 +16,7 @@
 }
 
 /* This renders the username above the caret */
-.ProseMirror-yjs-cursor>div {
+.ProseMirror-yjs-cursor > div {
   position: absolute;
   top: -1.05em;
   left: -1px;

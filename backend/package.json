@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "npx kill-port 3000 && nodemon ./app.js"
+    "dev": "npx kill-port 5000 &&npx kill-port 3000 && nodemon ./app.js"
   },
   "dependencies": {
     "@types/express": "^5.0.0",

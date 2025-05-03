@@ -1,36 +1,41 @@
 <template>
-  <ElHeader style="user-select: none">
+  <!-- <ElHeader style="user-select: none">
     <EditorToolbar v-if="editorIsInit" :editor="editor" />
-  </ElHeader>
-  <el-scrollbar style="overflow: auto">
-    <div id="editorRef" class="editor" ref="editorRef"></div>
-  </el-scrollbar>
+  </ElHeader> -->
+  <div id="editorRef" class="editor" ref="editorRef"></div>
+  <!-- <el-scrollbar style="overflow: auto"> </el-scrollbar> -->
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { CollabManager } from './utils/CollabManager'
-import { commonmark } from '@milkdown/kit/preset/commonmark'
+
 import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
+
+import { CollabManager } from './utils/CollabManager'
 import { collab, collabServiceCtx } from '@milkdown/plugin-collab'
-import { Crepe } from '@milkdown/crepe'
 
 import {
-  configureLinkTooltip,
   linkTooltipPlugin,
   linkTooltipAPI,
   linkTooltipState,
+  linkTooltipConfig,
 } from '@milkdown/kit/component/link-tooltip'
 import { linkSchema } from '@milkdown/kit/preset/commonmark'
-import { editorViewCtx, commandsCtx } from '@milkdown/kit/core'
+import { editorViewCtx } from '@milkdown/kit/core'
 
 import '@milkdown/crepe/theme/common/style.css'
 import '@milkdown/crepe/theme/frame.css'
+import '@milkdown-lab/plugin-menu/style.css'
+
 import './style/style.css'
+import './style/table.css'
 
 import BlockEditConfigs from './configs/BlockEditConfigs'
-import EditorToolbar from './components/EditorToolbar.vue'
-import { ElHeader } from 'element-plus'
+
+import { menu } from '@milkdown-lab/plugin-menu'
+import { menuConfigs } from './configs/menuConfigs'
+
+import { Crepe } from '@milkdown/crepe'
 
 const emits = defineEmits(['update', 'save'])
 const props = defineProps({
@@ -46,7 +51,10 @@ const props = defineProps({
 
 const editorRef = ref(null)
 const editorIsInit = ref(false)
-let editor: Crepe = null
+/**
+ * @type {Crepe}
+ */
+let editor = null
 let collabManager = null
 
 const controller = new AbortController()
@@ -86,8 +94,9 @@ onMounted(async () => {
   })
 
   editor.editor
+    .config(linkTooltipConfig)
+    .config(menuConfigs)
     .use(linkTooltipPlugin)
-    .use(commonmark)
     .use(collab)
     .config((ctx) => {
       const listener = ctx.get(listenerCtx)
@@ -99,6 +108,7 @@ onMounted(async () => {
       })
     })
     .use(listener)
+    .use(menu)
 
   await editor.create()
 
