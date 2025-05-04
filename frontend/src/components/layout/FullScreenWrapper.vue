@@ -47,7 +47,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .cl-full-screen-wrapper {
   position: fixed;
   top: 0;

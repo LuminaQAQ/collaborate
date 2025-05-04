@@ -1,9 +1,7 @@
 <template>
-  <!-- <ElHeader style="user-select: none">
-    <EditorToolbar v-if="editorIsInit" :editor="editor" />
-  </ElHeader> -->
-  <div id="editorRef" class="editor" ref="editorRef"></div>
-  <!-- <el-scrollbar style="overflow: auto"> </el-scrollbar> -->
+  <ElScrollbar>
+    <div id="editorRef" class="editor" ref="editorRef"></div>
+  </ElScrollbar>
 </template>
 
 <script lang="ts" setup>
@@ -36,6 +34,7 @@ import { menu } from '@milkdown-lab/plugin-menu'
 import { menuConfigs } from './configs/menuConfigs'
 
 import { Crepe } from '@milkdown/crepe'
+import { ElScrollbar } from 'element-plus'
 
 const emits = defineEmits(['update', 'save'])
 const props = defineProps({
@@ -145,18 +144,8 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.el-header {
-  padding: 0;
-}
 .editor {
   height: 100%;
-}
-
-.el-scrollbar {
-  overflow-x: hidden;
-}
-
-:deep(.el-scrollbar__view) {
-  height: calc(100% - 3.5rem);
+  overflow-y: auto;
 }
 </style>

@@ -97,7 +97,7 @@ import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons
 import { ElContainer, ElIcon, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
-import MDEditor from '@/components/common/MDEditor/index.vue'
+import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
 import { useRoute } from 'vue-router'
 import DocSocket from '@/socket/doc'
@@ -119,6 +119,7 @@ const methods = {
     isLoad.value = true
   },
   handleSave(markdown, isAutoSava) {
+    console.log(docStore.currentDocState.content === markdown)
     if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')
 
     docStore.currentDocState.content = markdown
@@ -126,7 +127,8 @@ const methods = {
     docStore.updateDoc(isAutoSava)
   },
   handleUpdate(markdown) {
-    docStore.currentDocState.content = markdown
+    // 会影响文档保存判断，但是可能后面有用，勿删
+    // docStore.currentDocState.content = markdown
   },
   handleCollaboratorClick(collaborator) {
     toPersonalCenter(collaborator.email)

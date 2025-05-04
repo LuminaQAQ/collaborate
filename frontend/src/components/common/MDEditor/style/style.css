@@ -1,5 +1,5 @@
-this is a rough fix for the first cursor position when the first paragraph is empty
-.ProseMirror > .ProseMirror-yjs-cursor:first-child {
+/* this is a rough fix for the first cursor position when the first paragraph is empty  */
+.ProseMirror>.ProseMirror-yjs-cursor:first-child {
   margin-top: 16px;
 }
 
@@ -16,7 +16,7 @@ this is a rough fix for the first cursor position when the first paragraph is em
 }
 
 /* This renders the username above the caret */
-.ProseMirror-yjs-cursor > div {
+.ProseMirror-yjs-cursor>div {
   position: absolute;
   top: -1.05em;
   left: -1px;
@@ -34,14 +34,24 @@ this is a rough fix for the first cursor position when the first paragraph is em
 }
 
 .milkdown {
-  height: 100%;
+  overflow: hidden;
+}
+
+.milkdown-menu>ul[role="menubar"] {
+  width: 100%;
+  position: fixed;
+  z-index: 1;
+  background-color: var(--menu-bg);
 }
 
 .milkdown .ProseMirror {
   margin: 0 auto;
   padding: 0;
   padding-left: 80px;
-  height: 100%;
+  padding-top: 2.5rem;
+  height: calc(100% - 4rem);
+  overflow: hidden;
+  scrollbar-width: thin;
 
   max-width: 750px;
 }
