@@ -145,7 +145,7 @@ onUnmounted(() => {
               @click="router.push(`/${route.params.user}/${route.params.book}`)"
             >
               <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
-              <span>{{ docStore.currentDocState.bookName }}</span>
+              <span>{{ docStore.currentDocState.bookName}}</span>
             </section>
             <el-dropdown class="cl-book-dropdown" trigger="click">
               <span class="el-dropdown-link">

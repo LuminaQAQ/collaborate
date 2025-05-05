@@ -119,7 +119,6 @@ const methods = {
     isLoad.value = true
   },
   handleSave(markdown, isAutoSava) {
-    console.log(docStore.currentDocState.content === markdown)
     if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')
 
     docStore.currentDocState.content = markdown

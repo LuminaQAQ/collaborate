@@ -64,7 +64,7 @@ const methods = {
 
     let fullDate = ''
 
-    if (diffDays < 1) {
+    if (diffDays && diffDays < 1) {
       fullDate = `今天`
     } else if (diffDays < 2) {
       fullDate = `昨天`
@@ -125,9 +125,7 @@ const methods = {
             @click="methods.handleHistoryItem(item.id)"
           >
             <header style="margin-bottom: 0.5rem">
-              <span>
-                {{ methods.timeFormat(item.created_at) }}
-              </span>
+              <span> {{ methods.timeFormat(item.created_at) }} </span>
             </header>
             <footer>
               <span style="font-size: 0.75rem; color: #999">{{ item.username }}</span>

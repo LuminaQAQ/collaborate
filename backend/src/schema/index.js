@@ -106,6 +106,19 @@ const initDocGroupTable = async () => {
     }
 }
 
+const initDocFavoritesTable = async () => {
+    const isExists = await db.schema.hasTable("doc_favorites")
+
+    if (!isExists) {
+        db.schema.createTable("doc_favorites", table => {
+            table.increments("id").primary().unsigned()
+            table.integer("doc_id").notNullable().unsigned()
+            table.integer("user_id").notNullable().unsigned()
+            table.timestamp("created_at").defaultTo(db.fn.now())
+        }).catch(err => { throw err })
+    }
+}
+
 const initTables = () => {
     initUserTable();
     initDocsTable();
@@ -114,6 +127,7 @@ const initTables = () => {
     initBooksTable();
     initBookPermissionsTable();
     initDocGroupTable();
+    initDocFavoritesTable();
 }
 
 module.exports = initTables;

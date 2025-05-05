@@ -7,7 +7,7 @@ const config = jsyaml.load(readFileSync(path.join(__dirname, "../configs/db.yaml
 
 const db = knex({
     client: "mysql2",
-    connection: config.db
+    connection: config.db,
 })
 
 module.exports = db;

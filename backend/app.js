@@ -1,8 +1,9 @@
-require("./src/lib/env.js")
+// env 文件
+require("./src/lib/env.js")()
+
 const express = require("express");
 const cors = require("cors");
 const http = require("http")
-const { Server } = require("socket.io");
 
 require("./src/ws/index.js")();
 

@@ -10,8 +10,12 @@ export const useDocStore = defineStore("doc", () => {
 
   const currentDocState = reactive({
     isLoading: true,
+
+    // TODO: 整合 bookName 和 BookName 到  bookInfo 中
     bookName: "",
     bookDesc: "",
+    bookInfo: {},
+
     title: "",
     content: "",
     role: {
@@ -82,8 +86,6 @@ export const useDocStore = defineStore("doc", () => {
 
   const restoreCurrentState = () => {
     Object.assign(currentDocState, {
-      bookName: "",
-      bookDesc: "",
       title: "",
       content: "",
       role: {
