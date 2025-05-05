@@ -14,15 +14,11 @@ const docRouter = require("./src/router/doc.js");
 const historyRouter = require("./src/router/history.js");
 const userRouter = require("./src/router/user/index.js");
 
-const socketIoTokenVerifyMiddleware = require("./src/middleware/socket/tokenVerifyMiddleware.js");
-const { socketOnConnect } = require("./src/socket/doc.socket.js");
-
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
 const initTables = require("./src/schema/index.js");
 const preventHotLinking = require("./src/middleware/preventHotLinking.js");
-const socketIoErrorMiddleware = require("./src/middleware/socket/errorMiddleware.js");
-const db = require("./src/lib/db.js");
+const collectionRouter = require("./src/router/favorite/index.js");
 
 initTables();
 
@@ -40,6 +36,7 @@ app.use("/api", docRouter)
 app.use("/api", historyRouter)
 app.use("/api", bookRouter)
 app.use("/user", userRouter)
+app.use("/favorite", collectionRouter);
 app.use(errorMiddleware);
 
 

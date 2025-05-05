@@ -89,7 +89,7 @@
 <script setup>
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
-import CollectionTool from '@/components/tools/CollectionTool.vue'
+import CollectionTool from '@/components/tools/FavoriteTool.vue'
 import HistoryTool from '@/components/tools/HistoryTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'

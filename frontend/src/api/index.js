@@ -39,5 +39,11 @@ export const apiList = {
   historyApi: {
     fetchDocHistory: "/api/historyList",
     fetchDocHistoryDetail: "/api/historyDetail"
+  },
+  favoriteApi: {
+    fetchFavoriteGroup: "/favorite/favoriteGroup",
+    fetchFavorite: "/favorite/favorite",
+    addFavorite: "/favorite/addFavorite",
+    delFavorite: "/favorite/delFavorite"
   }
 }
