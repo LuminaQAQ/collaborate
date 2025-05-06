@@ -125,9 +125,10 @@ const initDocFavoriteGroupTable = async () => {
 
     if (!isExists) {
         db.schema.createTable("doc_favorite_group", table => {
-            table.increments("id").primary().unsigned()
-            table.string("name").notNullable()
-            table.integer("user_id").notNullable().unsigned()
+            table.increments("id").primary().unsigned().comment("分组id")
+            table.string("name").notNullable().comment("分组名称")
+            table.string("desc").notNullable().comment("分组描述")
+            table.integer("user_id").notNullable().unsigned().references("id").inTable("users").comment("用户id")
         }).catch(err => { throw err })
     }
 }

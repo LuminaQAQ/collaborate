@@ -21,6 +21,7 @@
 
 <style lang="scss" scoped>
 .cl-list-item-wrap {
+  --color-border: #e5e5e5;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,6 +35,17 @@
     .cl-list-item-title {
       font-size: 1rem;
       font-weight: 600;
+    }
+  }
+
+  &.cl-list-item--border-bottom {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &.cl-list-item--hover-item {
+    &:hover {
+      background-color: #f5f5f5;
+      cursor: pointer;
     }
   }
 }
