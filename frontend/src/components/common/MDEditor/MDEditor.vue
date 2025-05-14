@@ -53,7 +53,7 @@ const editorIsInit = ref(false)
 /**
  * @type {Crepe}
  */
-let editor = null
+let editor: Crepe | null = null
 let collabManager = null
 
 const controller = new AbortController()
