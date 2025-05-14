@@ -1,17 +1,3 @@
-/**
- * @typedef authApi
- * @property {string} verifyCode
- * @property {string} register
- * @property {string} login
- * @property {string} logout
- */
-
-/**
- * @typedef apiList
- * @property {authApi} authApi
- * @property {userApi} userApi
- */
-
 export const apiList = {
   authApi: {
     verifyCode: '/api/verifyCode',
@@ -43,5 +29,6 @@ export const apiList = {
   favoriteApi: {
     fetchFavoriteGroup: "/favorite/favoriteGroup",
     createFavoriteGroup: "/favorite/createFavoriteGroup",
+    addToFavorite: "/favorite/addToFavorite",
   }
 }

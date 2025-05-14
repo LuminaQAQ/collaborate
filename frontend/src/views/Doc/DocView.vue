@@ -39,6 +39,7 @@
           {{ docStore.currentDocState.title }}
         </h2>
       </section>
+      <!-- 协作者 -->
       <section class="collaborator-wrap" v-if="isMulCollaborator">
         <section
           class="collaborator-item"
@@ -59,7 +60,11 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <CollectionTool />
+          <FavoriteTool
+            :docId.number="Number(route.params.doc)"
+            :isFavorite="docStore.currentDocState.isFavorite"
+            @update="docStore.currentDocState.isFavorite"
+          />
           <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" />
           <HistoryTool
@@ -89,7 +94,7 @@
 <script setup>
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
-import CollectionTool from '@/components/tools/FavoriteTool.vue'
+import FavoriteTool from '@/components/tools/FavoriteTool.vue'
 import HistoryTool from '@/components/tools/HistoryTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'

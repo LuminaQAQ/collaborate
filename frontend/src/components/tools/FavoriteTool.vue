@@ -1,13 +1,18 @@
-<script setup lang="ts">
+<script setup>
 import { Star, StarFilled } from '@element-plus/icons-vue/dist/index.js'
 import ClIconButton from '../common/ClIconButton.vue'
 import { reactive, ref } from 'vue'
 import ClListItem from '../common/ClListItem.vue'
-import { requestCreateFavoriteGroup, requestFetchFavoriteGroup } from '@/api/favorite'
+import {
+  requestAddToFavorite,
+  requestCreateFavoriteGroup,
+  requestFetchFavoriteGroup,
+} from '@/api/favorite'
 import { ElButton, ElDialog, ElEmpty, ElIcon, ElInput, ElMessage, ElText } from 'element-plus'
-import { fa } from 'element-plus/es/locale'
 
 const createFavoriteGroupFormRef = ref(null)
+
+const emits = defineEmits(['update'])
 
 const state = reactive({
   favoriteGroupDialogVisible: false,
@@ -27,8 +32,9 @@ const state = reactive({
   },
 })
 
-defineProps({
+const { docId } = defineProps({
   isFavorite: Boolean,
+  docId: Number,
 })
 
 const methods = {
@@ -56,7 +62,12 @@ const methods = {
   async favorite(id) {
     // TODO: 收藏
     try {
-      // await requestCreateFavoriteGrou(id)
+      await requestAddToFavorite({
+        doc_id: docId,
+        favorite_group_id: id,
+      })
+
+      emits('update', true)
     } catch (error) {}
   },
   unfavorite() {

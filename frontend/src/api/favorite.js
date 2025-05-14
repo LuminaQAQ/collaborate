@@ -14,13 +14,27 @@ export const requestFetchFavoriteGroup = () => {
 }
 
 /**
- * 
+ * 创建收藏分组
  * @param {Object} data
  * @param {String} data.name
  * @returns 
  */
 export const requestCreateFavoriteGroup = (data) => {
     return request(apiList.favoriteApi.createFavoriteGroup, {
+        method: "post",
+        data
+    })
+}
+
+/**
+ * 添加到收藏
+ * @param {Object} data
+ * @param {Number} data.doc_id
+ * @param {Number} data.favorite_group_id
+ * @returns 
+ */
+export const requestAddToFavorite = (data) => {
+    return request(apiList.favoriteApi.addToFavorite, {
         method: "post",
         data
     })
