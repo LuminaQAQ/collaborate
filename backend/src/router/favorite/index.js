@@ -57,4 +57,22 @@ favoriteRouter.post("/addToFavorite", jwtMiddleware, async (req, res, next) => {
   }
 });
 
+// 取消收藏
+favoriteRouter.post("/delFavorite", jwtMiddleware, async (req, res, next) => {
+  const { doc_id } = req.body;
+
+  try {
+    await db("doc_favorites")
+      .where({
+        user_id: req.user.id,
+        doc_id,
+      })
+      .del();
+
+    return res.status(200).send({ msg: "取消成功！" });
+  } catch (error) {
+    next(new InternalServerError(500, "取消失败！", error.message));
+  }
+});
+
 module.exports = favoriteRouter;

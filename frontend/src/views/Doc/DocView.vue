@@ -52,7 +52,7 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <FavoriteTool :docId="Number(route.params.doc)" :isFavorite="docStore.currentDocState.isFavorite"
+          <FavoriteTool :docId="Number(route.params.doc)" :isFavorite="docStore.currentDocState.docInfo.isFavorite"
             @update="methods.handleDocFavorite" />
           <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" />
@@ -107,7 +107,7 @@ const methods = {
   },
 
   handleDocFavorite(isFavorite) {
-    docStore.currentDocState.isFavorite = isFavorite
+    docStore.currentDocState.docInfo.isFavorite = isFavorite
   },
   handleSave(markdown, isAutoSava) {
     if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')

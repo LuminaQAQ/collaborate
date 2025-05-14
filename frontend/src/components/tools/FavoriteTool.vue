@@ -6,6 +6,7 @@ import ClListItem from '../common/ClListItem.vue'
 import {
   requestAddToFavorite,
   requestCreateFavoriteGroup,
+  requestDelFavorite,
   requestFetchFavoriteGroup,
 } from '@/api/favorite'
 import { ElButton, ElDialog, ElEmpty, ElIcon, ElInput, ElMessage, ElText } from 'element-plus'
@@ -68,12 +69,24 @@ const methods = {
       state.favoriteGroupDialogVisible = false
 
       emits('update', true)
+
+      ElMessage.success('收藏成功')
     } catch (error) {
       ElMessage.error('收藏失败，请重试')
     }
   },
-  unfavorite() {
-    // TODO: 取消收藏
+  async unfavorite() {
+    try {
+      await requestDelFavorite({
+        doc_id: docId,
+      })
+
+      emits('update', false)
+
+      ElMessage.success('取消收藏成功')
+    } catch (error) {
+      ElMessage.error('取消收藏失败，请重试')
+    }
   },
   async createFavoriteGroup() {
     await createFavoriteGroupFormRef.value?.validate()
@@ -111,7 +124,7 @@ const methods = {
 
 <template>
   <ClIconButton v-if="isFavorite" @click="methods.unfavorite" title="收藏" :icon="StarFilled" color="yellow"
-    style="--cl-icon-button-size: 25px" />
+    style="--cl-icon-button-size: 21px" />
   <ClIconButton v-else @click="methods.handleFavoriteGroupDialogOpen" title="收藏" :icon="Star" />
 
   <el-dialog v-model="state.favoriteGroupDialogVisible">
