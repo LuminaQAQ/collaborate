@@ -35,6 +35,7 @@
 
 .milkdown {
   overflow: hidden;
+  height: 100%;
 }
 
 .milkdown-menu>ul[role="menubar"] {
@@ -46,9 +47,9 @@
 
 .milkdown .ProseMirror {
   margin: 0 auto;
+  margin-top: 4rem;
   padding: 0;
   padding-left: 80px;
-  padding-top: 2.5rem;
   height: calc(100% - 4rem);
   overflow: hidden;
   scrollbar-width: thin;

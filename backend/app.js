@@ -1,11 +1,15 @@
 // env 文件
 require("./src/lib/env.js")()
 
+// 初始化 y-ws
+require("./src/ws/index.js")();
+
+// 初始化 数据库的 schema
+require("./src/schema/index.js")();
+
 const express = require("express");
 const cors = require("cors");
 const http = require("http")
-
-require("./src/ws/index.js")();
 
 const loginRouter = require("./src/router/login.js");
 const homeRouter = require("./src/router/home.js");
@@ -16,11 +20,8 @@ const userRouter = require("./src/router/user/index.js");
 
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
-const initTables = require("./src/schema/index.js");
 const preventHotLinking = require("./src/middleware/preventHotLinking.js");
 const collectionRouter = require("./src/router/favorite/index.js");
-
-initTables();
 
 const app = express();
 const server = http.createServer(app);
@@ -39,22 +40,8 @@ app.use("/user", userRouter)
 app.use("/favorite", collectionRouter);
 app.use(errorMiddleware);
 
-
 require("./src/socket/index")(server)
-
 
 server.listen(3000, () => {
     console.log("服务器已启动在 3000 端口");
 })
-
-// const io = new Server(server, {
-//     cors: { origin: "*" },
-//     allowEIO3: true,
-//     transports: ['websocket'],
-// })
-
-// io.of("/doc")
-//     .use(socketIoTokenVerifyMiddleware)
-//     .on("connect", (socket) => {
-//         socketOnConnect(io, socket);
-//     })

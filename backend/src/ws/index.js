@@ -4,5 +4,5 @@ const HOST = "localhost";
 const PORT = 5000;
 
 module.exports = () => {
-    exec(`HOST=${HOST} PORT=${PORT} npx y-websocket`)
+    exec(`HOST=${HOST} PORT=${PORT} npx y-websocket`);
 }
