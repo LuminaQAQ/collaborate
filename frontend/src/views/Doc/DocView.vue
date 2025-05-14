@@ -17,7 +17,7 @@
   justify-content: center;
   flex-wrap: nowrap;
 
-  & > .collaborator-item {
+  &>.collaborator-item {
     margin-right: 0.35rem;
 
     display: flex;
@@ -31,23 +31,15 @@
   <ElContainer v-if="isLoad">
     <ElHeader>
       <section>
-        <ElInput
-          v-if="docStore.handleRole.isOwnerOrEditor('doc')"
-          v-model="docStore.currentDocState.title"
-        />
+        <ElInput v-if="docStore.handleRole.isOwnerOrEditor('doc')" v-model="docStore.currentDocState.title" />
         <h2 v-else>
           {{ docStore.currentDocState.title }}
         </h2>
       </section>
       <!-- 协作者 -->
       <section class="collaborator-wrap" v-if="isMulCollaborator">
-        <section
-          class="collaborator-item"
-          v-for="item in docStore.currentDocState.collaborators.slice(0, 3)"
-          :key="item.id"
-          :title="item.username"
-          @click="methods.handleCollaboratorClick(item)"
-        >
+        <section class="collaborator-item" v-for="item in docStore.currentDocState.collaborators.slice(0, 3)"
+          :key="item.id" :title="item.username" @click="methods.handleCollaboratorClick(item)">
           <template v-if="item.avatar">
             <ElAvatar :src="item.avatar" />
           </template>
@@ -60,29 +52,19 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <FavoriteTool
-            :docId.number="Number(route.params.doc)"
-            :isFavorite="docStore.currentDocState.isFavorite"
-            @update="docStore.currentDocState.isFavorite"
-          />
+          <FavoriteTool :docId="Number(route.params.doc)" :isFavorite="docStore.currentDocState.isFavorite"
+            @update="methods.handleDocFavorite" />
           <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" />
-          <HistoryTool
-            @restore="methods.handleRestore"
-            v-permission="['doc:owner', 'doc:editor']"
-          />
+          <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" />
         </ClIconButtonGroup>
       </section>
     </ElHeader>
     <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <MDEditor
-          @update="methods.handleUpdate"
-          @save="methods.handleSave"
-          :room="`${route.params.book}-${route.params.doc}`"
-          :default-value="docStore.currentDocState.content"
-        />
+        <MDEditor @update="methods.handleUpdate" @save="methods.handleSave"
+          :room="`${route.params.book}-${route.params.doc}`" :default-value="docStore.currentDocState.content" />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -98,9 +80,9 @@ import FavoriteTool from '@/components/tools/FavoriteTool.vue'
 import HistoryTool from '@/components/tools/HistoryTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { Share, Star, FolderAdd, SetUp, MostlyCloudy } from '@element-plus/icons-vue/dist/index.js'
-import { ElContainer, ElIcon, ElMain, ElMessage } from 'element-plus'
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { Share, FolderAdd, SetUp } from '@element-plus/icons-vue/dist/index.js'
+import { ElContainer, ElMain, ElMessage } from 'element-plus'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -122,6 +104,10 @@ const methods = {
   async initDoc() {
     await docStore.fetchDoc()
     isLoad.value = true
+  },
+
+  handleDocFavorite(isFavorite) {
+    docStore.currentDocState.isFavorite = isFavorite
   },
   handleSave(markdown, isAutoSava) {
     if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')
