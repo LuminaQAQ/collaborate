@@ -53,24 +53,24 @@ const state = reactive({
     {
       label: '权限',
       icon: Lock,
-      click: () => {},
+      click: () => { },
     },
     {
       label: '统计',
       icon: Histogram,
-      click: () => {},
+      click: () => { },
       permission: ['book:owner'],
     },
     {
       label: '目录管理',
       icon: List,
-      click: () => {},
+      click: () => { },
       permission: ['book:owner', 'book:editor'],
     },
     {
       label: '更多设置',
       icon: Setting,
-      click: () => {},
+      click: () => { },
       permission: ['book:owner', 'book:editor'],
     },
   ],
@@ -110,7 +110,7 @@ onMounted(async () => {
     await docStore.fetchDocList()
     state.bookOptionsDropdown = methods.handlePermission(state.bookOptionsDropdown)
     docStore.currentDocState.isLoading = false
-  } catch (error) {}
+  } catch (error) { }
 })
 
 onUnmounted(() => {
@@ -120,11 +120,8 @@ onUnmounted(() => {
 
 <template>
   <ElContainer>
-    <el-aside
-      :width="state.isCollapse ? '220px' : '1px'"
-      @mouseover="state.isMenuHover = true"
-      @mouseout="state.isMenuHover = false"
-    >
+    <el-aside :width="state.isCollapse ? '220px' : '1px'" @mouseover="state.isMenuHover = true"
+      @mouseout="state.isMenuHover = false">
       <!-- 顶部面包屑导航 -->
       <ElHeader>
         <section class="home-icon-wrap" @click="router.push('/')">
@@ -140,26 +137,22 @@ onUnmounted(() => {
             <ElSkeletonItem variant="h1" />
           </template>
           <template #default>
-            <section
-              class="book-home-btn"
-              @click="router.push(`/${route.params.user}/${route.params.book}`)"
-            >
-              <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem"><Notebook /></ElIcon>
-              <span>{{ docStore.currentDocState.bookName}}</span>
+            <section class="book-home-btn" @click="router.push(`/${route.params.user}/${route.params.book}`)">
+              <ElIcon :size="22" color="#409eff" style="margin-right: 0.5rem">
+                <Notebook />
+              </ElIcon>
+              <span>{{ docStore.currentDocState.bookInfo.bookName }}</span>
             </section>
             <el-dropdown class="cl-book-dropdown" trigger="click">
               <span class="el-dropdown-link">
-                <el-icon class="el-icon--right" size="18"><MoreFilled /></el-icon>
+                <el-icon class="el-icon--right" size="18">
+                  <MoreFilled />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item
-                    v-for="item in state.bookOptionsDropdown"
-                    :key="item.label"
-                    :icon="item.icon"
-                    :v-permission="item.permission"
-                    @click="item.click"
-                  >
+                  <el-dropdown-item v-for="item in state.bookOptionsDropdown" :key="item.label" :icon="item.icon"
+                    :v-permission="item.permission" @click="item.click">
                     {{ item.label }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -176,26 +169,18 @@ onUnmounted(() => {
         <ElSkeleton animated :loading="docStore.currentDocState.isLoading">
           <template #template>
             <div style="display: flex">
-              <el-skeleton-item
-                variant="h1"
-                style="width: 80%; height: 1.5rem; margin: 0.5rem 0.25rem"
-              />
-              <el-skeleton-item
-                variant="h1"
-                style="width: 20%; height: 1.5rem; margin: 0.5rem 0.25rem"
-              />
+              <el-skeleton-item variant="h1" style="width: 80%; height: 1.5rem; margin: 0.5rem 0.25rem" />
+              <el-skeleton-item variant="h1" style="width: 20%; height: 1.5rem; margin: 0.5rem 0.25rem" />
             </div>
           </template>
 
           <template #default>
             <el-input v-model="state.searchValue" placeholder="搜索" :prefix-icon="Search" />
-            <el-dropdown
-              class="cl-addtion-dropdown"
-              trigger="hover"
-              v-permission="['book:owner', 'book:editor']"
-            >
+            <el-dropdown class="cl-addtion-dropdown" trigger="hover" v-permission="['book:owner', 'book:editor']">
               <span class="el-dropdown-link">
-                <el-icon class="el-icon--right" size="16"><Plus /></el-icon>
+                <el-icon class="el-icon--right" size="16">
+                  <Plus />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -212,21 +197,13 @@ onUnmounted(() => {
       <ElScrollbar>
         <ElSkeleton animated :loading="docStore.currentDocState.isLoading">
           <template #template>
-            <el-skeleton-item
-              variant="h3"
-              v-for="item in 5"
-              style="height: 1.5rem; margin: 0.5rem 0.25rem"
-            />
+            <el-skeleton-item variant="h3" v-for="item in 5" style="height: 1.5rem; margin: 0.5rem 0.25rem" />
           </template>
 
           <template #default>
             <template v-if="docStore.currentDocState.docList.length > 0">
               <ElMenu class="el-menu-vertical-demo" :router="true" :default-active="route.path">
-                <MenuTree
-                  v-for="item in docStore.currentDocState.docList"
-                  :book="item"
-                  :key="item.id"
-                />
+                <MenuTree v-for="item in docStore.currentDocState.docList" :book="item" :key="item.id" />
               </ElMenu>
             </template>
           </template>
@@ -234,11 +211,8 @@ onUnmounted(() => {
       </ElScrollbar>
 
       <!-- 侧边栏展缩按钮 -->
-      <el-icon
-        :class="['collapse-icon', state.isCollapse ? '' : 'is-close']"
-        @click="state.isCollapse = !state.isCollapse"
-        v-show="state.isMenuHover"
-      >
+      <el-icon :class="['collapse-icon', state.isCollapse ? '' : 'is-close']"
+        @click="state.isCollapse = !state.isCollapse" v-show="state.isMenuHover">
         <ArrowLeftBold v-if="state.isCollapse" />
         <ArrowRightBold v-else />
       </el-icon>

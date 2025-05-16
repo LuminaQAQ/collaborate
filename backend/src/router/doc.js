@@ -30,8 +30,19 @@ docRouter.get(
         .select(["docs.*", "users.email"])
         .where({ book_id })
         .orderBy("docs.id");
-      const [{ bookName, bookDescription }] = await db("books")
-        .select(["name as bookName", "description as bookDescription"])
+      const [bookInfo] = await db("books")
+        .select([
+          "name as bookName",
+          "description as bookDescription",
+          db("favorites")
+            .select("favorites.id")
+            .where({
+              user_id: req.user.id,
+              target_type: "Book",
+              target_id: book_id,
+            })
+            .as("isFavorite"),
+        ])
         .where({ id: book_id });
 
       const tree = [];
@@ -65,8 +76,7 @@ docRouter.get(
       };
 
       const result = JSON.stringify({
-        bookName,
-        bookDescription,
+        bookInfo,
         role: req.user.role,
         docList: [...tree, ...builder(groupMap).values()],
       });
@@ -150,9 +160,12 @@ docRouter.get(
       const [result] = await db("docs")
         .select("docs.*")
         .select(
-          db("doc_favorites")
-            .select("doc_favorites.doc_id")
-            .whereRaw("doc_favorites.doc_id = docs.id")
+          db("favorites")
+            .select("favorites.target_id")
+            .whereRaw(
+              "favorites.target_id = docs.id and favorites.user_id = ?",
+              req.user.id
+            )
             .as("isFavorite")
         )
         .where({ id: doc_id, book_id });

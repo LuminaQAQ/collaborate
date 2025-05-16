@@ -52,8 +52,8 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <FavoriteTool :docId="Number(route.params.doc)" :isFavorite="docStore.currentDocState.docInfo.isFavorite"
-            @update="methods.handleDocFavorite" />
+          <FavoriteTool :targetId="Number(route.params.doc)" targetType="Doc"
+            :isFavorite="docStore.currentDocState.docInfo.isFavorite" @update="methods.handleDocFavorite" />
           <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" />
           <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" />

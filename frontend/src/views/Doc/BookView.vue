@@ -2,13 +2,22 @@
 import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
+import FavoriteTool from '@/components/tools/FavoriteTool.vue'
 import ShareTool from '@/components/tools/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
 import { ElAvatar, ElEmpty, ElIcon, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { useRoute } from 'vue-router'
 
 const store = useDocStore()
+const route = useRoute()
+
+const methods = {
+  handleDocFavorite(isFavorite) {
+    store.currentDocState.bookInfo.isFavorite = isFavorite
+  },
+}
 </script>
 
 <template>
@@ -23,18 +32,18 @@ const store = useDocStore()
         <template #default>
           <section class="title-wrap">
             <div class="title-info">
-              <ElIcon style="margin-right: 1rem" color="#409eff"><Notebook /> </ElIcon>
-              <span class="title">{{ store.currentDocState.bookName }}</span>
+              <ElIcon style="margin-right: 1rem" color="#409eff">
+                <Notebook />
+              </ElIcon>
+              <span class="title">{{ store.currentDocState.bookInfo.bookName }}</span>
             </div>
             <div class="title-setting">
               <ClIconButtonGroup size="20px">
-                <ClIconButton :icon="Star" title="收藏" />
+                <!-- <ClIconButton :icon="Star" title="收藏" /> -->
+                <FavoriteTool :targetId="Number(route.params.book)" targetType="Book"
+                  :isFavorite="store.currentDocState.bookInfo.isFavorite" @update="methods.handleDocFavorite" />
                 <ShareTool />
-                <ClIconButton
-                  :icon="More"
-                  title="设置"
-                  v-permission="['book:owner', 'book:editor']"
-                />
+                <ClIconButton :icon="More" title="设置" v-permission="['book:owner', 'book:editor']" />
               </ClIconButtonGroup>
             </div>
           </section>
@@ -46,7 +55,7 @@ const store = useDocStore()
             <ElSkeletonItem variant="p" style="width: 30%" />
           </template>
           <template #default>
-            <small>{{ store.currentDocState.bookDesc || '暂无简介' }}</small>
+            <small>{{ store.currentDocState.bookInfo.bookDesc || '暂无简介' }}</small>
           </template>
         </ElSkeleton>
       </section>
@@ -62,11 +71,7 @@ const store = useDocStore()
         <main class="cl-book__main">
           <template v-if="store.currentDocState.docList.length > 0">
             <h1>目录</h1>
-            <CatalogueTree
-              v-for="item in store.currentDocState.docList"
-              :item="item"
-              :key="item.id"
-            />
+            <CatalogueTree v-for="item in store.currentDocState.docList" :item="item" :key="item.id" />
           </template>
           <template v-else>
             <ElEmpty description="知识库为空"></ElEmpty>
@@ -89,6 +94,7 @@ const store = useDocStore()
   border-radius: 5px;
 
   .cl-book__header {
+
     .statistic-wrap,
     .collaborate-wrap {
       margin: 0.75rem 0;
@@ -113,7 +119,7 @@ const store = useDocStore()
       }
 
       .title-setting {
-        > .el-icon {
+        >.el-icon {
           margin: 0 0.5rem;
         }
       }

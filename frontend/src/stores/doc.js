@@ -11,9 +11,6 @@ export const useDocStore = defineStore('doc', () => {
   const currentDocState = reactive({
     isLoading: true,
 
-    // TODO: 整合 bookName 和 BookName 到  bookInfo 中
-    bookName: '',
-    bookDesc: '',
     bookInfo: {},
 
     title: '',
@@ -46,10 +43,10 @@ export const useDocStore = defineStore('doc', () => {
     requestDocList({
       book_id: route.params.book,
     }).then((res) => {
-      const { docList, bookName, bookDescription, role } = res.data
+      const { docList, bookInfo, role } = res.data
+
       currentDocState.docList = docList
-      currentDocState.bookName = bookName
-      currentDocState.bookDesc = bookDescription
+      currentDocState.bookInfo = bookInfo
       if (role) currentDocState.role.book = role.split(':')[1]
     })
 

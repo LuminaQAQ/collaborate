@@ -9,7 +9,7 @@ import {
   requestDelFavorite,
   requestFetchFavoriteGroup,
 } from '@/api/favorite'
-import { ElButton, ElDialog, ElEmpty, ElIcon, ElInput, ElMessage, ElText } from 'element-plus'
+import { ElButton, ElDialog, ElInput, ElMessage, ElText } from 'element-plus'
 
 const createFavoriteGroupFormRef = ref(null)
 
@@ -33,9 +33,10 @@ const state = reactive({
   },
 })
 
-const { docId } = defineProps({
+const { targetId, targetType } = defineProps({
   isFavorite: Boolean,
-  docId: Number,
+  targetId: Number,
+  targetType: String,
 })
 
 const methods = {
@@ -63,8 +64,9 @@ const methods = {
   async favorite(id = null) {
     try {
       await requestAddToFavorite({
-        doc_id: docId,
         favorite_group_id: id,
+        target_id: targetId,
+        target_type: targetType,
       })
       state.favoriteGroupDialogVisible = false
 
@@ -78,7 +80,8 @@ const methods = {
   async unfavorite() {
     try {
       await requestDelFavorite({
-        doc_id: docId,
+        target_id: targetId,
+        target_type: targetType,
       })
 
       emits('update', false)
@@ -137,7 +140,7 @@ const methods = {
 
     <div v-loading="state.favoriteGroupDialogIsLoading">
       <ClListItem class="cl-list-item--border-bottom cl-list-item--hover-item" @click="methods.favorite()">
-        <template #title> 我的收藏 <el-tag type="primary" size="small">默认</el-tag> </template>
+        <template #title> 我的收藏 <el-tag type="primary" size="small" round>默认</el-tag> </template>
       </ClListItem>
       <ClListItem class="cl-list-item--border-bottom cl-list-item--hover-item" v-for="group in state.groups"
         :key="group.id" @click="methods.favorite(group.id)">

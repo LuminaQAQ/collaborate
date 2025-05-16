@@ -9,7 +9,7 @@ const favoriteRouter = express.Router();
 // 获取收藏夹
 favoriteRouter.get("/favoriteGroup", jwtMiddleware, async (req, res, next) => {
   try {
-    const docFavorites = await db("doc_favorite_group")
+    const docFavorites = await db("favorite_group")
       .select("*")
       .where({ user_id: req.user.id });
 
@@ -27,7 +27,7 @@ favoriteRouter.post(
     const { name, desc } = req.body;
 
     try {
-      await db("doc_favorite_group").insert({
+      await db("favorite_group").insert({
         name,
         desc,
         user_id: req.user.id,
@@ -42,13 +42,14 @@ favoriteRouter.post(
 
 // 添加到收藏夹
 favoriteRouter.post("/addToFavorite", jwtMiddleware, async (req, res, next) => {
-  const { doc_id, favorite_group_id } = req.body;
+  const { favorite_group_id, target_id, target_type } = req.body;
 
   try {
-    await db("doc_favorites").insert({
+    await db("favorites").insert({
       user_id: req.user.id,
-      doc_id,
       group_id: favorite_group_id || null,
+      target_id,
+      target_type,
     });
 
     return res.status(200).send({ msg: "添加成功！" });
@@ -59,13 +60,14 @@ favoriteRouter.post("/addToFavorite", jwtMiddleware, async (req, res, next) => {
 
 // 取消收藏
 favoriteRouter.post("/delFavorite", jwtMiddleware, async (req, res, next) => {
-  const { doc_id } = req.body;
+  const { target_id, target_type } = req.body;
 
   try {
-    await db("doc_favorites")
+    await db("favorites")
       .where({
         user_id: req.user.id,
-        doc_id,
+        target_id,
+        target_type,
       })
       .del();
 
