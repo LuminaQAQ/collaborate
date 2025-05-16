@@ -163,7 +163,7 @@ docRouter.get(
           db("favorites")
             .select("favorites.target_id")
             .whereRaw(
-              "favorites.target_id = docs.id and favorites.user_id = ?",
+              "favorites.target_id = docs.id and favorites.user_id = ? and favorites.target_type = 'Doc'",
               req.user.id
             )
             .as("isFavorite")

@@ -3,7 +3,7 @@ import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import FavoriteTool from '@/components/tools/FavoriteTool.vue'
-import ShareTool from '@/components/tools/ShareTool.vue'
+import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
 import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
@@ -42,7 +42,8 @@ const methods = {
                 <!-- <ClIconButton :icon="Star" title="收藏" /> -->
                 <FavoriteTool :targetId="Number(route.params.book)" targetType="Book"
                   :isFavorite="store.currentDocState.bookInfo.isFavorite" @update="methods.handleDocFavorite" />
-                <ShareTool />
+                <!--TODO: 重构组件 -->
+                <ShareTool targetType="Book" />
                 <ClIconButton :icon="More" title="设置" v-permission="['book:owner', 'book:editor']" />
               </ClIconButtonGroup>
             </div>
