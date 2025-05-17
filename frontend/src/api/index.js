@@ -32,4 +32,8 @@ export const apiList = {
     addToFavorite: '/favorite/addToFavorite',
     delFavorite: '/favorite/delFavorite',
   },
+  shareApi: {
+    fetchJoinURL: '/share/getJoinURL',
+    joinToShare: '/share/joinShare',
+  },
 }

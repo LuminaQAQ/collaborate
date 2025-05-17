@@ -1,14 +1,101 @@
 const express = require("express");
-
 const { sign, verify } = require("jsonwebtoken");
-const jwtMiddleware = require("../middleware/jwtMiddleware");
-const db = require("../lib/db");
-const { InternalServerError } = require("../middleware/errorMiddleware");
-const redis = require("../lib/redis");
-const shareRouter = express.Router();
 
-// TODO: 重构邀请路由
-shareRouter.post("/bookJoinURL", jwtMiddleware, async (req, res, next) => {
+const db = require("../../lib/db");
+const redis = require("../../lib/redis");
+
+const jwtMiddleware = require("../../middleware/jwtMiddleware");
+const sharePermissionMiddleware = require("../../middleware/sharePermissionMiddleware");
+const { InternalServerError } = require("../../middleware/errorMiddleware");
+
+const shareRouter = express.Router();
+/**
+ * 处理分享链接的角色分配
+ * @param {1|2} role
+ * @returns {"viewer"|"editor"} role
+ */
+const handleRole = (role) => {
+  return role && Number(role) === 2 ? "editor" : "viewer";
+};
+
+/**
+ * 获取redis分享链接缓存
+ * @param {Object} param0
+ * @param {'Book'|'Doc'} param0.target_type
+ * @param {String|Number} param0.target_id
+ * @param {"viewer"|"editor"} param0.role
+ * @returns {Promise<String>}
+ */
+const getRedisShareToken = async ({ target_type, target_id, role }) => {
+  const token = await redis.get(
+    `${target_type}:share:token:${handleRole(role)}:${target_id}`
+  );
+
+  return token;
+};
+
+/**
+ * 生成redis分享链接缓存
+ * @param {Object} param0
+ * @param {Object} param0.target_type
+ * @param {String|Number} param0.target_id
+ * @param {"viewer"|"editor"} param0.role
+ * @param {String} param0.email
+ * @returns {Promise<String>}
+ */
+const generateShareToken = async ({ target_type, target_id, role }, email) => {
+  const token = sign(
+    {
+      target_id,
+      target_type,
+      email,
+      role: handleRole(role),
+    },
+    `${target_type}-share-token`,
+    { expiresIn: "24h" }
+  );
+
+  await redis.set(
+    `${target_type}:share:token:${handleRole(role)}:${target_id}`,
+    token,
+    "EX",
+    24 * 60 * 60
+  );
+
+  return token;
+};
+
+// 获取分享链接
+shareRouter.get(
+  "/getJoinURL",
+  jwtMiddleware,
+  sharePermissionMiddleware,
+  async (req, res, next) => {
+    try {
+      const { email } = req.user;
+
+      const tokenCache = await getRedisShareToken(req.query);
+
+      if (tokenCache)
+        return res.status(200).send({
+          msg: "ok",
+          token: tokenCache,
+        });
+
+      const token = await generateShareToken(req.query, email);
+
+      return res.status(200).send({
+        msg: "ok",
+        token,
+      });
+    } catch (error) {
+      return next(new InternalServerError(500, "获取失败！", error.message));
+    }
+  }
+);
+
+// TODO: 重写链接加入
+shareRouter.post("/urlJoin", jwtMiddleware, async (req, res, next) => {
   try {
     const { bookToken } = req.body;
     const { email } = req.user;

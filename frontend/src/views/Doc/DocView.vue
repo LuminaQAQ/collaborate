@@ -54,10 +54,8 @@
         <ClIconButtonGroup size="21px">
           <FavoriteTool :targetId="Number(route.params.doc)" targetType="Doc"
             :isFavorite="docStore.currentDocState.docInfo.isFavorite" @update="methods.handleDocFavorite" />
-          <!--TODO: 重构组件 -->
-          <ShareTool targetType="Doc" v-permission="['doc:owner', 'doc:editor']" />
-          <!-- <ClIconButton title="协作" :icon="FolderAdd" v-permission="['doc:owner', 'doc:editor']" />
-          <ClIconButton title="分享" :icon="Share" v-permission="['doc:owner', 'doc:editor']" /> -->
+          <ShareTool :targetId="Number(route.params.doc)" targetType="Doc"
+            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']" />
           <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" />
           <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" />
         </ClIconButtonGroup>

@@ -8,14 +8,6 @@ const bookPermissionMiddleware = require("../middleware/roleMiddleware");
 const redis = require("../lib/redis");
 const bookRouter = express.Router();
 
-/**
- *
- * @param {Number | String} role
- */
-const handleRole = (role) => {
-  return role && Number(role) === 2 ? "editor" : "viewer";
-};
-
 // 获取文档库列表
 bookRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
   const { email, id } = req.user;
@@ -61,51 +53,6 @@ bookRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
 });
 
 // TODO: 邀请链接的历史遗留
-bookRouter.get(
-  "/bookJoinURL",
-  jwtMiddleware,
-  bookPermissionMiddleware,
-  async (req, res, next) => {
-    try {
-      const { book_id, role } = req.query;
-      const { email } = req.user;
-
-      const token = await redis.get(
-        `book:share:token:${handleRole(role)}:${book_id}`
-      );
-
-      if (token)
-        return res.status(200).send({
-          msg: "ok",
-          token,
-        });
-
-      const bookToken = sign(
-        {
-          book_id,
-          email,
-          role: handleRole(role),
-        },
-        "book-share-token",
-        { expiresIn: "24h" }
-      );
-      await redis.set(
-        `book:share:token:${handleRole(role)}:${book_id}`,
-        bookToken,
-        "EX",
-        24 * 60 * 60
-      );
-
-      return res.status(200).send({
-        msg: "ok",
-        token: bookToken,
-      });
-    } catch (error) {
-      return next(new InternalServerError(500, "获取失败！", error.message));
-    }
-  }
-);
-
 bookRouter.post("/bookJoin", jwtMiddleware, async (req, res, next) => {
   try {
     const { bookToken } = req.body;

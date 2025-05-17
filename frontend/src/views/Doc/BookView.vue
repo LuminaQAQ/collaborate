@@ -39,11 +39,9 @@ const methods = {
             </div>
             <div class="title-setting">
               <ClIconButtonGroup size="20px">
-                <!-- <ClIconButton :icon="Star" title="收藏" /> -->
                 <FavoriteTool :targetId="Number(route.params.book)" targetType="Book"
                   :isFavorite="store.currentDocState.bookInfo.isFavorite" @update="methods.handleDocFavorite" />
-                <!--TODO: 重构组件 -->
-                <ShareTool targetType="Book" />
+                <ShareTool :targetId="Number(route.params.book)" targetType="Book" />
                 <ClIconButton :icon="More" title="设置" v-permission="['book:owner', 'book:editor']" />
               </ClIconButtonGroup>
             </div>
