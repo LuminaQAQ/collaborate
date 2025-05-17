@@ -28,10 +28,10 @@ const handleRole = (role) => {
  */
 const getRedisShareToken = async ({ target_type, target_id, role }) => {
   const token = await redis.get(
-    `${target_type}:share:token:${handleRole(role)}:${target_id}`
+    `${target_type}:share:${handleRole(role)}:${target_id}`
   );
 
-  return token;
+  return JSON.parse(token).token;
 };
 
 /**
@@ -44,20 +44,22 @@ const getRedisShareToken = async ({ target_type, target_id, role }) => {
  * @returns {Promise<String>}
  */
 const generateShareToken = async ({ target_type, target_id, role }, email) => {
-  const token = sign(
-    {
-      target_id,
-      target_type,
-      email,
-      role: handleRole(role),
-    },
-    `${target_type}-share-token`,
-    { expiresIn: "24h" }
-  );
+  const nanoid = await import("nanoid").then((module) => {
+    return module.nanoid;
+  });
+
+  const token = nanoid();
+  const payload = {
+    target_id,
+    target_type,
+    email,
+    role: handleRole(role),
+    token,
+  };
 
   await redis.set(
-    `${target_type}:share:token:${handleRole(role)}:${target_id}`,
-    token,
+    `${target_type}:share:${handleRole(role)}:${target_id}`,
+    JSON.stringify(payload),
     "EX",
     24 * 60 * 60
   );
@@ -95,7 +97,7 @@ shareRouter.get(
 );
 
 // TODO: 重写链接加入
-shareRouter.post("/urlJoin", jwtMiddleware, async (req, res, next) => {
+shareRouter.post("/urlJoinToShare", jwtMiddleware, async (req, res, next) => {
   try {
     const { bookToken } = req.body;
     const { email } = req.user;

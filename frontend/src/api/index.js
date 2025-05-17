@@ -34,6 +34,6 @@ export const apiList = {
   },
   shareApi: {
     fetchJoinURL: '/share/getJoinURL',
-    joinToShare: '/share/joinShare',
+    urlJoinToShare: '/share/urlJoinToShare',
   },
 }

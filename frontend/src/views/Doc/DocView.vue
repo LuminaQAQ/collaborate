@@ -81,7 +81,7 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { Share, FolderAdd, SetUp } from '@element-plus/icons-vue/dist/index.js'
+import { SetUp } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
@@ -130,6 +130,7 @@ const methods = {
    * @param insertImage
    * @param {File[]} files
    */
+  // TODO: 暂未实现上传图片功能，后续再实现
   handleUploadImage(event, insertImage, files) {
     files.forEach((item) => {
       request('/api/docImageUpload', {

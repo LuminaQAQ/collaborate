@@ -1,7 +1,7 @@
 import { apiList } from '.'
 import { request } from '@/utils/request'
 
-const { fetchJoinURL, joinToShare } = apiList.shareApi
+const { fetchJoinURL, urlJoinToShare } = apiList.shareApi
 
 /**
  * 获取分享链接
@@ -15,5 +15,18 @@ export const requestFetchDocJoinURL = (params) => {
   return request(fetchJoinURL, {
     method: 'get',
     params,
+  })
+}
+
+/**
+ * 通过分享链接加入
+ * @param {Object} data
+ * @param {string} data.token
+ * @returns
+ */
+export const requestUrlJoinToShare = (data) => {
+  return request(urlJoinToShare, {
+    method: 'post',
+    data,
   })
 }
