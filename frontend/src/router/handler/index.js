@@ -44,3 +44,13 @@ export const toDoc = ({ user, book, doc }, type = 'push') => {
     },
   })
 }
+
+/**
+ *
+ * @param {'push'|'replace'} type
+ */
+export const toHome = (type = 'push') => {
+  router[type]({
+    name: 'Dashboard',
+  })
+}

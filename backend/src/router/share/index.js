@@ -6,6 +6,7 @@ const redis = require("../../lib/redis");
 const jwtMiddleware = require("../../middleware/jwtMiddleware");
 const sharePermissionMiddleware = require("../../middleware/sharePermissionMiddleware");
 const { InternalServerError } = require("../../middleware/errorMiddleware");
+const { permission } = require("process");
 
 const shareRouter = express.Router();
 
@@ -269,11 +270,17 @@ shareRouter.post("/urlJoinToShare", jwtMiddleware, async (req, res, next) => {
     const payload = await verifyShareToken(token);
     if (!payload) return res.status(404).send({ error: "邀请链接无效" });
 
+    const { target_id, target_type, role } = payload;
     const shareOwner = payload.email;
     if (email === shareOwner)
-      return res.status(404).send({ error: "不能邀请自己" });
+      return res.status(404).send({
+        error: "不能邀请自己",
+        payload: {
+          ...handleReturnInviteeJoinDataStrategies[target_type](payload),
+          target_user: shareOwner,
+        },
+      });
 
-    const { target_id, target_type, role } = payload;
     const [user_info] = await db("users")
       .select(["id as user_id", "email", "username", "avatar"])
       .where({ email });
