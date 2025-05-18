@@ -1,6 +1,6 @@
 <script setup>
 import ClIconButton from '@/components/common/ClIconButton.vue'
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { ElIcon, ElPageHeader } from 'element-plus'
 
 const { history } = defineProps({
@@ -9,7 +9,7 @@ const { history } = defineProps({
   history: Array
 })
 
-const emits = defineEmits(["back"]);
+const emits = defineEmits(["back", "open", "close"]);
 
 const state = reactive({
   visible: false
@@ -22,6 +22,10 @@ const methods = {
 }
 
 const currentPage = computed(() => history[history.length - 1])
+
+watch(() => state.visible, (val) => {
+  val ? emits("open") : emits("close")
+})
 </script>
 
 <template>

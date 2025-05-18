@@ -36,7 +36,8 @@ const methods = {
 </script>
 
 <template>
-  <ClIconPopover :icon="Share" title="分享" :history="state.history" @back="methods.handleBack">
+  <ClIconPopover :icon="Share" title="分享" :history="state.history" @back="state.history = []"
+    @close="methods.handleBack">
     <template #content>
       <ClListItem>
         <template #title> 分享 </template>
