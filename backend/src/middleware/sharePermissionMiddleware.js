@@ -1,7 +1,7 @@
 const db = require("../lib/db");
 const { InternalServerError } = require("./errorMiddleware");
 
-const stategies = {
+const strategies = {
   /**
    * 查询文档库权限
    * @param {String} book_id
@@ -38,7 +38,7 @@ const stategies = {
         .select("book_id")
         .where({ id: doc_id });
 
-      const bookPermission = await stategies.Book(book_id, user_id);
+      const bookPermission = await strategies.Book(book_id, user_id);
 
       if (bookPermission)
         resolve({ role: `book:${bookPermission.permission}` });
@@ -57,7 +57,7 @@ const sharePermissionMiddleware = async (req, res, next) => {
   const { target_type, target_id } = req.query || req.params;
 
   try {
-    const permission = await stategies[target_type](target_id, req.user.id);
+    const permission = await strategies[target_type](target_id, req.user.id);
     if (!permission) return res.status(403).send({ error: "权限不足！" });
 
     req.user.role = permission.role;
