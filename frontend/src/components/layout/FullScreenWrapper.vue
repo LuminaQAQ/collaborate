@@ -1,6 +1,6 @@
 <template>
   <Teleport :to="target">
-    <ElContainer class="cl-full-screen-wrapper">
+    <ElContainer class="cl-full-screen-wrapper" v-loading="isLoading">
       <ElHeader style="border-bottom: 1px solid #ccc">
         <slot name="header" />
       </ElHeader>
@@ -24,6 +24,10 @@ defineProps({
   target: {
     type: String,
     default: 'body',
+  },
+  isLoading: {
+    type: Boolean,
+    default: false,
   },
 })
 

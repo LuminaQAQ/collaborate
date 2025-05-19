@@ -134,7 +134,7 @@ docRouter.get(
   jwtMiddleware,
   bookPermissionMiddleware,
   async (req, res, next) => {
-    const { book_id, doc_id } = req.query;
+    const { doc_id } = req.query;
     let role = null;
 
     // 校验用户权限
@@ -168,7 +168,7 @@ docRouter.get(
             )
             .as("isFavorite")
         )
-        .where({ id: doc_id, book_id });
+        .where({ id: doc_id });
       result.role = role;
 
       return res.send(result);

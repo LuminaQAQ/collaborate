@@ -1,5 +1,5 @@
-import { request } from "@/utils/request.js"
-import { apiList } from "./index.js"
+import { request } from '@/utils/request.js'
+import { apiList } from './index.js'
 
 /**
  * 请求首页数据
@@ -7,19 +7,19 @@ import { apiList } from "./index.js"
  */
 export const requestHomeData = () => {
   return request(apiList.userApi.home, {
-    method: "get"
+    method: 'get',
   })
 }
 
 export const requestUserInfo = () => {
   return request(apiList.userApi.userInfo, {
-    method: "get"
+    method: 'get',
   })
 }
 
 export const requestBookList = () => {
   return request(apiList.userApi.bookList, {
-    method: "get"
+    method: 'get',
   })
 }
 
@@ -30,45 +30,39 @@ export const requestBookList = () => {
  */
 export const requestDocList = (params) => {
   return request(apiList.userApi.docList, {
-    method: "get",
-    params
+    method: 'get',
+    params,
   })
 }
 
 /**
- * @typedef docParams
- * @property {string} email
- * @property {number} book_id
- * @property {number} doc_id
- */
-/**
  * 获取文档信息
- * @param {docParams} params
+ * @param {Object} params
+ * @param {string} params.email
+ * @param {number} params.book_id
+ * @param {number} params.doc_id
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDoc = (params) => {
   return request(apiList.docApi.fetchDoc, {
-    method: "get",
-    params
-  });
+    method: 'get',
+    params,
+  })
 }
 
 /**
- * @typedef DocUpdateData
- * @property {number} book_id
- * @property {string} title
- * @property {string} content
- */
-/**
  *
- * @param {DocUpdateData} data
+ * @param {Object} data
+ * @param {number} data.doc_id
+ * @param {string} data.title
+ * @param {string} data.content
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDocUpdate = (data) => {
   return request(apiList.docApi.updateDoc, {
-    method: "post",
-    data
-  });
+    method: 'post',
+    data,
+  })
 }
 
 /**
@@ -82,9 +76,9 @@ export const requestDocUpdate = (data) => {
  */
 export const requestDocDel = (data) => {
   return request(apiList.docApi.delDoc, {
-    method: "post",
-    data
-  });
+    method: 'post',
+    data,
+  })
 }
 
 /**
@@ -99,7 +93,7 @@ export const requestDocDel = (data) => {
  */
 export const requestGroupDel = (data) => {
   return request(apiList.docApi.delDocGroup, {
-    method: "post",
-    data
-  });
+    method: 'post',
+    data,
+  })
 }

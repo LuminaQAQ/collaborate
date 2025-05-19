@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElLoading, ElMessage, ElScrollbar } from 'element-plus'
+import { ElScrollbar } from 'element-plus'
 
 import ClIconButton from '../common/ClIconButton.vue'
 import FullScreenWrapper from '../layout/FullScreenWrapper.vue'
@@ -9,15 +9,18 @@ import FullScreenWrapper from '../layout/FullScreenWrapper.vue'
 import { Cloudy } from '@element-plus/icons-vue/dist/index.js'
 
 import { requestDocHistory, requestDocHistoryDetail } from '@/api/history'
-import { useDocStore } from '@/stores/doc'
 
 const route = useRoute()
-const docStore = useDocStore()
-const emits = defineEmits(['restore'])
+const emits = defineEmits(['restore', 'close', 'open'])
 
 const state = reactive({
   isOpen: false,
   isReady: true,
+  isRestore: false,
+  docInfo: {
+    title: "",
+    content: ""
+  },
   text: '',
   historyList: [],
   activeHistoryItem: 0,
@@ -30,6 +33,7 @@ const methods = {
     state.updateKey = Date.now()
   },
   handleOpen() {
+    emits('open')
     requestDocHistory({
       doc_id: Number(route.params.doc),
     })
@@ -40,9 +44,11 @@ const methods = {
 
         methods.handleHistoryItem(res.data.list[0].id)
       })
-      .catch((err) => {})
+      .catch(() => { })
   },
-  handleClose() {},
+  handleClose() {
+    emits('close')
+  },
   handleHistoryItem(id) {
     state.activeHistoryItem = id
     state.isReady = true
@@ -51,20 +57,20 @@ const methods = {
       id,
     })
       .then((res) => {
-        state.text = res.data.content
+        state.docInfo = res.data
         state.isReady = false
       })
-      .catch((err) => {})
+      .catch(() => { })
   },
   timeFormat(time) {
     const now = new Date()
     const target = new Date(time)
     const diff = now.getTime() - target.getTime()
-    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24)) || 0
 
     let fullDate = ''
 
-    if (diffDays && diffDays < 1) {
+    if (diffDays < 1) {
       fullDate = `今天`
     } else if (diffDays < 2) {
       fullDate = `昨天`
@@ -77,11 +83,7 @@ const methods = {
     return `${fullDate} ${time?.slice(11, 16)}`
   },
   handleRestore() {
-    emits('restore', state.text)
-    docStore.currentDocState.content = state.text
-    state.isOpen = false
-
-    ElMessage.success('恢复成功!')
+    emits('restore', state.docInfo, () => { state.isRestore = true }, () => { state.isOpen = false; state.isRestore = false })
   },
 }
 </script>
@@ -89,26 +91,15 @@ const methods = {
 <template>
   <span>
     <ClIconButton title="历史记录" :icon="Cloudy" @click="methods.handleHistoryBoard" />
-    <FullScreenWrapper
-      :key="state.updateKey"
-      v-if="state.isOpen"
-      @open="methods.handleOpen"
-      @close="methods.handleClose"
-    >
+    <FullScreenWrapper :key="state.updateKey" v-if="state.isOpen" :is-loading="state.isRestore"
+      @open="methods.handleOpen" @close="methods.handleClose">
       <template #header>
-        <ElPageHeader
-          title="历史记录"
-          @back="methods.handleHistoryBoard"
-          style="padding: 0.5rem 0; font-size: 3rem; height: 3rem"
-        >
+        <ElPageHeader title="历史记录" @back="methods.handleHistoryBoard"
+          style="padding: 0.5rem 0; font-size: 3rem; height: 3rem">
           <template #extra>
             <div class="flex items-center">
-              <ElButton
-                v-if="state.historyList.length > 0"
-                type="primary"
-                @click="methods.handleRestore"
-                :disabled="state.isReady"
-              >
+              <ElButton v-if="state.historyList.length > 0" type="primary" @click="methods.handleRestore"
+                :disabled="state.isReady">
                 恢复此记录
               </ElButton>
             </div>
@@ -117,13 +108,9 @@ const methods = {
       </template>
       <template #aside>
         <ElScrollbar>
-          <section
-            class="history-item"
-            v-for="item in state.historyList"
-            :class="{ active: state.activeHistoryItem === item.id }"
-            :key="item.id"
-            @click="methods.handleHistoryItem(item.id)"
-          >
+          <section class="history-item" v-for="item in state.historyList"
+            :class="{ active: state.activeHistoryItem === item.id }" :key="item.id"
+            @click="methods.handleHistoryItem(item.id)">
             <header style="margin-bottom: 0.5rem">
               <span> {{ methods.timeFormat(item.created_at) }} </span>
             </header>
@@ -134,7 +121,7 @@ const methods = {
         </ElScrollbar>
       </template>
       <template #content>
-        <v-md-preview v-loading="state.isReady" :text="state.text" style="height: 100%" />
+        <v-md-preview v-loading="state.isReady" :text="state.docInfo.content" style="height: 100%" />
       </template>
     </FullScreenWrapper>
   </span>

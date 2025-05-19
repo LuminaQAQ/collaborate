@@ -63,7 +63,7 @@
     </ElHeader>
     <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <MDEditor @update="methods.handleUpdate" @save="methods.handleSave"
+        <MDEditor @mounted="methods.handleEditorMounted" @update="methods.handleUpdate" @save="methods.handleSave"
           :room="`${route.params.book}-${route.params.doc}`" :default-value="docStore.currentDocState.content" />
       </template>
       <template v-else>
@@ -83,7 +83,8 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { SetUp } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElMain, ElMessage } from 'element-plus'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, inject, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { insert, replaceAll } from "@milkdown/kit/utils";
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -91,11 +92,14 @@ import { useRoute } from 'vue-router'
 import DocSocket from '@/socket/doc'
 
 import { toPersonalCenter } from '@/router/handler'
+import { requestDocUpdate, requestDoc } from '@/api/user'
 
 const route = useRoute()
 
 const docStore = useDocStore()
 let socket = null
+
+let editorState = null;
 
 const isLoad = ref(false)
 
@@ -149,6 +153,33 @@ const methods = {
           height: 'auto',
         })
       })
+    })
+  },
+  handleEditorMounted(editor) {
+    editorState = editor
+  },
+  /**
+   *
+   * @param {Object} docInfo
+   * @param {Number} docInfo.doc_id
+   * @param {String} docInfo.title
+   * @param {String} docInfo.content
+   * @param {() => {}} loading
+   * @param {() => {}} done
+   */
+  handleRestore(docInfo, loading, done) {
+    if (isMulCollaborator.value) return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
+    loading()
+
+    const { doc_id, content, title } = docInfo
+
+    requestDocUpdate({ doc_id, title, content }).then(_ => {
+      docStore.currentDocState.docInfo.title = title;
+      docStore.currentDocState.docInfo.content = content;
+
+      editorState.editor.editor.action(replaceAll(content))
+      done()
+      ElMessage.success('恢复成功!')
     })
   },
 }

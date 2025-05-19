@@ -69,7 +69,7 @@ export const useDocStore = defineStore('doc', () => {
       })
       .catch((err) => {})
 
-  const updateDoc = (isAutoSave = false) =>
+  const updateDoc = (callback, isAutoSave = false) =>
     requestDocUpdate({
       doc_id: route.params.doc,
       title: currentDocState.title,

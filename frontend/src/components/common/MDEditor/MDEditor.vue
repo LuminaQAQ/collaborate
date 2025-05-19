@@ -36,7 +36,7 @@ import { menuConfigs } from './configs/menuConfigs'
 import { Crepe } from '@milkdown/crepe'
 import { ElScrollbar } from 'element-plus'
 
-const emits = defineEmits(['update', 'save'])
+const emits = defineEmits(['update', 'save', 'mounted'])
 const props = defineProps({
   room: {
     type: String,
@@ -115,6 +115,8 @@ onMounted(async () => {
     const collabService = ctx.get(collabServiceCtx)
     collabManager = new CollabManager(collabService, props.room)
     collabManager.flush(props.defaultValue)
+
+    emits('mounted', { editor, collabManager })
   })
 
   document.addEventListener(
