@@ -1,18 +1,59 @@
-<script setup></script>
+<script setup>
+import { ElIcon, ElText } from 'element-plus';
+
+const { type } = defineProps({
+  type: String,
+  textColor: String,
+
+  headerTitle: String,
+  content: String,
+
+  prependIcon: String || ElIcon,
+  prepend: String || ElIcon,
+
+  appendIcon: String || ElIcon,
+  append: String || ElIcon,
+})
+</script>
 
 <template>
-  <section class="cl-list-item-wrap">
-    <section class="prepend">
-      <slot name="prepend"></slot>
-    </section>
+  <section class="cl-list-item-wrap" :class="[type]">
+    <!-- 前置图标 -->
+    <template v-if="prependIcon">
+      <ElIcon>
+        <component :is="prependIcon"></component>
+      </ElIcon>
+    </template>
+    <template v-else-if="prepend">
+      {{ prepend }}
+    </template>
+    <template v-else>
+      <section>
+        <slot name="prepend"></slot>
+      </section>
+    </template>
+
+    <!-- 内容 -->
     <main class="cl-list-item">
       <section class="cl-list-item-title">
-        <slot name="title"></slot>
+        <template v-if="headerTitle">
+          {{ headerTitle }}
+        </template>
+        <template v-else>
+          <slot name="title"></slot>
+        </template>
       </section>
       <section class="cl-list-item-content">
-        <slot name="content"></slot>
+        <template v-if="content">
+          <ElText :type="type || 'info'">{{ content }}</ElText>
+        </template>
+        <template v-else>
+          <slot name="content"></slot>
+        </template>
       </section>
     </main>
+
+    <!-- 尾部图标 -->
     <span class="append">
       <slot name="append"></slot>
     </span>
@@ -21,11 +62,21 @@
 
 <style lang="scss" scoped>
 .cl-list-item-wrap {
+  --text-color: initial;
   --color-border: #e5e5e5;
+  --color-bg: #fafafa;
+
+  color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: 0.5rem;
+
+  .prepend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   .cl-list-item {
     flex: 1 0 auto;
@@ -47,6 +98,22 @@
       background-color: #f5f5f5;
       cursor: pointer;
     }
+  }
+
+  &.cl-list-item--has-bg {
+    background-color: var(--color-bg);
+  }
+
+  &.cl-list-item--firstly {
+    padding: 0.5rem 0;
+  }
+
+  &.cl-list-item--secondary {
+    padding: 0.5rem 0;
+  }
+
+  &.danger {
+    --text-color: red;
   }
 }
 </style>

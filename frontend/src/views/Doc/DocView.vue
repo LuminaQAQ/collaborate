@@ -57,7 +57,9 @@
           <ShareTool :targetId="Number(route.params.doc)" targetType="Doc"
             v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']" />
           <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" />
-          <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" />
+          <!-- <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" /> -->
+          <!-- TODO: 添加设置抽屉 -->
+          <SettingDeawerTool v-permission="['doc:owner', 'doc:editor']" />
         </ClIconButtonGroup>
       </section>
     </ElHeader>
@@ -93,6 +95,7 @@ import DocSocket from '@/socket/doc'
 
 import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate, requestDoc } from '@/api/user'
+import SettingDeawerTool from '@/components/tools/SettingDeawerTool.vue'
 
 const route = useRoute()
 
