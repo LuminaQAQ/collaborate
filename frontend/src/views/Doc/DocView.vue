@@ -185,17 +185,22 @@ const methods = {
 
     const { doc_id, content, title } = docInfo
 
-    requestDocUpdate({ doc_id, title, content }).then(_ => {
-      docStore.currentDocState.docInfo.title = title;
-      docStore.currentDocState.docInfo.content = content;
+    return new Promise((resolve, reject) => {
+      requestDocUpdate({ doc_id, title, content }).then(_ => {
+        docStore.currentDocState.docInfo.title = title;
+        docStore.currentDocState.docInfo.content = content;
 
-      editorState.editor.editor.action(replaceAll(content))
-      done()
-      state.historyToolBoardVisible = false;
-      ElMessage.success('恢复成功!')
+        editorState.editor.editor.action(replaceAll(content))
+        done()
+        resolve()
+        state.historyToolBoardVisible = false;
+        ElMessage.success('恢复成功!')
+      }).catch(err => reject(err))
     })
   },
 }
+
+docStore.handleRestore = methods.handleRestore
 
 const controller = new AbortController()
 onMounted(async () => {

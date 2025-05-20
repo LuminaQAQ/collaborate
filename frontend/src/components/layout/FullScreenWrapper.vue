@@ -59,7 +59,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background-color: #fff;
-  z-index: 1000;
+  z-index: 1100;
 }
 
 .el-container {

@@ -1,14 +1,18 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { useRoute } from 'vue-router'
-import { ElScrollbar } from 'element-plus'
+import { ElMessage, ElScrollbar } from 'element-plus'
 
 import FullScreenWrapper from '@/components/layout/FullScreenWrapper.vue'
 
 import { requestDocHistory, requestDocHistoryDetail } from '@/api/history'
+import { useDocStore } from '@/stores/doc'
 
 const route = useRoute()
 const emits = defineEmits(['restore', 'close', 'open'])
+
+const docStore = useDocStore()
+const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
 
 const state = reactive({
   isOpen: false,
@@ -79,6 +83,8 @@ const methods = {
     return `${fullDate} ${time?.slice(11, 16)}`
   },
   handleRestore() {
+    if (isMulCollaborator.value) return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
+
     emits('restore', state.docInfo, () => { state.isRestore = true }, () => { state.isOpen = false; state.isRestore = false })
   },
 }
