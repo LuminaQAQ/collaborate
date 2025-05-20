@@ -25,76 +25,62 @@ userStore.methods.fetchBookList()
 </script>
 
 <template>
-  <el-aside
-    :width="userStore.layoutState.mainAsideIsCollapse ? 'calc-size(auto)' : '200px'"
-    @mouseover="state.isMenuHover = true"
-    @mouseout="state.isMenuHover = false"
-  >
+  <el-aside :width="userStore.layoutState.mainAsideIsCollapse ? '64px' : '180px'" @mouseover="state.isMenuHover = true"
+    @mouseout="state.isMenuHover = false">
     <!-- 基本功能 -->
-    <el-menu
-      class="el-menu-vertical-demo"
-      :router="true"
-      :default-active="router.currentRoute.value.path.toString()"
-      :collapse="userStore.layoutState.mainAsideIsCollapse"
-    >
+    <el-menu class="el-menu-vertical-demo" :router="true" :default-active="router.currentRoute.value.path.toString()"
+      :collapse="userStore.layoutState.mainAsideIsCollapse">
       <el-menu-item index="/dashboard">
-        <el-icon><Clock /></el-icon>
+        <el-icon>
+          <Clock />
+        </el-icon>
         <template #title>开始</template>
       </el-menu-item>
       <el-menu-item index="/collections">
-        <el-icon><Star /></el-icon>
+        <el-icon>
+          <Star />
+        </el-icon>
         <template #title>收藏</template>
       </el-menu-item>
       <el-menu-item index="/notes">
-        <el-icon><Document /></el-icon>
+        <el-icon>
+          <Document />
+        </el-icon>
         <template #title>小记</template>
       </el-menu-item>
     </el-menu>
     <el-divider />
 
     <!-- 文档列表  -->
-    <el-menu
-      class="el-menu-vertical-demo"
-      style="flex: 1 0"
-      :router="true"
-      :default-active="router.currentRoute.value.path.toString()"
-      :collapse="userStore.layoutState.mainAsideIsCollapse"
-    >
+    <el-menu class="el-menu-vertical-demo" style="flex: 1 0" :router="true"
+      :default-active="router.currentRoute.value.path.toString()" :collapse="userStore.layoutState.mainAsideIsCollapse">
       <el-sub-menu index="/books">
         <template #title>
-          <el-icon><Notebook /></el-icon>
+          <el-icon>
+            <Notebook />
+          </el-icon>
           <span>知识库</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item
-            v-for="item in userStore.user.bookList"
-            :key="item.id"
-            :index="`${item.email}/${item.id}`"
-          >
+          <el-menu-item v-for="item in userStore.user.bookList" :key="item.id" :index="`${item.email}/${item.id}`">
             {{ item.name }}
           </el-menu-item>
         </el-menu-item-group>
       </el-sub-menu>
     </el-menu>
     <el-divider />
-    <el-menu
-      class="el-menu-vertical-demo"
-      :router="true"
-      :default-active="router.currentRoute.value.path.toString()"
-      :collapse="userStore.layoutState.mainAsideIsCollapse"
-    >
+    <el-menu class="el-menu-vertical-demo" :router="true" :default-active="router.currentRoute.value.path.toString()"
+      :collapse="userStore.layoutState.mainAsideIsCollapse">
       <el-menu-item index="/settings">
-        <el-icon><Setting /></el-icon>
+        <el-icon>
+          <Setting />
+        </el-icon>
         <template #title>设置</template>
       </el-menu-item>
     </el-menu>
-    <el-icon
-      class="collapse-icon"
-      @click="
-        userStore.layoutState.mainAsideIsCollapse = !userStore.layoutState.mainAsideIsCollapse
-      "
-      v-show="state.isMenuHover"
-    >
+    <el-icon class="collapse-icon" @click="
+      userStore.layoutState.mainAsideIsCollapse = !userStore.layoutState.mainAsideIsCollapse
+      " v-show="state.isMenuHover">
       <ArrowRightBold v-if="userStore.layoutState.mainAsideIsCollapse" />
       <ArrowLeftBold v-else />
     </el-icon>
@@ -107,7 +93,8 @@ userStore.methods.fetchBookList()
   position: relative;
   border-right: 0;
 
-  width: auto;
+  overflow-x: hidden;
+
   will-change: width;
   transition: width 0.3s;
 }
