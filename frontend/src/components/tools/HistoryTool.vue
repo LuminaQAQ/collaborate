@@ -63,22 +63,21 @@ const methods = {
       .catch(() => { })
   },
   timeFormat(time) {
-    const now = new Date()
-    const target = new Date(time)
+    const today = new Date();
+    const now = new Date(`${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`);
+    const target = new Date(time.slice(0, 10))
     const diff = now.getTime() - target.getTime()
-    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24)) || 0
+    const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 0
 
     let fullDate = ''
 
-    if (diffDays < 1) {
-      fullDate = `今天`
-    } else if (diffDays < 2) {
-      fullDate = `昨天`
-    } else if (diffDays < 3) {
-      fullDate = `前天`
-    } else {
-      fullDate = `${time?.slice(0, 10)}`
+    const strategy = {
+      0: '今天',
+      1: '昨天',
+      2: '前天',
     }
+
+    fullDate = strategy[diffDays] || `${time.slice(0, 10)}`
 
     return `${fullDate} ${time?.slice(11, 16)}`
   },
