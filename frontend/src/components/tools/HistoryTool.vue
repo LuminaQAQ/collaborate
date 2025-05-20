@@ -3,10 +3,7 @@ import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElScrollbar } from 'element-plus'
 
-import ClIconButton from '../common/ClIconButton.vue'
-import FullScreenWrapper from '../layout/FullScreenWrapper.vue'
-
-import { Cloudy } from '@element-plus/icons-vue/dist/index.js'
+import FullScreenWrapper from '@/components/layout/FullScreenWrapper.vue'
 
 import { requestDocHistory, requestDocHistoryDetail } from '@/api/history'
 
@@ -88,42 +85,39 @@ const methods = {
 </script>
 
 <template>
-  <span>
-    <ClIconButton title="历史记录" :icon="Cloudy" @click="methods.handleHistoryBoard" />
-    <FullScreenWrapper :key="state.updateKey" v-if="state.isOpen" :is-loading="state.isRestore"
-      @open="methods.handleOpen" @close="methods.handleClose">
-      <template #header>
-        <ElPageHeader title="历史记录" @back="methods.handleHistoryBoard"
-          style="padding: 0.5rem 0; font-size: 3rem; height: 3rem">
-          <template #extra>
-            <div class="flex items-center">
-              <ElButton v-if="state.historyList.length > 0" type="primary" @click="methods.handleRestore"
-                :disabled="state.isReady">
-                恢复此记录
-              </ElButton>
-            </div>
-          </template>
-        </ElPageHeader>
-      </template>
-      <template #aside>
-        <ElScrollbar>
-          <section class="history-item" v-for="item in state.historyList"
-            :class="{ active: state.activeHistoryItem === item.id }" :key="item.id"
-            @click="methods.handleHistoryItem(item.id)">
-            <header style="margin-bottom: 0.5rem">
-              <span> {{ methods.timeFormat(item.created_at) }} </span>
-            </header>
-            <footer>
-              <span style="font-size: 0.75rem; color: #999">{{ item.username }}</span>
-            </footer>
-          </section>
-        </ElScrollbar>
-      </template>
-      <template #content>
-        <v-md-preview v-loading="state.isReady" :text="state.docInfo.content" style="height: 100%" />
-      </template>
-    </FullScreenWrapper>
-  </span>
+  <FullScreenWrapper :key="state.updateKey" :is-loading="state.isRestore" @open="methods.handleOpen"
+    @close="methods.handleClose">
+    <template #header>
+      <ElPageHeader title="历史记录" @back="methods.handleHistoryBoard"
+        style="padding: 0.5rem 0; font-size: 3rem; height: 3rem">
+        <template #extra>
+          <div class="flex items-center">
+            <ElButton v-if="state.historyList.length > 0" type="primary" @click="methods.handleRestore"
+              :disabled="state.isReady">
+              恢复此记录
+            </ElButton>
+          </div>
+        </template>
+      </ElPageHeader>
+    </template>
+    <template #aside>
+      <ElScrollbar>
+        <section class="history-item" v-for="item in state.historyList"
+          :class="{ active: state.activeHistoryItem === item.id }" :key="item.id"
+          @click="methods.handleHistoryItem(item.id)">
+          <header style="margin-bottom: 0.5rem">
+            <span> {{ methods.timeFormat(item.created_at) }} </span>
+          </header>
+          <footer>
+            <span style="font-size: 0.75rem; color: #999">{{ item.username }}</span>
+          </footer>
+        </section>
+      </ElScrollbar>
+    </template>
+    <template #content>
+      <v-md-preview v-loading="state.isReady" :text="state.docInfo.content" style="height: 100%" />
+    </template>
+  </FullScreenWrapper>
 </template>
 
 <style lang="scss" scoped>

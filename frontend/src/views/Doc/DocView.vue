@@ -56,7 +56,9 @@
             :isFavorite="docStore.currentDocState.docInfo.isFavorite" @update="methods.handleDocFavorite" />
           <ShareTool :targetId="Number(route.params.doc)" targetType="Doc"
             v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']" />
-          <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" />
+          <!-- <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" /> -->
+          <ClIconButton title="历史记录" :icon="Cloudy" v-permission="['doc:owner', 'doc:editor']"
+            @click="state.historyToolBoardVisible = !state.historyToolBoardVisible" />
           <!-- <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" /> -->
           <!-- TODO: 添加设置抽屉 -->
           <SettingDeawerTool v-permission="['doc:owner', 'doc:editor']" />
@@ -73,6 +75,9 @@
       </template>
     </ElMain>
   </ElContainer>
+
+  <HistoryTool v-if="state.historyToolBoardVisible" @close="state.historyToolBoardVisible = false"
+    @restore="methods.handleRestore" />
 </template>
 
 <script setup>
@@ -83,10 +88,10 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { SetUp } from '@element-plus/icons-vue/dist/index.js'
+import { Cloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElMain, ElMessage } from 'element-plus'
-import { computed, inject, onMounted, onUnmounted, reactive, ref } from 'vue'
-import { insert, replaceAll } from "@milkdown/kit/utils";
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { replaceAll } from "@milkdown/kit/utils"
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -94,7 +99,7 @@ import { useRoute } from 'vue-router'
 import DocSocket from '@/socket/doc'
 
 import { toPersonalCenter } from '@/router/handler'
-import { requestDocUpdate, requestDoc } from '@/api/user'
+import { requestDocUpdate } from '@/api/user'
 import SettingDeawerTool from '@/components/tools/SettingDeawerTool.vue'
 
 const route = useRoute()
@@ -103,6 +108,10 @@ const docStore = useDocStore()
 let socket = null
 
 let editorState = null;
+
+const state = reactive({
+  historyToolBoardVisible: false,
+})
 
 const isLoad = ref(false)
 
@@ -182,6 +191,7 @@ const methods = {
 
       editorState.editor.editor.action(replaceAll(content))
       done()
+      state.historyToolBoardVisible = false;
       ElMessage.success('恢复成功!')
     })
   },
