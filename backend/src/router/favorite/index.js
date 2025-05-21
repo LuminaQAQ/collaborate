@@ -19,6 +19,25 @@ favoriteRouter.get("/favoriteGroup", jwtMiddleware, async (req, res, next) => {
   }
 });
 
+// 获取收藏夹中的文档
+favoriteRouter.get(
+  "/favoriteGroup/:id/documents",
+  jwtMiddleware,
+  async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+      const docFavorites = await db("favorites")
+        .select("*")
+        .where({ user_id: req.user.id, group_id: id });
+
+      console.log(docFavorites);
+    } catch (error) {
+      next(new InternalServerError(500, "创建失败！", error.message));
+    }
+  }
+);
+
 // 创建收藏夹
 favoriteRouter.post(
   "/createFavoriteGroup",

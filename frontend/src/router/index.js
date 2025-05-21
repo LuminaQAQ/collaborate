@@ -8,37 +8,37 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/",
-      redirect: "/dashboard",
+      path: '/',
+      redirect: '/dashboard',
       component: HomeView,
       meta: { isAuth: true },
       children: [
         {
           path: 'dashboard',
           name: 'Dashboard',
-          component: () => import("@/views/Home/ClDashboard.vue")
+          component: () => import('@/views/Home/DashboardView.vue'),
         },
         {
-          path: 'collections',
-          name: 'Collections',
-          component: () => import("@/views/Home/ClCollections.vue")
+          path: 'favorites',
+          name: 'FavoritesView',
+          component: () => import('@/views/Home/FavoritesView.vue'),
         },
         {
           path: 'notes',
           name: 'Notes',
-          component: () => import("@/views/Home/ClNotes.vue")
+          component: () => import('@/views/Home/ClNotes.vue'),
         },
         {
           path: 'books',
           name: 'Books',
-          component: () => import("@/views/Home/ClBooks.vue")
+          component: () => import('@/views/Home/ClBooks.vue'),
         },
         {
           path: 'settings',
           name: 'Settings',
-          component: () => import("@/views/Home/ClSettings.vue")
+          component: () => import('@/views/Home/ClSettings.vue'),
         },
-      ]
+      ],
     },
     {
       path: '/login',
@@ -46,50 +46,50 @@ const router = createRouter({
       component: AuthView,
     },
     {
-      path: "/user/:user",
-      name: "PersonalCenter",
+      path: '/user/:user',
+      name: 'PersonalCenter',
       meta: { isAuth: true },
-      component: () => import("@/views/User/PersonalView.vue")
+      component: () => import('@/views/User/PersonalView.vue'),
     },
     {
       path: '/:user/:book',
       meta: { isAuth: true },
-      component: () => import("@/components/layout/BookContainer.vue"),
+      component: () => import('@/components/layout/BookContainer.vue'),
       children: [
         {
-          path: "",
+          path: '',
           name: 'Book',
-          component: () => import("@/views/Doc/BookView.vue"),
+          component: () => import('@/views/Doc/BookView.vue'),
         },
         {
-          path: ":doc",
+          path: ':doc',
           name: 'Doc',
-          component: () => import("@/views/Doc/DocView.vue")
-        }
-      ]
+          component: () => import('@/views/Doc/DocView.vue'),
+        },
+      ],
     },
     {
-      path: "/g",
+      path: '/g',
       children: [
         {
-          path: "share",
-          name: "Share",
-          component: () => import("@/views/GlobalView.vue"),
-        }
-      ]
-    }
+          path: 'share',
+          name: 'Share',
+          component: () => import('@/views/GlobalView.vue'),
+        },
+      ],
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   if (to.meta.isAuth) {
-    if (!localStorage.getItem("token") && !useUserStore().token) {
-      ElMessage.error("您还未登录，请登录后重试！")
-      return next("/login");
+    if (!localStorage.getItem('token') && !useUserStore().token) {
+      ElMessage.error('您还未登录，请登录后重试！')
+      return next('/login')
     }
   }
 
-  next();
+  next()
 })
 
 export default router

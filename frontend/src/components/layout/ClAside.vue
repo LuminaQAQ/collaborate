@@ -9,6 +9,7 @@ import {
   Notebook,
   Setting,
   ArrowRight,
+  Clock
 } from '@element-plus/icons-vue'
 import router from '@/router'
 import { requestBookList } from '@/api/user'
@@ -21,6 +22,24 @@ const state = reactive({
   isMenuHover: true,
 })
 
+const menuList = [
+  {
+    name: "开始",
+    path: "/dashboard",
+    icon: Clock,
+  },
+  {
+    name: "收藏",
+    path: "/favorites",
+    icon: Star,
+  },
+  {
+    name: "小记",
+    path: "/notes",
+    icon: Notebook,
+  },
+]
+
 userStore.methods.fetchBookList()
 </script>
 
@@ -30,23 +49,11 @@ userStore.methods.fetchBookList()
     <!-- 基本功能 -->
     <el-menu class="el-menu-vertical-demo" :router="true" :default-active="router.currentRoute.value.path.toString()"
       :collapse="userStore.layoutState.mainAsideIsCollapse">
-      <el-menu-item index="/dashboard">
+      <el-menu-item v-for="item in menuList" :key="item.path" :index="item.path">
         <el-icon>
-          <Clock />
+          <component :is="item.icon" />
         </el-icon>
-        <template #title>开始</template>
-      </el-menu-item>
-      <el-menu-item index="/collections">
-        <el-icon>
-          <Star />
-        </el-icon>
-        <template #title>收藏</template>
-      </el-menu-item>
-      <el-menu-item index="/notes">
-        <el-icon>
-          <Document />
-        </el-icon>
-        <template #title>小记</template>
+        <template #title>{{ item.name }}</template>
       </el-menu-item>
     </el-menu>
     <el-divider />
