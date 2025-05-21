@@ -10,8 +10,18 @@ const favoriteRouter = express.Router();
 favoriteRouter.get("/favoriteGroup", jwtMiddleware, async (req, res, next) => {
   try {
     const docFavorites = await db("favorite_group")
-      .select("*")
+      .select([
+        "favorite_group.*",
+        db("favorites")
+          .count("*")
+          .where("favorites.group_id", "favorite_group.id")
+          .as("count"),
+      ])
       .where({ user_id: req.user.id });
+
+    const [allCollection] = await db("favorites").count("* as count");
+    allCollection.name = "全部收藏";
+    docFavorites.unshift(allCollection);
 
     return res.send(docFavorites);
   } catch (error) {

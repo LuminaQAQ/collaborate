@@ -2,6 +2,9 @@
 import { ElIcon, ElText } from 'element-plus';
 
 const { type } = defineProps({
+  hoverItem: Boolean,
+  hasBg: Boolean,
+
   type: String,
   textColor: String,
 
@@ -17,7 +20,8 @@ const { type } = defineProps({
 </script>
 
 <template>
-  <section class="cl-list-item-wrap" :class="[type]">
+  <section class="cl-list-item-wrap"
+    :class="[type, hoverItem && 'cl-list-item--hover-item', hasBg && 'cl-list-item--has-bg']">
     <!-- 前置图标 -->
     <template v-if="prependIcon">
       <ElIcon>
@@ -95,7 +99,7 @@ const { type } = defineProps({
 
   &.cl-list-item--hover-item {
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-bg);
       cursor: pointer;
     }
   }
