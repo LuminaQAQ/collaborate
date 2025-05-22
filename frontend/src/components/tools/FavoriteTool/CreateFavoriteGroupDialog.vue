@@ -1,15 +1,7 @@
 <script setup>
-import { Star, StarFilled } from '@element-plus/icons-vue/dist/index.js'
-import ClIconButton from '@/components/common/ClIconButton.vue'
 import { reactive, ref } from 'vue'
-import ClListItem from '@/components/common/ClListItem.vue'
-import {
-  requestAddToFavorite,
-  requestCreateFavoriteGroup,
-  requestDelFavorite,
-  requestFetchFavoriteGroup,
-} from '@/api/favorite'
-import { ElButton, ElDialog, ElInput, ElMessage, ElText } from 'element-plus'
+import { requestCreateFavoriteGroup } from '@/api/favorite'
+import { ElButton, ElDialog, ElInput, ElMessage } from 'element-plus'
 
 const createFavoriteGroupFormRef = ref(null)
 
@@ -27,7 +19,7 @@ const state = reactive({
   },
 })
 
-const { targetId, targetType } = defineProps({
+defineProps({
   modelValue: Boolean,
   isFavorite: Boolean,
   targetId: Number,
@@ -48,7 +40,6 @@ const methods = {
       ElMessage.success('分组创建成功')
     } catch (err) {
       emits('error')
-      console.log(err)
 
       ElMessage.error('分组创建失败，请重试')
     } finally {
@@ -63,10 +54,10 @@ const methods = {
   },
 
   handleReset() {
-    state.form = {
+    Object.assign(state.form, {
       name: '',
       desc: '',
-    }
+    })
   },
 }
 </script>
@@ -75,7 +66,7 @@ const methods = {
   <ElDialog
     :model-value="modelValue"
     :show-close="false"
-    @before-close="methods.handleCreateFavoriteGroupDialogClose"
+    @close="methods.handleCreateFavoriteGroupDialogClose"
     v-loading="state.createFavoriteGroupDialogIsLoading"
   >
     <template #title>新建分组</template>

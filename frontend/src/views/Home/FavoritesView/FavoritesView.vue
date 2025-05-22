@@ -1,5 +1,5 @@
 <script setup>
-import { ElAside, ElContainer, ElHeader, ElMain, ElText } from 'element-plus'
+import { ElAside, ElContainer, ElHeader, ElMain, ElScrollbar, ElText } from 'element-plus'
 import FavoriteGroupItem from './components/FavoriteGroupItem.vue'
 import { onMounted, reactive } from 'vue'
 import { requestFetchFavoriteGroup } from '@/api/favorite'
@@ -34,6 +34,17 @@ const methods = {
     state.createFavoriteGroupDialogVisible = false
     methods.refreshGroupList()
   },
+  handleFetchFavorites(id) {
+    // state.isLoading = true
+    // try {
+    //   const favoriteGroup = await requestFetchFavoriteGroup()
+    //   state.favoriteGroupList = favoriteGroup.data
+    // } catch (error) {
+    //   ElMessage.error('获取分组列表失败，请重试')
+    // } finally {
+    //   state.isLoading = false
+    // }
+  },
 }
 
 // TODOL 添加收藏功能
@@ -62,19 +73,21 @@ onMounted(async () => {
     </ElHeader>
     <ElContainer>
       <ElAside class="cl-favorites-view__aside" width="200px">
-        <template v-if="state.favoriteGroupList.length > 0">
-          <FavoriteGroupItem
-            v-for="(Item, index) in state.favoriteGroupList"
-            :key="index"
-            :collectionGroupName="Item.name"
-            :collections-length="Item.count"
-            :actived="state.activeId === Item.id"
-            :is-all-collection="Item.id === 0"
-          />
-        </template>
-        <template v-else>
-          <FavoriteGroupItem collectionGroupName="全部收藏" is-all-collection actived />
-        </template>
+        <ElScrollbar>
+          <template v-if="state.favoriteGroupList.length > 0">
+            <FavoriteGroupItem
+              v-for="(Item, index) in state.favoriteGroupList"
+              :key="index"
+              :collectionGroupName="Item.name"
+              :collections-length="Item.count"
+              :actived="state.activeId === Item.id"
+              :is-all-collection="Item.id === 0"
+            />
+          </template>
+          <template v-else>
+            <FavoriteGroupItem collectionGroupName="全部收藏" is-all-collection actived />
+          </template>
+        </ElScrollbar>
       </ElAside>
       <ElMain class="cl-favorites-view__main">
         <el-table
@@ -91,8 +104,6 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .cl-favorites-view {
-  height: 100%;
-
   .cl-favorites-view__header {
     display: flex;
     justify-content: space-between;

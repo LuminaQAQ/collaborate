@@ -41,6 +41,7 @@ onMounted(() => {
 
   .el-container {
     height: 100%;
+    overflow: auto;
   }
 
   > .el-container {
