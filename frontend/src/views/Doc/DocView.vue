@@ -17,7 +17,7 @@
   justify-content: center;
   flex-wrap: nowrap;
 
-  &>.collaborator-item {
+  & > .collaborator-item {
     margin-right: 0.35rem;
 
     display: flex;
@@ -31,15 +31,23 @@
   <ElContainer v-if="isLoad">
     <ElHeader>
       <section>
-        <ElInput v-if="docStore.handleRole.isOwnerOrEditor('doc')" v-model="docStore.currentDocState.title" />
+        <ElInput
+          v-if="docStore.handleRole.isOwnerOrEditor('doc')"
+          v-model="docStore.currentDocState.title"
+        />
         <h2 v-else>
           {{ docStore.currentDocState.title }}
         </h2>
       </section>
       <!-- 协作者 -->
       <section class="collaborator-wrap" v-if="isMulCollaborator">
-        <section class="collaborator-item" v-for="item in docStore.currentDocState.collaborators.slice(0, 3)"
-          :key="item.id" :title="item.username" @click="methods.handleCollaboratorClick(item)">
+        <section
+          class="collaborator-item"
+          v-for="item in docStore.currentDocState.collaborators.slice(0, 3)"
+          :key="item.id"
+          :title="item.username"
+          @click="methods.handleCollaboratorClick(item)"
+        >
           <template v-if="item.avatar">
             <ElAvatar :src="item.avatar" />
           </template>
@@ -52,13 +60,24 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <FavoriteTool :targetId="Number(route.params.doc)" targetType="Doc"
-            :isFavorite="docStore.currentDocState.docInfo.isFavorite" @update="methods.handleDocFavorite" />
-          <ShareTool :targetId="Number(route.params.doc)" targetType="Doc"
-            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']" />
+          <FavoriteTool
+            :targetId="Number(route.params.doc)"
+            targetType="Doc"
+            :isFavorite="docStore.currentDocState.docInfo.isFavorite"
+            @update="methods.handleDocFavorite"
+          />
+          <ShareTool
+            :targetId="Number(route.params.doc)"
+            targetType="Doc"
+            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+          />
           <!-- <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" /> -->
-          <ClIconButton title="历史记录" :icon="Cloudy" v-permission="['doc:owner', 'doc:editor']"
-            @click="state.historyToolBoardVisible = !state.historyToolBoardVisible" />
+          <ClIconButton
+            title="历史记录"
+            :icon="Cloudy"
+            v-permission="['doc:owner', 'doc:editor']"
+            @click="state.historyToolBoardVisible = !state.historyToolBoardVisible"
+          />
           <!-- <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" /> -->
           <!-- TODO: 添加设置抽屉 -->
           <SettingDeawerTool v-permission="['doc:owner', 'doc:editor']" />
@@ -67,8 +86,13 @@
     </ElHeader>
     <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-        <MDEditor @mounted="methods.handleEditorMounted" @update="methods.handleUpdate" @save="methods.handleSave"
-          :room="`${route.params.book}-${route.params.doc}`" :default-value="docStore.currentDocState.content" />
+        <MDEditor
+          @mounted="methods.handleEditorMounted"
+          @update="methods.handleUpdate"
+          @save="methods.handleSave"
+          :room="`${route.params.book}-${route.params.doc}`"
+          :default-value="docStore.currentDocState.content"
+        />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
@@ -76,14 +100,17 @@
     </ElMain>
   </ElContainer>
 
-  <HistoryTool v-if="state.historyToolBoardVisible" @close="state.historyToolBoardVisible = false"
-    @restore="methods.handleRestore" />
+  <HistoryTool
+    v-if="state.historyToolBoardVisible"
+    @close="state.historyToolBoardVisible = false"
+    @restore="methods.handleRestore"
+  />
 </template>
 
 <script setup>
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
-import FavoriteTool from '@/components/tools/FavoriteTool.vue'
+import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
 import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
@@ -91,7 +118,7 @@ import { request } from '@/utils/request'
 import { Cloudy } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import { replaceAll } from "@milkdown/kit/utils"
+import { replaceAll } from '@milkdown/kit/utils'
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -100,14 +127,14 @@ import DocSocket from '@/socket/doc'
 
 import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate } from '@/api/user'
-import SettingDeawerTool from '@/components/tools/SettingDeawerTool.vue'
+import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
 
 const route = useRoute()
 
 const docStore = useDocStore()
 let socket = null
 
-let editorState = null;
+let editorState = null
 
 const state = reactive({
   historyToolBoardVisible: false,
@@ -180,22 +207,25 @@ const methods = {
    * @param {() => {}} done
    */
   handleRestore(docInfo, loading, done) {
-    if (isMulCollaborator.value) return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
+    if (isMulCollaborator.value)
+      return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
     loading()
 
     const { doc_id, content, title } = docInfo
 
     return new Promise((resolve, reject) => {
-      requestDocUpdate({ doc_id, title, content }).then(_ => {
-        docStore.currentDocState.docInfo.title = title;
-        docStore.currentDocState.docInfo.content = content;
+      requestDocUpdate({ doc_id, title, content })
+        .then((_) => {
+          docStore.currentDocState.docInfo.title = title
+          docStore.currentDocState.docInfo.content = content
 
-        editorState.editor.editor.action(replaceAll(content))
-        done()
-        resolve()
-        state.historyToolBoardVisible = false;
-        ElMessage.success('恢复成功!')
-      }).catch(err => reject(err))
+          editorState.editor.editor.action(replaceAll(content))
+          done()
+          resolve()
+          state.historyToolBoardVisible = false
+          ElMessage.success('恢复成功!')
+        })
+        .catch((err) => reject(err))
     })
   },
 }

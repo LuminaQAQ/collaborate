@@ -2,7 +2,7 @@
 import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
-import FavoriteTool from '@/components/tools/FavoriteTool.vue'
+import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
@@ -39,10 +39,18 @@ const methods = {
             </div>
             <div class="title-setting">
               <ClIconButtonGroup size="20px">
-                <FavoriteTool :targetId="Number(route.params.book)" targetType="Book"
-                  :isFavorite="store.currentDocState.bookInfo.isFavorite" @update="methods.handleDocFavorite" />
+                <FavoriteTool
+                  :targetId="Number(route.params.book)"
+                  targetType="Book"
+                  :isFavorite="store.currentDocState.bookInfo.isFavorite"
+                  @update="methods.handleDocFavorite"
+                />
                 <ShareTool :targetId="Number(route.params.book)" targetType="Book" />
-                <ClIconButton :icon="More" title="设置" v-permission="['book:owner', 'book:editor']" />
+                <ClIconButton
+                  :icon="More"
+                  title="设置"
+                  v-permission="['book:owner', 'book:editor']"
+                />
               </ClIconButtonGroup>
             </div>
           </section>
@@ -70,7 +78,11 @@ const methods = {
         <main class="cl-book__main">
           <template v-if="store.currentDocState.docList.length > 0">
             <h1>目录</h1>
-            <CatalogueTree v-for="item in store.currentDocState.docList" :item="item" :key="item.id" />
+            <CatalogueTree
+              v-for="item in store.currentDocState.docList"
+              :item="item"
+              :key="item.id"
+            />
           </template>
           <template v-else>
             <ElEmpty description="知识库为空"></ElEmpty>
@@ -93,7 +105,6 @@ const methods = {
   border-radius: 5px;
 
   .cl-book__header {
-
     .statistic-wrap,
     .collaborate-wrap {
       margin: 0.75rem 0;
@@ -118,7 +129,7 @@ const methods = {
       }
 
       .title-setting {
-        >.el-icon {
+        > .el-icon {
           margin: 0 0.5rem;
         }
       }

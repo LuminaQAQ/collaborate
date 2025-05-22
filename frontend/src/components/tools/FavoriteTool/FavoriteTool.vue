@@ -1,8 +1,8 @@
 <script setup>
 import { Star, StarFilled } from '@element-plus/icons-vue/dist/index.js'
-import ClIconButton from '../common/ClIconButton.vue'
+import ClIconButton from '@/components/common/ClIconButton.vue'
 import { reactive, ref } from 'vue'
-import ClListItem from '../common/ClListItem.vue'
+import ClListItem from '@/components/common/ClListItem.vue'
 import {
   requestAddToFavorite,
   requestCreateFavoriteGroup,
@@ -10,6 +10,7 @@ import {
   requestFetchFavoriteGroup,
 } from '@/api/favorite'
 import { ElButton, ElDialog, ElInput, ElMessage, ElText } from 'element-plus'
+import CreateFavoriteGroupDialog from './CreateFavoriteGroupDialog.vue'
 
 const createFavoriteGroupFormRef = ref(null)
 
@@ -108,10 +109,10 @@ const methods = {
       state.createFavoriteGroupDialogIsLoading = false
     }
   },
-  handleCreateFavoriteGroupDialogClose(done) {
+  handleCreateFavoriteGroupDialogClose() {
     if (state.createFavoriteGroupDialogIsLoading) return
 
-    done()
+    state.createFavoriteGroupDialogVisible = false
     methods.handleReset()
     createFavoriteGroupFormRef.value?.resetFields()
   },
@@ -126,24 +127,41 @@ const methods = {
 </script>
 
 <template>
-  <ClIconButton v-if="isFavorite" @click="methods.unfavorite" title="收藏" :icon="StarFilled" color="yellow"
-    style="--cl-icon-button-size: 21px" />
+  <ClIconButton
+    v-if="isFavorite"
+    @click="methods.unfavorite"
+    title="收藏"
+    :icon="StarFilled"
+    color="yellow"
+    style="--cl-icon-button-size: 21px"
+  />
   <ClIconButton v-else @click="methods.handleFavoriteGroupDialogOpen" title="收藏" :icon="Star" />
 
   <el-dialog v-model="state.favoriteGroupDialogVisible">
     <template #header>
       <span>
         请选择分组 <small>或者</small>
-        <ElButton type="primary" link @click="state.createFavoriteGroupDialogVisible = true">新建分组</ElButton>
+        <ElButton type="primary" link @click="state.createFavoriteGroupDialogVisible = true"
+          >新建分组</ElButton
+        >
       </span>
     </template>
 
-    <div v-loading="state.favoriteGroupDialogIsLoading">
-      <ClListItem class="cl-list-item--border-bottom cl-list-item--hover-item" @click="methods.favorite()">
-        <template #title> 我的收藏 <el-tag type="primary" size="small" round>默认</el-tag> </template>
+    <div class="favorite-group-dialog__body" v-loading="state.favoriteGroupDialogIsLoading">
+      <ClListItem
+        class="cl-list-item--border-bottom cl-list-item--hover-item"
+        @click="methods.favorite()"
+      >
+        <template #title>
+          我的收藏 <el-tag type="primary" size="small" round>默认</el-tag>
+        </template>
       </ClListItem>
-      <ClListItem class="cl-list-item--border-bottom cl-list-item--hover-item" v-for="group in state.groups"
-        :key="group.id" @click="methods.favorite(group.id)">
+      <ClListItem
+        class="cl-list-item--border-bottom cl-list-item--hover-item"
+        v-for="group in state.groups"
+        :key="group.id"
+        @click="methods.favorite(group.id)"
+      >
         <template #title>{{ group.name }}</template>
         <template #content>
           <ElText>{{ group.desc || '暂无简介' }}</ElText>
@@ -152,29 +170,17 @@ const methods = {
     </div>
   </el-dialog>
 
-  <ElDialog v-model="state.createFavoriteGroupDialogVisible" :show-close="false"
-    :before-close="methods.handleCreateFavoriteGroupDialogClose"
-    v-createFavoriteGroupDialogIsLoading="state.createFavoriteGroupDialogIsLoading">
-    <template #title>新建分组</template>
-
-    <template #default>
-      <ElForm :model="state.form" ref="createFavoriteGroupFormRef" label-width="80px">
-        <ElFormItem label="分组名称" prop="name" :rules="[{ required: true, message: '请输入分组名称', trigger: 'blur' }]">
-          <ElInput v-model="state.form.name" placeholder="请输入分组名称"
-            :disabled="state.createFavoriteGroupDialogIsLoading" />
-        </ElFormItem>
-        <ElFormItem label="分组描述" prop="desc">
-          <ElInput v-model="state.form.desc" type="textarea" placeholder="请输入分组描述"
-            :disabled="state.createFavoriteGroupDialogIsLoading" />
-        </ElFormItem>
-      </ElForm>
-    </template>
-
-    <template #footer>
-      <ElButton type="primary" :createFavoriteGroupDialogIsLoading="state.createFavoriteGroupDialogIsLoading"
-        :disabled="state.createFavoriteGroupDialogIsLoading" @click="methods.createFavoriteGroup" style="width: 100%">
-        创建
-      </ElButton>
-    </template>
-  </ElDialog>
+  <CreateFavoriteGroupDialog
+    v-model="state.createFavoriteGroupDialogVisible"
+    @close="state.createFavoriteGroupDialogVisible = false"
+    @success="methods.handleCreateFavoriteGroupDialogClose"
+    v-loading="state.createFavoriteGroupDialogIsLoading"
+  />
 </template>
+
+<style scoped>
+.favorite-group-dialog__body {
+  max-height: 20rem;
+  overflow-y: auto;
+}
+</style>
