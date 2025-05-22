@@ -1,7 +1,7 @@
 <script setup>
-import ClListItem from '@/components/common/ClListItem.vue';
-import { More, Plus } from '@element-plus/icons-vue/dist/index.js';
-import { ElAside, ElContainer, ElHeader, ElIcon, ElMain, ElText } from 'element-plus';
+import ClListItem from '@/components/common/ClListItem.vue'
+import { More, Plus } from '@element-plus/icons-vue/dist/index.js'
+import { ElAside, ElContainer, ElHeader, ElIcon, ElMain, ElText } from 'element-plus'
 
 // TODOL 添加收藏功能
 
@@ -30,7 +30,7 @@ defineProps({
     <template #title>
       <div class="favorites-group-container">
         <header class="favorites-group-container__header">
-          <ElText size="large">{{ collectionGroupName }} </ElText>
+          <ElText size="large">{{ collectionGroupName }}</ElText>
           <ElIcon ElIcon>
             <component :is="!isAllCollection && More" />
           </ElIcon>
@@ -45,7 +45,7 @@ defineProps({
 
 <style lang="scss" scoped>
 .cl-list-item-wrap {
-  margin-bottom: .25rem;
+  margin-bottom: 0.25rem;
 }
 
 .favorites-group-container {

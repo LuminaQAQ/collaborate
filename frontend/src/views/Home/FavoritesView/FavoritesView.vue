@@ -1,16 +1,29 @@
 <script setup>
-import { ElAside, ElContainer, ElHeader, ElMain, ElScrollbar, ElText } from 'element-plus'
+import {
+  ElAside,
+  ElContainer,
+  ElHeader,
+  ElMain,
+  ElMessage,
+  ElScrollbar,
+  ElText,
+} from 'element-plus'
 import FavoriteGroupItem from './components/FavoriteGroupItem.vue'
 import { onMounted, reactive } from 'vue'
-import { requestFetchFavoriteGroup } from '@/api/favorite'
+import { requestFetchFavoriteGroup, requestFetchFavoriteList } from '@/api/favorite'
 import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
 import CreateFavoriteGroupDialog from '@/components/tools/FavoriteTool/CreateFavoriteGroupDialog.vue'
 import { Plus } from '@element-plus/icons-vue/dist/index.js'
 
 const state = reactive({
   isLoading: true,
-  activeId: 0,
+  activeId: null,
   favoriteGroupList: [],
+  favoriteList: [],
+  favoriteListState: {
+    limit: 15,
+    offset: 0,
+  },
 
   createFavoriteGroupDialogVisible: false,
 })
@@ -27,23 +40,43 @@ const methods = {
       state.isLoading = false
     }
   },
-  handleCollectGroupActive(group) {
-    state.activeGroup = group
+  async handleCollectGroupActive(item) {
+    const { id } = item
+    if (id === state.activeId) return
+
+    state.isLoading = true
+    state.activeId = id
+
+    await methods.handleFetchFavorites(id)
   },
   handleGroupCreateSuccess() {
     state.createFavoriteGroupDialogVisible = false
     methods.refreshGroupList()
   },
-  handleFetchFavorites(id) {
-    // state.isLoading = true
-    // try {
-    //   const favoriteGroup = await requestFetchFavoriteGroup()
-    //   state.favoriteGroupList = favoriteGroup.data
-    // } catch (error) {
-    //   ElMessage.error('获取分组列表失败，请重试')
-    // } finally {
-    //   state.isLoading = false
-    // }
+  async handleFetchFavorites(id) {
+    try {
+      const res = await requestFetchFavoriteList({
+        favorite_group_id: id,
+        limit: state.favoriteListState.limit,
+        offset: state.favoriteListState.offset,
+      })
+
+      state.favoriteList = res.data
+
+      console.log(res.data)
+    } catch (error) {
+      state.isLoading = false
+      ElMessage.error('获取分组列表失败，请重试')
+    } finally {
+      state.isLoading = false
+    }
+  },
+  resetFavoriteList() {
+    state.favoriteGroupList = []
+    Object.assign(state.favoriteListState, {
+      limit: 15,
+      offset: 0,
+    })
   },
 }
 
@@ -51,6 +84,7 @@ const methods = {
 onMounted(async () => {
   state.isLoading = true
   await methods.refreshGroupList()
+  await methods.handleCollectGroupActive(state.favoriteGroupList[0])
 })
 </script>
 
@@ -76,12 +110,13 @@ onMounted(async () => {
         <ElScrollbar>
           <template v-if="state.favoriteGroupList.length > 0">
             <FavoriteGroupItem
-              v-for="(Item, index) in state.favoriteGroupList"
+              v-for="(item, index) in state.favoriteGroupList"
               :key="index"
-              :collectionGroupName="Item.name"
-              :collections-length="Item.count"
-              :actived="state.activeId === Item.id"
-              :is-all-collection="Item.id === 0"
+              :collectionGroupName="item.name"
+              :collections-length="item.count"
+              :actived="state.activeId === item.id"
+              :is-all-collection="item.id === 0"
+              @click="methods.handleCollectGroupActive(item)"
             />
           </template>
           <template v-else>
@@ -91,7 +126,7 @@ onMounted(async () => {
       </ElAside>
       <ElMain class="cl-favorites-view__main">
         <el-table
-          :data="tableData"
+          :data="state.favoriteList"
           :default-sort="{ prop: 'name', order: 'ascending' }"
           style="width: 100%"
         >

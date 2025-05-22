@@ -14,6 +14,21 @@ export const requestFetchFavoriteGroup = () => {
 }
 
 /**
+ * 获取收藏列表
+ * @param {Object} params
+ * @param {Number} params.favorite_group_id
+ * @param {Number} params.limit
+ * @param {Number} params.offset
+ * @returns {import("axios").AxiosPromise}
+ */
+export const requestFetchFavoriteList = (params) => {
+  return request(apiList.favoriteApi.fetchFavoriteList, {
+    method: 'get',
+    params,
+  })
+}
+
+/**
  * 创建收藏分组
  * @param {Object} data
  * @param {String} data.name

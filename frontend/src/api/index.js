@@ -28,6 +28,7 @@ export const apiList = {
   },
   favoriteApi: {
     fetchFavoriteGroup: '/favorite/favoriteGroup',
+    fetchFavoriteList: '/favorite/favoriteList',
     createFavoriteGroup: '/favorite/createFavoriteGroup',
     addToFavorite: '/favorite/addToFavorite',
     delFavorite: '/favorite/delFavorite',

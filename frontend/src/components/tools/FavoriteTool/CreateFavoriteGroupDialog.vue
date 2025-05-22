@@ -39,7 +39,7 @@ const methods = {
 
       ElMessage.success('分组创建成功')
     } catch (err) {
-      emits('error')
+      emits('error', err)
 
       ElMessage.error('分组创建失败，请重试')
     } finally {
