@@ -8,102 +8,103 @@ const favoriteRouter = express.Router();
 
 // 获取收藏夹
 favoriteRouter.get("/favoriteGroup", jwtMiddleware, async (req, res, next) => {
-  try {
-    const docFavorites = await db("favorite_group")
-      .select([
-        "favorite_group.*",
-        db("favorites")
-          .count("*")
-          .where("favorites.group_id", "favorite_group.id")
-          .as("count"),
-      ])
-      .where({ user_id: req.user.id });
+    try {
+        const docFavorites = await db("favorite_group")
+            .select([
+                "favorite_group.*",
+                db("favorites")
+                    .count("*")
+                    .where("favorites.group_id", "favorite_group.id")
+                    .as("count"),
+            ])
+            .where({ user_id: req.user.id });
 
-    const [allCollection] = await db("favorites").count("* as count");
-    allCollection.name = "全部收藏";
-    docFavorites.unshift(allCollection);
+        const [allCollection] = await db("favorites").count("* as count");
+        allCollection.name = "全部收藏";
+        allCollection.id = 0;
+        docFavorites.unshift(allCollection);
 
-    return res.send(docFavorites);
-  } catch (error) {
-    next(new InternalServerError(500, "创建失败！", error.message));
-  }
+        return res.send(docFavorites);
+    } catch (error) {
+        next(new InternalServerError(500, "创建失败！", error.message));
+    }
 });
 
 // 获取收藏夹中的文档
 favoriteRouter.get(
-  "/favoriteGroup/:id/documents",
-  jwtMiddleware,
-  async (req, res, next) => {
-    const { id } = req.params;
+    "/favoriteGroup/:id/documents",
+    jwtMiddleware,
+    async (req, res, next) => {
+        const { id } = req.params;
 
-    try {
-      const docFavorites = await db("favorites")
-        .select("*")
-        .where({ user_id: req.user.id, group_id: id });
+        try {
+            const docFavorites = await db("favorites")
+                .select("*")
+                .where({ user_id: req.user.id, group_id: id });
 
-      console.log(docFavorites);
-    } catch (error) {
-      next(new InternalServerError(500, "创建失败！", error.message));
+            console.log(docFavorites);
+        } catch (error) {
+            next(new InternalServerError(500, "创建失败！", error.message));
+        }
     }
-  }
 );
 
 // 创建收藏夹
 favoriteRouter.post(
-  "/createFavoriteGroup",
-  jwtMiddleware,
-  async (req, res, next) => {
-    const { name, desc } = req.body;
+    "/createFavoriteGroup",
+    jwtMiddleware,
+    async (req, res, next) => {
+        const { name, desc } = req.body;
 
-    try {
-      await db("favorite_group").insert({
-        name,
-        desc,
-        user_id: req.user.id,
-      });
+        try {
+            await db("favorite_group").insert({
+                name,
+                desc,
+                user_id: req.user.id,
+            });
 
-      return res.status(200).send({ msg: "创建成功！" });
-    } catch (error) {
-      next(new InternalServerError(500, "创建失败！", error.message));
+            return res.status(200).send({ msg: "创建成功！" });
+        } catch (error) {
+            next(new InternalServerError(500, "创建失败！", error.message));
+        }
     }
-  }
 );
 
 // 添加到收藏夹
 favoriteRouter.post("/addToFavorite", jwtMiddleware, async (req, res, next) => {
-  const { favorite_group_id, target_id, target_type } = req.body;
+    const { favorite_group_id, target_id, target_type } = req.body;
 
-  try {
-    await db("favorites").insert({
-      user_id: req.user.id,
-      group_id: favorite_group_id || null,
-      target_id,
-      target_type,
-    });
+    try {
+        await db("favorites").insert({
+            user_id: req.user.id,
+            group_id: favorite_group_id || null,
+            target_id,
+            target_type,
+        });
 
-    return res.status(200).send({ msg: "添加成功！" });
-  } catch (error) {
-    next(new InternalServerError(500, "添加失败！", error.message));
-  }
+        return res.status(200).send({ msg: "添加成功！" });
+    } catch (error) {
+        next(new InternalServerError(500, "添加失败！", error.message));
+    }
 });
 
 // 取消收藏
 favoriteRouter.post("/delFavorite", jwtMiddleware, async (req, res, next) => {
-  const { target_id, target_type } = req.body;
+    const { target_id, target_type } = req.body;
 
-  try {
-    await db("favorites")
-      .where({
-        user_id: req.user.id,
-        target_id,
-        target_type,
-      })
-      .del();
+    try {
+        await db("favorites")
+            .where({
+                user_id: req.user.id,
+                target_id,
+                target_type,
+            })
+            .del();
 
-    return res.status(200).send({ msg: "取消成功！" });
-  } catch (error) {
-    next(new InternalServerError(500, "取消失败！", error.message));
-  }
+        return res.status(200).send({ msg: "取消成功！" });
+    } catch (error) {
+        next(new InternalServerError(500, "取消失败！", error.message));
+    }
 });
 
 module.exports = favoriteRouter;
