@@ -60,6 +60,9 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
+          <!-- TODO: 预览功能 -->
+          <ClIconButton :icon="View" title="预览" @click="handleView" />
+
           <FavoriteTool
             :targetId="Number(route.params.doc)"
             targetType="Doc"
@@ -115,7 +118,7 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { Cloudy } from '@element-plus/icons-vue/dist/index.js'
+import { Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
 import { ElContainer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'

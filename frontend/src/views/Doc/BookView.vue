@@ -6,8 +6,19 @@ import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
-import { More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
-import { ElAvatar, ElEmpty, ElIcon, ElSkeleton, ElSkeletonItem } from 'element-plus'
+import { Delete, More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
+import {
+  ElAvatar,
+  ElDivider,
+  ElDropdown,
+  ElDropdownItem,
+  ElDropdownMenu,
+  ElEmpty,
+  ElIcon,
+  ElSkeleton,
+  ElSkeletonItem,
+  ElText,
+} from 'element-plus'
 import { useRoute } from 'vue-router'
 
 const store = useDocStore()
@@ -46,11 +57,24 @@ const methods = {
                   @update="methods.handleDocFavorite"
                 />
                 <ShareTool :targetId="Number(route.params.book)" targetType="Book" />
-                <ClIconButton
-                  :icon="More"
-                  title="设置"
-                  v-permission="['book:owner', 'book:editor']"
-                />
+                <ElDropdown trigger="click">
+                  <ClIconButton
+                    :icon="More"
+                    title="设置"
+                    v-permission="['book:owner', 'book:editor']"
+                  />
+                  <template #dropdown>
+                    <!-- TODO: book - 添加更多功能 -->
+                    <ElDropdownMenu>
+                      <ElDropdownItem @click="methods.handleBookRename">重命名</ElDropdownItem>
+                      <ElDropdownItem @click="methods.handleBookShare">更多设置</ElDropdownItem>
+                      <ElDivider style="margin: 0.25rem 0" />
+                      <ElDropdownItem @click="methods.handleBookDel">
+                        <ElText type="danger">删除</ElText>
+                      </ElDropdownItem>
+                    </ElDropdownMenu>
+                  </template>
+                </ElDropdown>
               </ClIconButtonGroup>
             </div>
           </section>
