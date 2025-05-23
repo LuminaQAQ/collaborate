@@ -30,6 +30,8 @@ export const apiList = {
     fetchFavoriteGroup: '/favorite/favoriteGroup',
     fetchFavoriteList: '/favorite/favoriteList',
     createFavoriteGroup: '/favorite/createFavoriteGroup',
+    updateFavoriteGroup: '/favorite/updateFavoriteGroup',
+    delFavoriteGroup: '/favorite/delFavoriteGroup',
     addToFavorite: '/favorite/addToFavorite',
     delFavorite: '/favorite/delFavorite',
   },

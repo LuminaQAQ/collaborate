@@ -9,7 +9,7 @@ import {
   requestDelFavorite,
   requestFetchFavoriteGroup,
 } from '@/api/favorite'
-import { ElButton, ElDialog, ElInput, ElMessage, ElText } from 'element-plus'
+import { ElButton, ElDialog, ElInput, ElMessage, ElScrollbar, ElText } from 'element-plus'
 import CreateFavoriteGroupDialog from './CreateFavoriteGroupDialog.vue'
 
 const createFavoriteGroupFormRef = ref(null)
@@ -148,25 +148,27 @@ const methods = {
     </template>
 
     <div class="favorite-group-dialog__body" v-loading="state.favoriteGroupDialogIsLoading">
-      <ClListItem
-        class="cl-list-item--border-bottom cl-list-item--hover-item"
-        @click="methods.favorite()"
-      >
-        <template #title>
-          我的收藏 <el-tag type="primary" size="small" round>默认</el-tag>
-        </template>
-      </ClListItem>
-      <ClListItem
-        class="cl-list-item--border-bottom cl-list-item--hover-item"
-        v-for="group in state.groups"
-        :key="group.id"
-        @click="methods.favorite(group.id)"
-      >
-        <template #title>{{ group.name }}</template>
-        <template #content>
-          <ElText>{{ group.desc || '暂无简介' }}</ElText>
-        </template>
-      </ClListItem>
+      <ElScrollbar>
+        <ClListItem
+          class="cl-list-item--border-bottom cl-list-item--hover-item"
+          v-for="(group, index) in state.groups"
+          :key="group.id"
+          @click="methods.favorite(group.id)"
+        >
+          <template #title>
+            <template v-if="index === 0">
+              我的收藏 <el-tag type="primary" size="small" round>默认</el-tag>
+            </template>
+            <template v-else>{{ group.name }}</template>
+          </template>
+          <template #content>
+            <template v-if="index === 0"></template>
+            <template v-else>
+              <ElText>{{ group.desc || '暂无简介' }}</ElText>
+            </template>
+          </template>
+        </ClListItem>
+      </ElScrollbar>
     </div>
   </el-dialog>
 

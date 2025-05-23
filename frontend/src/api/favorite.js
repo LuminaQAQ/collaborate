@@ -42,6 +42,34 @@ export const requestCreateFavoriteGroup = (data) => {
 }
 
 /**
+ * 修改收藏夹
+ * @param {Object} data
+ * @param {Number} data.id
+ * @param {String} data.name
+ * @param {String} data.desc
+ * @returns
+ */
+export const requestUpdateFavoriteGroup = (data) => {
+  return request(apiList.favoriteApi.updateFavoriteGroup, {
+    method: 'post',
+    data,
+  })
+}
+
+/**
+ * 删除收藏夹
+ * @param {Object} data
+ * @param {Number} data.id
+ * @returns
+ */
+export const requestDelFavoriteGroup = (data) => {
+  return request(apiList.favoriteApi.delFavoriteGroup, {
+    method: 'post',
+    data,
+  })
+}
+
+/**
  * 添加到收藏
  * @param {Object} data
  * @param {Number} data.doc_id

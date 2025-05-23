@@ -1,9 +1,11 @@
 <script setup>
 import ClListItem from '@/components/common/ClListItem.vue'
-import { More, Plus } from '@element-plus/icons-vue/dist/index.js'
-import { ElAside, ElContainer, ElHeader, ElIcon, ElMain, ElText } from 'element-plus'
+import { More } from '@element-plus/icons-vue/dist/index.js'
+import { ElButton, ElDropdown, ElDropdownMenu, ElIcon, ElText } from 'element-plus'
 
 // TODOL 添加收藏功能
+
+const emits = defineEmits(['rename', 'delete'])
 
 defineProps({
   isAllCollection: {
@@ -23,6 +25,15 @@ defineProps({
     default: 0,
   },
 })
+
+const methods = {
+  handleRenameCollectionGroup() {
+    emits('rename')
+  },
+  handleDeleteCollectionGroup() {
+    emits('delete')
+  },
+}
 </script>
 
 <template>
@@ -31,9 +42,25 @@ defineProps({
       <div class="favorites-group-container">
         <header class="favorites-group-container__header">
           <ElText size="large">{{ collectionGroupName }}</ElText>
-          <ElIcon ElIcon>
-            <component :is="!isAllCollection && More" />
-          </ElIcon>
+          <ElDropdown trigger="hover">
+            <ElIcon>
+              <component :is="!isAllCollection && More" />
+            </ElIcon>
+            <template #dropdown>
+              <ElDropdownMenu>
+                <ElDropdownItem>
+                  <ElButton type="primary" @click="methods.handleRenameCollectionGroup" text>
+                    重命名
+                  </ElButton>
+                </ElDropdownItem>
+                <ElDropdownItem>
+                  <ElButton type="danger" @click="methods.handleDeleteCollectionGroup" text>
+                    删除
+                  </ElButton>
+                </ElDropdownItem>
+              </ElDropdownMenu>
+            </template>
+          </ElDropdown>
         </header>
       </div>
     </template>

@@ -26,6 +26,10 @@ export const toBook = ({ user, book }, type = 'push') => {
   })
 }
 
+export const toBookByLocation = ({ user, book }) => {
+  window.location.href = `/${user}/${book}`
+}
+
 /**
  *
  * @param {import('vue-router').RouteParams} param0 params
@@ -43,6 +47,10 @@ export const toDoc = ({ user, book, doc }, type = 'push') => {
       doc,
     },
   })
+}
+
+export const toDocByLocation = ({ user, book, doc }) => {
+  window.location.href = `${user}/${book}/${doc}`
 }
 
 /**
