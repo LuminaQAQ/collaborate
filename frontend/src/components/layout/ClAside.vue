@@ -9,11 +9,12 @@ import {
   Notebook,
   Setting,
   ArrowRight,
-  Clock
+  Clock,
 } from '@element-plus/icons-vue'
 import router from '@/router'
 import { requestBookList } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { toBookByLocation } from '@/router/handler'
 
 const userStore = useUserStore()
 
@@ -24,18 +25,18 @@ const state = reactive({
 
 const menuList = [
   {
-    name: "开始",
-    path: "/dashboard",
+    name: '开始',
+    path: '/dashboard',
     icon: Clock,
   },
   {
-    name: "收藏",
-    path: "/favorites",
+    name: '收藏',
+    path: '/favorites',
     icon: Star,
   },
   {
-    name: "小记",
-    path: "/notes",
+    name: '小记',
+    path: '/notes',
     icon: Notebook,
   },
 ]
@@ -44,11 +45,18 @@ userStore.methods.fetchBookList()
 </script>
 
 <template>
-  <el-aside :width="userStore.layoutState.mainAsideIsCollapse ? '64px' : '180px'" @mouseover="state.isMenuHover = true"
-    @mouseout="state.isMenuHover = false">
+  <el-aside
+    :width="userStore.layoutState.mainAsideIsCollapse ? '64px' : '180px'"
+    @mouseover="state.isMenuHover = true"
+    @mouseout="state.isMenuHover = false"
+  >
     <!-- 基本功能 -->
-    <el-menu class="el-menu-vertical-demo" :router="true" :default-active="router.currentRoute.value.path.toString()"
-      :collapse="userStore.layoutState.mainAsideIsCollapse">
+    <el-menu
+      class="el-menu-vertical-demo"
+      :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
+    >
       <el-menu-item v-for="item in menuList" :key="item.path" :index="item.path">
         <el-icon>
           <component :is="item.icon" />
@@ -59,8 +67,13 @@ userStore.methods.fetchBookList()
     <el-divider />
 
     <!-- 文档列表  -->
-    <el-menu class="el-menu-vertical-demo" style="flex: 1 0" :router="true"
-      :default-active="router.currentRoute.value.path.toString()" :collapse="userStore.layoutState.mainAsideIsCollapse">
+    <el-menu
+      class="el-menu-vertical-demo"
+      style="flex: 1 0"
+      :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
+    >
       <el-sub-menu index="/books">
         <template #title>
           <el-icon>
@@ -69,15 +82,23 @@ userStore.methods.fetchBookList()
           <span>知识库</span>
         </template>
         <el-menu-item-group>
-          <el-menu-item v-for="item in userStore.user.bookList" :key="item.id" :index="`${item.email}/${item.id}`">
+          <el-menu-item
+            v-for="item in userStore.user.bookList"
+            :key="item.id"
+            @click="toBookByLocation({ user: item.email, book: item.id })"
+          >
             {{ item.name }}
           </el-menu-item>
         </el-menu-item-group>
       </el-sub-menu>
     </el-menu>
     <el-divider />
-    <el-menu class="el-menu-vertical-demo" :router="true" :default-active="router.currentRoute.value.path.toString()"
-      :collapse="userStore.layoutState.mainAsideIsCollapse">
+    <el-menu
+      class="el-menu-vertical-demo"
+      :router="true"
+      :default-active="router.currentRoute.value.path.toString()"
+      :collapse="userStore.layoutState.mainAsideIsCollapse"
+    >
       <el-menu-item index="/settings">
         <el-icon>
           <Setting />
@@ -85,9 +106,13 @@ userStore.methods.fetchBookList()
         <template #title>设置</template>
       </el-menu-item>
     </el-menu>
-    <el-icon class="collapse-icon" @click="
-      userStore.layoutState.mainAsideIsCollapse = !userStore.layoutState.mainAsideIsCollapse
-      " v-show="state.isMenuHover">
+    <el-icon
+      class="collapse-icon"
+      @click="
+        userStore.layoutState.mainAsideIsCollapse = !userStore.layoutState.mainAsideIsCollapse
+      "
+      v-show="state.isMenuHover"
+    >
       <ArrowRightBold v-if="userStore.layoutState.mainAsideIsCollapse" />
       <ArrowLeftBold v-else />
     </el-icon>
