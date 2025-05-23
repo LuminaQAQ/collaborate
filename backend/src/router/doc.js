@@ -1,6 +1,5 @@
 const express = require("express");
 const zlib = require("node:zlib");
-const { Server } = require("socket.io");
 
 const jwtMiddleware = require("../middleware/jwtMiddleware");
 const db = require("../lib/db");
@@ -241,6 +240,9 @@ docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
   try {
     await db("docs").delete().where({ id: doc_id });
     await db("docs_version").delete().where({ doc_id });
+    await db("favorites")
+      .delete()
+      .where({ target_id: doc_id, target_type: "Doc" });
 
     return res.send({ msg: "ok" });
   } catch (error) {
