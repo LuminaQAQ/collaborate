@@ -76,8 +76,6 @@ favoriteRouter.get("/favoriteList", jwtMiddleware, async (req, res, next) => {
   const { favorite_group_id, offset, limit, q } = req.query;
 
   try {
-    // TODO: 获取收藏夹中的文档和库
-
     let whereQuery = { user_id: req.user.id };
     if (Number(favorite_group_id) !== 0) {
       Object.assign(whereQuery, { group_id: favorite_group_id });

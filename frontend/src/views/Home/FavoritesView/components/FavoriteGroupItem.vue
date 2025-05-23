@@ -3,8 +3,6 @@ import ClListItem from '@/components/common/ClListItem.vue'
 import { More } from '@element-plus/icons-vue/dist/index.js'
 import { ElButton, ElDropdown, ElDropdownMenu, ElIcon, ElText } from 'element-plus'
 
-// TODOL 添加收藏功能
-
 const emits = defineEmits(['rename', 'delete'])
 
 defineProps({

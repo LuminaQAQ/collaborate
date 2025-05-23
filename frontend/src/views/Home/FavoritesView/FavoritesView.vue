@@ -165,7 +165,6 @@ const methods = {
   },
 }
 
-// TODOL 添加收藏功能
 onMounted(async () => {
   state.isLoading = true
   await methods.refreshGroupList()
