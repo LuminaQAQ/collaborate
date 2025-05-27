@@ -49,4 +49,25 @@ bookRouter.post("/createBook", jwtMiddleware, async (req, res, next) => {
   }
 });
 
+// 编辑文档库信息
+bookRouter.post("/editBook", jwtMiddleware, async (req, res, next) => {
+  const { email } = req.user;
+  const { id, name, description } = req.body;
+
+  try {
+    await db("books")
+      .update({
+        name,
+        description,
+      })
+      .where({ id });
+
+    return res.status(200).send({
+      msg: "修改成功！",
+    });
+  } catch (error) {
+    return next(new InternalServerError(500, "修改失败！", error.message));
+  }
+});
+
 module.exports = bookRouter;

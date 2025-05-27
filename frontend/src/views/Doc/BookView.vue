@@ -1,8 +1,10 @@
 <script setup>
+import { requestEditBookInfo } from '@/api/book'
 import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
+import RenameBookDialog from '@/components/tools/RenameBookDialog.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
@@ -15,18 +17,46 @@ import {
   ElDropdownMenu,
   ElEmpty,
   ElIcon,
+  ElMessage,
   ElSkeleton,
   ElSkeletonItem,
   ElText,
 } from 'element-plus'
+import { reactive } from 'vue'
 import { useRoute } from 'vue-router'
 
 const store = useDocStore()
 const route = useRoute()
 
+const state = reactive({
+  RenameBookDialogVisible: false,
+})
+
 const methods = {
   handleDocFavorite(isFavorite) {
     store.currentDocState.bookInfo.isFavorite = isFavorite
+  },
+
+  async handleBookRename(bookInfo, onSuccess, onError) {
+    const { name, description } = bookInfo
+
+    try {
+      await requestEditBookInfo({
+        id: store.currentDocState.bookInfo.id,
+        name,
+        description,
+      })
+
+      await store.fetchDocList()
+
+      onSuccess()
+      ElMessage.success('修改成功！')
+    } catch {
+      onError()
+      ElMessage.error('修改失败！')
+    } finally {
+      state.RenameBookDialogVisible = false
+    }
   },
 }
 </script>
@@ -57,6 +87,7 @@ const methods = {
                   @update="methods.handleDocFavorite"
                 />
                 <ShareTool :targetId="Number(route.params.book)" targetType="Book" />
+
                 <ElDropdown trigger="click">
                   <ClIconButton
                     :icon="More"
@@ -66,7 +97,9 @@ const methods = {
                   <template #dropdown>
                     <!-- TODO: book - 添加更多功能 -->
                     <ElDropdownMenu>
-                      <ElDropdownItem @click="methods.handleBookRename">重命名</ElDropdownItem>
+                      <ElDropdownItem @click="state.RenameBookDialogVisible = true">
+                        编辑信息
+                      </ElDropdownItem>
                       <ElDropdownItem @click="methods.handleBookShare">更多设置</ElDropdownItem>
                       <ElDivider style="margin: 0.25rem 0" />
                       <ElDropdownItem @click="methods.handleBookDel">
@@ -75,6 +108,16 @@ const methods = {
                     </ElDropdownMenu>
                   </template>
                 </ElDropdown>
+
+                <RenameBookDialog
+                  v-model="state.RenameBookDialogVisible"
+                  :book-info="{
+                    name: store.currentDocState.bookInfo.bookName,
+                    description: store.currentDocState.bookInfo.bookDescription,
+                  }"
+                  @submit="methods.handleBookRename"
+                  @close="state.RenameBookDialogVisible = false"
+                />
               </ClIconButtonGroup>
             </div>
           </section>
@@ -86,7 +129,7 @@ const methods = {
             <ElSkeletonItem variant="p" style="width: 30%" />
           </template>
           <template #default>
-            <small>{{ store.currentDocState.bookInfo.bookDesc || '暂无简介' }}</small>
+            <small>{{ store.currentDocState.bookInfo.bookDescription || '暂无简介' }}</small>
           </template>
         </ElSkeleton>
       </section>
@@ -140,12 +183,12 @@ const methods = {
       justify-content: space-between;
       align-items: center;
 
-      font-size: 1.75rem;
-
       .title-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        font-size: 1.75rem;
 
         .title {
           font-weight: 800;

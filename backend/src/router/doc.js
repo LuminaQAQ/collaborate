@@ -31,6 +31,7 @@ docRouter.get(
         .orderBy("docs.id");
       const [bookInfo] = await db("books")
         .select([
+          "books.id",
           "name as bookName",
           "description as bookDescription",
           db("favorites")

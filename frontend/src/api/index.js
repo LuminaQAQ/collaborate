@@ -39,4 +39,7 @@ export const apiList = {
     fetchJoinURL: '/share/getJoinURL',
     urlJoinToShare: '/share/urlJoinToShare',
   },
+  bookApi: {
+    editBook: '/api/editBook',
+  },
 }
