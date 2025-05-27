@@ -1,5 +1,5 @@
 <script setup>
-import { requestEditBookInfo } from '@/api/book'
+import { requestDeleteBook, requestEditBookInfo } from '@/api/book'
 import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
@@ -7,8 +7,7 @@ import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
 import EditBookInfoDialog from '@/components/tools/EditBookInfoDialog.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
-import { useUserStore } from '@/stores/user'
-import { Delete, More, Notebook, Share, Star } from '@element-plus/icons-vue/dist/index.js'
+import { More, Notebook } from '@element-plus/icons-vue/dist/index.js'
 import {
   ElAvatar,
   ElDivider,
@@ -22,14 +21,23 @@ import {
   ElSkeletonItem,
   ElText,
 } from 'element-plus'
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { useRoute } from 'vue-router'
+import DeleteBookConfirm from '@/components/tools/DeleteBookConfirm.vue'
+import { toHome } from '@/router/handler'
 
 const store = useDocStore()
 const route = useRoute()
 
+const bookInfo = computed(() => ({
+  id: store.currentDocState.bookInfo.id,
+  name: store.currentDocState.bookInfo.bookName,
+  description: store.currentDocState.bookInfo.bookDescription,
+}))
+
 const state = reactive({
   editBookInfoDialogVisible: false,
+  deleteBookConfirmVisible: false,
 })
 
 const methods = {
@@ -38,14 +46,8 @@ const methods = {
   },
 
   async handleBookRename(bookInfo, onSuccess, onError) {
-    const { name, description } = bookInfo
-
     try {
-      await requestEditBookInfo({
-        id: store.currentDocState.bookInfo.id,
-        name,
-        description,
-      })
+      await requestEditBookInfo(bookInfo)
 
       await store.fetchDocList()
 
@@ -56,6 +58,19 @@ const methods = {
       ElMessage.error('修改失败！')
     } finally {
       state.editBookInfoDialogVisible = false
+    }
+  },
+  async handleBookDel(bookInfo) {
+    const { id } = bookInfo
+
+    try {
+      await requestDeleteBook(id)
+
+      ElMessage.success('删除成功！')
+
+      toHome('replace')
+    } catch {
+      ElMessage.error('删除失败！')
     }
   },
 }
@@ -102,7 +117,7 @@ const methods = {
                       </ElDropdownItem>
                       <ElDropdownItem @click="methods.handleBookShare">更多设置</ElDropdownItem>
                       <ElDivider style="margin: 0.25rem 0" />
-                      <ElDropdownItem @click="methods.handleBookDel">
+                      <ElDropdownItem @click="state.deleteBookConfirmVisible = true">
                         <ElText type="danger">删除</ElText>
                       </ElDropdownItem>
                     </ElDropdownMenu>
@@ -111,12 +126,15 @@ const methods = {
 
                 <EditBookInfoDialog
                   v-model="state.editBookInfoDialogVisible"
-                  :book-info="{
-                    name: store.currentDocState.bookInfo.bookName,
-                    description: store.currentDocState.bookInfo.bookDescription,
-                  }"
+                  :book-info="bookInfo"
                   @submit="methods.handleBookRename"
                   @close="state.editBookInfoDialogVisible = false"
+                />
+                <DeleteBookConfirm
+                  v-model="state.deleteBookConfirmVisible"
+                  :book-info="bookInfo"
+                  @confirm="methods.handleBookDel"
+                  @close="state.deleteBookConfirmVisible = false"
                 />
               </ClIconButtonGroup>
             </div>

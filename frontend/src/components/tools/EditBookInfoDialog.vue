@@ -58,6 +58,7 @@ const methods = {
         emits(
           'submit',
           {
+            id: props.bookInfo.id,
             name: form.name?.trim(),
             description: form.description?.trim(),
           },
@@ -100,7 +101,7 @@ onMounted(() => {
     <template #header> 编辑信息 </template>
 
     <ElForm ref="formRef" :model="form" :rules="rules" label-position="top">
-      <ElFormItem label="知识库名称" prop="name">
+      <ElFormItem label="知识库名称" prop="name" required>
         <ElInput
           v-model="form.name"
           placeholder="请输入知识库名称"

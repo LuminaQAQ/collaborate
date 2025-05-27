@@ -70,4 +70,20 @@ bookRouter.post("/editBook", jwtMiddleware, async (req, res, next) => {
   }
 });
 
+// 删除文档库
+bookRouter.post("/delBook", jwtMiddleware, async (req, res, next) => {
+  const { email } = req.user;
+  const { id } = req.body;
+
+  try {
+    await db("books").where({ id }).del();
+
+    return res.status(200).send({
+      msg: "删除成功！",
+    });
+  } catch (error) {
+    return next(new InternalServerError(500, "删除失败！", error.message));
+  }
+});
+
 module.exports = bookRouter;

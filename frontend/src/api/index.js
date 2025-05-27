@@ -41,5 +41,6 @@ export const apiList = {
   },
   bookApi: {
     editBook: '/api/editBook',
+    delBook: '/api/delBook',
   },
 }
