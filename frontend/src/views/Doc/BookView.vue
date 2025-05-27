@@ -4,7 +4,7 @@ import CatalogueTree from '@/components/catalogue/CatalogueTree.vue'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
-import RenameBookDialog from '@/components/tools/RenameBookDialog.vue'
+import EditBookInfoDialog from '@/components/tools/EditBookInfoDialog.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { useUserStore } from '@/stores/user'
@@ -29,7 +29,7 @@ const store = useDocStore()
 const route = useRoute()
 
 const state = reactive({
-  RenameBookDialogVisible: false,
+  editBookInfoDialogVisible: false,
 })
 
 const methods = {
@@ -55,7 +55,7 @@ const methods = {
       onError()
       ElMessage.error('修改失败！')
     } finally {
-      state.RenameBookDialogVisible = false
+      state.editBookInfoDialogVisible = false
     }
   },
 }
@@ -97,7 +97,7 @@ const methods = {
                   <template #dropdown>
                     <!-- TODO: book - 添加更多功能 -->
                     <ElDropdownMenu>
-                      <ElDropdownItem @click="state.RenameBookDialogVisible = true">
+                      <ElDropdownItem @click="state.editBookInfoDialogVisible = true">
                         编辑信息
                       </ElDropdownItem>
                       <ElDropdownItem @click="methods.handleBookShare">更多设置</ElDropdownItem>
@@ -109,14 +109,14 @@ const methods = {
                   </template>
                 </ElDropdown>
 
-                <RenameBookDialog
-                  v-model="state.RenameBookDialogVisible"
+                <EditBookInfoDialog
+                  v-model="state.editBookInfoDialogVisible"
                   :book-info="{
                     name: store.currentDocState.bookInfo.bookName,
                     description: store.currentDocState.bookInfo.bookDescription,
                   }"
                   @submit="methods.handleBookRename"
-                  @close="state.RenameBookDialogVisible = false"
+                  @close="state.editBookInfoDialogVisible = false"
                 />
               </ClIconButtonGroup>
             </div>

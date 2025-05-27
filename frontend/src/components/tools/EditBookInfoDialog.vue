@@ -123,7 +123,7 @@ onMounted(() => {
 
     <template #footer>
       <ElButton type="primary" :loading="isLoading" @click="methods.handleSubmit"> 提交 </ElButton>
-      <ElButton @click="handleClose">取消</ElButton>
+      <ElButton @click="methods.handleClose">取消</ElButton>
     </template>
   </ElDialog>
 </template>
