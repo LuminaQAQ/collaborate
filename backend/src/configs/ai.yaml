@@ -1,0 +1,4 @@
+ai:
+  DeepSeek:
+    baseURL: https://api.deepseek.com
+    API_Key: sk-ceaea3eea76e4ab3bebeb0d77c3b17ac
