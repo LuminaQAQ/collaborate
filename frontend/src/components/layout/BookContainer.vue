@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, reactive, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, watch } from 'vue'
 
 import {
   ArrowRightBold,
@@ -76,6 +76,8 @@ const state = reactive({
   ],
 })
 
+const asideWidth = computed(() => (state.isCollapse ? '220px' : '1px'))
+
 const methods = {
   /**
    * @typedef {Object} option
@@ -120,12 +122,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ElContainer>
-    <el-aside
-      :width="state.isCollapse ? '220px' : '1px'"
-      @mouseover="state.isMenuHover = true"
-      @mouseout="state.isMenuHover = false"
-    >
+  <ElContainer :style="{ '--el-aside-width': asideWidth }">
+    <el-aside @mouseover="state.isMenuHover = true" @mouseout="state.isMenuHover = false">
       <!-- 顶部面包屑导航 -->
       <ElHeader>
         <section class="home-icon-wrap" @click="router.push('/')">

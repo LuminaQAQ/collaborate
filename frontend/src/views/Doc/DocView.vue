@@ -63,6 +63,13 @@
           <!-- TODO: 预览功能 -->
           <ClIconButton :icon="View" title="预览" @click="handleView" />
 
+          <ClIconButton
+            title="AI助手"
+            :icon="ChatDotRound"
+            @click="state.AIToolVisible = !state.AIDrawerVisible"
+            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+          />
+
           <FavoriteTool
             :targetId="Number(route.params.doc)"
             targetType="Doc"
@@ -78,7 +85,7 @@
           <ClIconButton
             title="历史记录"
             :icon="Cloudy"
-            v-permission="['doc:owner', 'doc:editor']"
+            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
             @click="state.historyToolBoardVisible = !state.historyToolBoardVisible"
           />
           <!-- <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" /> -->
@@ -93,6 +100,7 @@
           @mounted="methods.handleEditorMounted"
           @update="methods.handleUpdate"
           @save="methods.handleSave"
+          @cursor-update="methods.handleCursorUpdate"
           :room="`${route.params.book}-${route.params.doc}`"
           :default-value="docStore.currentDocState.content"
         />
@@ -100,6 +108,7 @@
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
       </template>
+
     </ElMain>
   </ElContainer>
 
@@ -118,8 +127,8 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
-import { ElContainer, ElMain, ElMessage } from 'element-plus'
+import { ChatDotRound, Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
+import { ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
 
@@ -131,6 +140,7 @@ import DocSocket from '@/socket/doc'
 import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate } from '@/api/user'
 import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
+import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
 
 const route = useRoute()
 
@@ -141,6 +151,14 @@ let editorState = null
 
 const state = reactive({
   historyToolBoardVisible: false,
+  AIToolVisible: false,
+  cursorState: {
+    position: {
+      top: 0,
+      left: 0,
+      height: 0,
+    },
+  },
 })
 
 const isLoad = ref(false)
@@ -166,6 +184,9 @@ const methods = {
   handleUpdate(markdown) {
     // 会影响文档保存判断，但是可能后面有用，勿删
     // docStore.currentDocState.content = markdown
+  },
+  handleCursorUpdate(cursor) {
+    Object.assign(state.cursorState.position, cursor)
   },
   handleCollaboratorClick(collaborator) {
     toPersonalCenter(collaborator.email)

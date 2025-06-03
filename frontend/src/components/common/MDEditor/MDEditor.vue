@@ -36,7 +36,7 @@ import { menuConfigs } from './configs/menuConfigs'
 import { Crepe } from '@milkdown/crepe'
 import { ElScrollbar } from 'element-plus'
 
-const emits = defineEmits(['update', 'save', 'mounted'])
+const emits = defineEmits(['update', 'save', 'mounted', 'cursorUpdate'])
 const props = defineProps({
   room: {
     type: String,
@@ -78,6 +78,21 @@ const methods = {
 
     ctx.get(linkTooltipAPI.key).addLink(selection.from, selection.to)
   },
+
+  handleCursorUpdate: (duration = 50) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const cursorEl = document.querySelector('.ProseMirror .prosemirror-virtual-cursor')
+        const proseMirror = document.querySelector('.milkdown .ProseMirror')
+        const { top, left, height } = cursorEl.getBoundingClientRect()
+        const { width } = proseMirror.getBoundingClientRect()
+
+        console.log(width)
+
+        resolve({ top, left, height, width })
+      }, duration)
+    })
+  },
 }
 
 onMounted(async () => {
@@ -104,6 +119,18 @@ onMounted(async () => {
         if (markdown !== prevMarkdown) {
           methods.handleUpdate(markdown)
         }
+      })
+
+      listener.focus(async () => {
+        const res = await methods.handleCursorUpdate()
+
+        emits('cursorUpdate', res)
+      })
+
+      listener.blur(async () => {
+        const res = await methods.handleCursorUpdate(0)
+
+        emits('cursorUpdate', res)
       })
     })
     .use(listener)
