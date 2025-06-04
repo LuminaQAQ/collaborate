@@ -1,10 +1,10 @@
 <script setup>
 import { requestChatToAi } from '@/api/ai'
 import { ChatDotRound } from '@element-plus/icons-vue/dist/index.js'
-import { ElScrollbar } from 'element-plus'
-import { reactive } from 'vue'
+import { ElScrollbar, ElTag } from 'element-plus'
+import { reactive, watch } from 'vue'
 
-defineProps({
+const { modelValue } = defineProps({
   modelValue: Boolean,
 })
 
@@ -12,12 +12,22 @@ const state = reactive({
   chatPrompt: '',
   messageResult: ``,
   isLoading: false,
+  isFinished: false,
+
+  history: {
+    lastchatPrompt: '',
+    lastchatResult: '',
+  },
 })
 
 const methods = {
   hanndleReset() {
     state.chatPrompt = ''
     state.messageResult = ''
+  },
+  handleSaveLastChat() {
+    state.history.lastchatPrompt = state.chatPrompt
+    state.history.lastchatResult = state.messageResult
   },
   /**
    *
@@ -32,12 +42,17 @@ const methods = {
         clearInterval(timer)
         timer = null
         state.isLoading = false
+        state.isFinished = true
+        methods.handleSaveLastChat()
       }
     }, 15)
   },
   async handleChat() {
+    if (!state.chatPrompt) return
+
     methods.hanndleReset()
     state.isLoading = true
+    state.isFinished = false
 
     try {
       const res = await new Promise((resolve, reject) => {
@@ -74,21 +89,46 @@ const methods = {
 
 <template>
   <section v-if="modelValue" class="ai-chat-container">
-    <ElScrollbar class="ai-chat-message" v-show="state.messageResult.length > 0">
-      <v-md-preview :text="state.messageResult" />
+    <ElScrollbar :class="state.messageResult.length || state.isLoading ? 'ai-chat-message' : ''">
+      <v-md-preview v-if="state.messageResult.length" :text="state.messageResult" />
+      <el-skeleton
+        v-else-if="state.isLoading"
+        animated
+        style="padding: 1rem; box-sizing: border-box"
+      />
     </ElScrollbar>
 
     <section class="ai-chat-content">
-      <ElInput v-model="state.chatPrompt" placeholder="请输入内容" :disabled="state.isLoading" />
-      <ElButton
-        type="primary"
-        :icon="ChatDotRound"
-        :disabled="state.isLoading || state.chatPrompt.length === 0"
-        :loading="state.isLoading"
-        @click="methods.handleChat"
-        circle
-        style="margin-left: 0.5rem"
-      />
+      <header class="ai-chat-content-header">
+        <template v-if="state.isFinished">
+          <ElTag @click="methods.hanndleReset" round>重置</ElTag>
+          <!-- TODO: 重写 -->
+          <ElTag round>重写</ElTag>
+          <!-- TODO: 续写 -->
+          <ElTag round>续写</ElTag>
+        </template>
+        <template v-else-if="state.isLoading">
+          <ElTag>正在加载...</ElTag>
+        </template>
+      </header>
+
+      <main class="ai-chat-content-main">
+        <ElInput
+          v-model="state.chatPrompt"
+          @keydown.enter="methods.handleChat"
+          placeholder="请输入内容"
+          :disabled="state.isLoading"
+        />
+        <ElButton
+          type="primary"
+          :icon="ChatDotRound"
+          :disabled="state.isLoading || state.chatPrompt.length === 0"
+          :loading="state.isLoading"
+          @click="methods.handleChat"
+          style="margin-left: 0.5rem"
+          circle
+        />
+      </main>
     </section>
   </section>
 </template>
@@ -120,12 +160,29 @@ const methods = {
 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;
+
+    .ai-chat-message-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
   }
 
   .ai-chat-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    .ai-chat-content-header {
+      padding-bottom: 0.5rem;
+      min-height: 1.5rem;
+
+      .el-tag {
+        margin-right: 0.5rem;
+      }
+    }
+
+    .ai-chat-content-main {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
   }
 }
 </style>
