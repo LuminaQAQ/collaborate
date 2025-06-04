@@ -18,6 +18,7 @@ const docRouter = require("./src/router/doc.js");
 const historyRouter = require("./src/router/history.js");
 const userRouter = require("./src/router/user/index.js");
 const shareRouter = require("./src/router/share/index.js");
+const aiRouter = require("./src/router/AI/index.js");
 
 const { errorMiddleware } = require("./src/middleware/errorMiddleware.js");
 
@@ -40,6 +41,7 @@ app.use("/api", bookRouter);
 app.use("/user", userRouter);
 app.use("/favorite", collectionRouter);
 app.use("/share", shareRouter);
+app.use("/ai", aiRouter);
 app.use(errorMiddleware);
 
 require("./src/socket/index")(server);

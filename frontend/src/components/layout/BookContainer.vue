@@ -260,6 +260,10 @@ onUnmounted(() => {
   height: 100%;
 }
 
+.el-main {
+  position: relative;
+}
+
 .el-aside,
 .el-menu {
   position: relative;

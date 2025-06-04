@@ -25,6 +25,13 @@
     justify-content: center;
   }
 }
+
+.ai-chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
 </style>
 
 <template>
@@ -63,13 +70,6 @@
           <!-- TODO: 预览功能 -->
           <ClIconButton :icon="View" title="预览" @click="handleView" />
 
-          <ClIconButton
-            title="AI助手"
-            :icon="ChatDotRound"
-            @click="state.AIToolVisible = !state.AIDrawerVisible"
-            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
-          />
-
           <FavoriteTool
             :targetId="Number(route.params.doc)"
             targetType="Doc"
@@ -104,11 +104,26 @@
           :room="`${route.params.book}-${route.params.doc}`"
           :default-value="docStore.currentDocState.content"
         />
+
+        <ElButton
+          v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+          class="ai-chat-btn"
+          size="large"
+          :icon="ChatDotRound"
+          @click="state.AIToolVisible = !state.AIToolVisible"
+          circle
+        />
+        <AIChatTool
+          v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+          v-model="state.AIToolVisible"
+          :position="state.cursorState.position"
+          :modelValue="state.AIToolVisible"
+          @update:modelValue="state.AIToolVisible = $event"
+        />
       </template>
       <template v-else>
         <v-md-preview :text="docStore.currentDocState.content" />
       </template>
-
     </ElMain>
   </ElContainer>
 
@@ -128,7 +143,7 @@ import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
-import { ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
+import { ElButton, ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
 

@@ -43,4 +43,7 @@ export const apiList = {
     editBook: '/api/editBook',
     delBook: '/api/delBook',
   },
+  aiApi: {
+    chat: '/ai/chat',
+  },
 }

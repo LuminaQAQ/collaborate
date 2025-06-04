@@ -7,13 +7,18 @@ const deepSeek = new OpenAI({
   apiKey: configs.ai.DeepSeek.API_Key,
 });
 
-const useDeepSeek = async (prompt) => {
-  const completion = await deepSeek.chat.completions.create({
-    messages: [{ role: "user", content: prompt }],
-    model: "deepseek-chat",
+const useDeepSeek = (prompt) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const completion = await deepSeek.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "deepseek-chat",
+      });
+      resolve(completion.choices[0].message.content);
+    } catch (error) {
+      reject(error);
+    }
   });
-
-  return completion.choices[0].message.content;
 };
 
 module.exports = { useDeepSeek };
