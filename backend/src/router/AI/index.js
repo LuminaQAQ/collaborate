@@ -9,16 +9,16 @@ const { useDeepSeek } = require("../../lib/AIModel");
 
 const AIRouter = express.Router();
 
+const formatPrompt = (prompt, content) => {
+  return `指令：${prompt}\n文档内容：${content}。`;
+};
+
 // TODO: DeepSeek Example
 AIRouter.post("/chat", jwtMiddleware, async (req, res, next) => {
-  const { prompt } = req.body;
-
-  console.log(prompt);
+  const { prompt, content } = req.body;
 
   try {
-    // const chatResult = await useDeepSeek(prompt);
-
-    // console.log(chatResult);
+    const chatResult = await useDeepSeek(formatPrompt(prompt, content));
 
     return res.json({ response: chatResult });
   } catch (error) {

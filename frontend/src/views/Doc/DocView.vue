@@ -199,7 +199,7 @@ const methods = {
   },
   handleUpdate(markdown) {
     // 会影响文档保存判断，但是可能后面有用，勿删
-    // docStore.currentDocState.content = markdown
+    docStore.currentDocState.docInfo.content = markdown
   },
   handleCursorUpdate(cursor) {
     Object.assign(state.cursorState.position, cursor)

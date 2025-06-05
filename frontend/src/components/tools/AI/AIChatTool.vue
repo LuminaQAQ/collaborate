@@ -59,12 +59,14 @@ const methods = {
   },
   async handleChat() {
     if (!state.chatPrompt) return
+    state.messageResult = ''
     state.isLoading = true
     state.isFinished = false
 
     try {
       const res = await requestChatToAi({
-        prompt: `- 要求: ${state.chatPrompt} \n- 原内容\n ${docStore.currentDocState.docInfo.content}`,
+        prompt: state.chatPrompt,
+        content: docStore.currentDocState.docInfo.content,
       })
 
       state.chatPrompt = ''
