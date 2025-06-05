@@ -35,6 +35,7 @@ import { menuConfigs } from './configs/menuConfigs'
 
 import { Crepe } from '@milkdown/crepe'
 import { ElScrollbar } from 'element-plus'
+import { TextSelection } from 'prosemirror-state'
 
 const emits = defineEmits(['update', 'save', 'mounted', 'cursorUpdate'])
 const props = defineProps({
@@ -86,8 +87,6 @@ const methods = {
         const proseMirror = document.querySelector('.milkdown .ProseMirror')
         const { top, left, height } = cursorEl.getBoundingClientRect()
         const { width } = proseMirror.getBoundingClientRect()
-
-        console.log(width)
 
         resolve({ top, left, height, width })
       }, duration)

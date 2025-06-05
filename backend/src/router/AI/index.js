@@ -13,12 +13,14 @@ const AIRouter = express.Router();
 AIRouter.post("/chat", jwtMiddleware, async (req, res, next) => {
   const { prompt } = req.body;
 
+  console.log(prompt);
+
   try {
-    const chatResult = await useDeepSeek(prompt);
+    // const chatResult = await useDeepSeek(prompt);
 
-    console.log(chatResult);
+    // console.log(chatResult);
 
-    return res.json({response: chatResult});
+    return res.json({ response: chatResult });
   } catch (error) {
     next(new InternalServerError(500, "失败！", error.message));
   }

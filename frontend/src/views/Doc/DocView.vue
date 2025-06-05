@@ -119,6 +119,7 @@
           :position="state.cursorState.position"
           :modelValue="state.AIToolVisible"
           @update:modelValue="state.AIToolVisible = $event"
+          @replace="methods.handleReplaceMD"
         />
       </template>
       <template v-else>
@@ -266,6 +267,11 @@ const methods = {
         })
         .catch((err) => reject(err))
     })
+  },
+
+  handleReplaceMD(md) {
+    docStore.currentDocState.docInfo.content = md
+    editorState.editor.editor.action(replaceAll(md))
   },
 }
 

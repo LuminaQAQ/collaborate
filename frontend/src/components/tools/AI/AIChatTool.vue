@@ -1,12 +1,22 @@
 <script setup>
 import { requestChatToAi } from '@/api/ai'
+import { useDocStore } from '@/stores/doc'
 import { ChatDotRound } from '@element-plus/icons-vue/dist/index.js'
-import { ElScrollbar, ElTag } from 'element-plus'
+import { ElMessage, ElScrollbar, ElTag } from 'element-plus'
 import { reactive, watch } from 'vue'
+
+const docStore = useDocStore()
 
 const { modelValue } = defineProps({
   modelValue: Boolean,
 })
+
+const emits = defineEmits(['replace'])
+
+const promptPrefixStrategies = {
+  beautify: () => `美化这段内容`,
+  continue: () => `续写这段内容`,
+}
 
 const state = reactive({
   chatPrompt: '',
@@ -49,34 +59,15 @@ const methods = {
   },
   async handleChat() {
     if (!state.chatPrompt) return
-
-    methods.hanndleReset()
     state.isLoading = true
     state.isFinished = false
 
     try {
-      const res = await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve({
-            data: {
-              response: `**《最后一颗糖》**
-
-巷口的盲人老李总在卖麦芽糖。小城的孩子都爱他，因他总会多给一颗糖，说：“日子苦，得甜一甜。”
-
-十年后，老李的摊子不见了。孩子们长大，渐渐忘了他。
-
-某天，医生陈婷在急诊室接到一位脱水昏迷的老人——正是老李。他攥着脏兮兮的布袋，里面只剩一颗融化的糖。护士要扔，陈婷突然认出糖纸上的牙印——那是她小时候故意咬的。
-
-“留着吧，”她轻声说，“日子苦，得甜一甜。”
-
-后来，老李的病床前总有一罐新糖。来看他的“孩子们”说，甜味没变，只是尝着尝着，眼泪就掉下来了。
-
-（200字）`,
-            },
-          })
-        }, 3000)
+      const res = await requestChatToAi({
+        prompt: `- 要求: ${state.chatPrompt} \n- 原内容\n ${docStore.currentDocState.docInfo.content}`,
       })
 
+      state.chatPrompt = ''
       methods.handleRenderChatResult(res.data.response)
     } catch (error) {
       state.isLoading = false
@@ -84,34 +75,42 @@ const methods = {
     } finally {
     }
   },
+
+  async handleReplace() {
+    emits('replace', state.messageResult)
+  },
+  async handleResultCopy() {
+    try {
+      await navigator.clipboard.writeText(state.messageResult)
+      ElMessage.success('复制成功')
+    } catch (error) {
+      ElMessage.error('复制失败')
+    }
+  },
 }
 </script>
 
 <template>
   <section v-if="modelValue" class="ai-chat-container">
-    <ElScrollbar :class="state.messageResult.length || state.isLoading ? 'ai-chat-message' : ''">
-      <v-md-preview v-if="state.messageResult.length" :text="state.messageResult" />
-      <el-skeleton
-        v-else-if="state.isLoading"
-        animated
-        style="padding: 1rem; box-sizing: border-box"
-      />
-    </ElScrollbar>
+    <section class="ai-chat-message" v-if="state.messageResult.length || state.isLoading">
+      <ElScrollbar :style="{ height: 'calc(100% - 2rem)' }">
+        <v-md-preview v-if="state.messageResult.length" :text="state.messageResult" />
+        <el-skeleton
+          v-else-if="state.isLoading"
+          animated
+          style="padding: 1rem; box-sizing: border-box"
+        />
+      </ElScrollbar>
+      <footer class="ai-chat-message-footer" v-if="!state.isLoading">
+        <ElTag @click="methods.handleReplace" round>替换全文</ElTag>
+
+        <ElTag @click="methods.handleResultCopy" round>复制</ElTag>
+
+        <ElTag @click="methods.hanndleReset" round>清空</ElTag>
+      </footer>
+    </section>
 
     <section class="ai-chat-content">
-      <header class="ai-chat-content-header">
-        <template v-if="state.isFinished">
-          <ElTag @click="methods.hanndleReset" round>重置</ElTag>
-          <!-- TODO: 重写 -->
-          <ElTag round>重写</ElTag>
-          <!-- TODO: 续写 -->
-          <ElTag round>续写</ElTag>
-        </template>
-        <template v-else-if="state.isLoading">
-          <ElTag>正在加载...</ElTag>
-        </template>
-      </header>
-
       <main class="ai-chat-content-main">
         <ElInput
           v-model="state.chatPrompt"
@@ -162,22 +161,19 @@ const methods = {
     background-color: #fff;
 
     .ai-chat-message-footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
+      box-sizing: border-box;
+      padding: 0.25rem 0.5rem;
+      min-height: 1.5rem;
+      border-top: 1px solid #eee;
+
+      .el-tag {
+        margin-right: 0.5rem;
+        cursor: pointer;
+      }
     }
   }
 
   .ai-chat-content {
-    .ai-chat-content-header {
-      padding-bottom: 0.5rem;
-      min-height: 1.5rem;
-
-      .el-tag {
-        margin-right: 0.5rem;
-      }
-    }
-
     .ai-chat-content-main {
       display: flex;
       align-items: center;
