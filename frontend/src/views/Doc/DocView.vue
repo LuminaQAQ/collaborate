@@ -118,8 +118,10 @@
           v-model="state.AIToolVisible"
           :position="state.cursorState.position"
           :modelValue="state.AIToolVisible"
+          :selectionContent="state.editorView.selection"
           @update:modelValue="state.AIToolVisible = $event"
           @replace="methods.handleReplaceMD"
+          @focus="methods.handleAIChatFocus"
         />
       </template>
       <template v-else>
@@ -145,7 +147,7 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
 import { ElButton, ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
-import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
@@ -168,6 +170,9 @@ let editorState = null
 const state = reactive({
   historyToolBoardVisible: false,
   AIToolVisible: false,
+  editorView: {
+    selection: '',
+  },
   cursorState: {
     position: {
       top: 0,
@@ -180,6 +185,13 @@ const state = reactive({
 const isLoad = ref(false)
 
 const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
+
+watch(
+  () => state.AIToolVisible,
+  async (val) => {
+    if (val) await methods.handleAIChatFocus()
+  },
+)
 
 const methods = {
   async initDoc() {
@@ -272,6 +284,15 @@ const methods = {
   handleReplaceMD(md) {
     docStore.currentDocState.docInfo.content = md
     editorState.editor.editor.action(replaceAll(md))
+  },
+  async handleAIChatFocus() {
+    const { selection } = await editorState.getSelection()
+
+    const { from, to } = selection
+
+    state.editorView.selection = docStore.currentDocState.docInfo.content
+      ?.replaceAll(' ', '')
+      ?.slice(from, to)
   },
 }
 

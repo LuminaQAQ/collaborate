@@ -2,16 +2,17 @@
 import { requestChatToAi } from '@/api/ai'
 import { useDocStore } from '@/stores/doc'
 import { ChatDotRound } from '@element-plus/icons-vue/dist/index.js'
-import { ElMessage, ElScrollbar, ElTag } from 'element-plus'
+import { ElMessage, ElScrollbar, ElTag, ElText } from 'element-plus'
 import { reactive, watch } from 'vue'
 
 const docStore = useDocStore()
 
-const { modelValue } = defineProps({
+const { modelValue, selectionContent } = defineProps({
   modelValue: Boolean,
+  selectionContent: String,
 })
 
-const emits = defineEmits(['replace'])
+const emits = defineEmits(['replace', 'focus'])
 
 const promptPrefixStrategies = {
   beautify: () => `美化这段内容`,
@@ -66,7 +67,7 @@ const methods = {
     try {
       const res = await requestChatToAi({
         prompt: state.chatPrompt,
-        content: docStore.currentDocState.docInfo.content,
+        content: selectionContent || docStore.currentDocState.docInfo.content,
       })
 
       state.chatPrompt = ''
@@ -88,6 +89,9 @@ const methods = {
     } catch (error) {
       ElMessage.error('复制失败')
     }
+  },
+  handleFocus() {
+    emits('focus')
   },
 }
 </script>
@@ -113,9 +117,20 @@ const methods = {
     </section>
 
     <section class="ai-chat-content">
+      <header class="ai-chat-content-header">
+        <ElText class="ai-chat-content-title">范围：</ElText>
+
+        <ElText class="ai-chat-content-tag" v-if="selectionContent" round>
+          {{ selectionContent }}
+        </ElText>
+
+        <ElTag @click="methods.handleSelectAll" v-else round>全选</ElTag>
+      </header>
+
       <main class="ai-chat-content-main">
         <ElInput
           v-model="state.chatPrompt"
+          @focus="methods.handleFocus"
           @keydown.enter="methods.handleChat"
           placeholder="请输入内容"
           :disabled="state.isLoading"
@@ -176,6 +191,28 @@ const methods = {
   }
 
   .ai-chat-content {
+    .ai-chat-content-header {
+      display: flex;
+      align-items: center;
+
+      padding-bottom: 0.5rem;
+
+      .ai-chat-content-tag {
+        min-width: 5rem;
+        max-width: 8rem;
+        padding: 0.25rem;
+        box-sizing: border-box;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        color: #409eff;
+        background-color: #ecf5ff;
+        border-radius: 8px;
+      }
+    }
+
     .ai-chat-content-main {
       display: flex;
       align-items: center;

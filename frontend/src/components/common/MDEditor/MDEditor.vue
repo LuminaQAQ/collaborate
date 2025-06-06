@@ -66,6 +66,16 @@ const methods = {
   handleSave: (isAutoSava = false) => {
     emits('save', editor.getMarkdown(), isAutoSava)
   },
+  handleGetCurrentSelection: () => {
+    return new Promise((resolve, reject) => {
+      editor.editor.action((ctx) => {
+        const view = ctx.get(editorViewCtx)
+        const { selection, doc } = view.state
+
+        resolve({ selection, doc })
+      })
+    })
+  },
   handleInsertLink: (ctx) => {
     const view = ctx.get(editorViewCtx)
     const { selection, doc } = view.state
@@ -83,12 +93,16 @@ const methods = {
   handleCursorUpdate: (duration = 50) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const cursorEl = document.querySelector('.ProseMirror .prosemirror-virtual-cursor')
-        const proseMirror = document.querySelector('.milkdown .ProseMirror')
-        const { top, left, height } = cursorEl.getBoundingClientRect()
-        const { width } = proseMirror.getBoundingClientRect()
+        try {
+          const cursorEl = document.querySelector('.ProseMirror .prosemirror-virtual-cursor')
+          const proseMirror = document.querySelector('.milkdown .ProseMirror')
+          const { top, left, height } = cursorEl.getBoundingClientRect()
+          const { width } = proseMirror.getBoundingClientRect()
 
-        resolve({ top, left, height, width })
+          resolve({ top, left, height, width })
+        } catch (error) {
+          // reject(error)
+        }
       }, duration)
     })
   },
@@ -111,27 +125,6 @@ onMounted(async () => {
     .config(menuConfigs)
     .use(linkTooltipPlugin)
     .use(collab)
-    .config((ctx) => {
-      const listener = ctx.get(listenerCtx)
-
-      listener.markdownUpdated((ctx, markdown, prevMarkdown) => {
-        if (markdown !== prevMarkdown) {
-          methods.handleUpdate(markdown)
-        }
-      })
-
-      listener.focus(async () => {
-        const res = await methods.handleCursorUpdate()
-
-        emits('cursorUpdate', res)
-      })
-
-      listener.blur(async () => {
-        const res = await methods.handleCursorUpdate(0)
-
-        emits('cursorUpdate', res)
-      })
-    })
     .use(listener)
     .use(menu)
 
@@ -142,7 +135,42 @@ onMounted(async () => {
     collabManager = new CollabManager(collabService, props.room)
     collabManager.flush(props.defaultValue)
 
-    emits('mounted', { editor, collabManager })
+    emits('mounted', { editor, collabManager, getSelection: methods.handleGetCurrentSelection })
+  })
+
+  editor.on((listener) => {
+    listener.markdownUpdated((ctx, markdown, prevMarkdown) => {
+      if (markdown !== prevMarkdown) {
+        methods.handleUpdate(markdown)
+      }
+    })
+
+    listener.focus(async () => {
+      const res = await methods.handleCursorUpdate()
+
+      emits('cursorUpdate', res)
+    })
+
+    listener.blur(async () => {
+      const res = await methods.handleCursorUpdate(0)
+
+      emits('cursorUpdate', res)
+    })
+
+    // listener.selectionUpdated((ctx, selection, prevSelection) => {
+    //   console.log('Selection updated:', selection)
+    // })
+  })
+
+  editor.on((listener) => {
+    // listener.updated((ctx, doc, prevDoc) => {
+    //   console.log(doc, prevDoc)
+    //   // const selectionChanged = doc.selection.eq(prevDoc.selection)
+    //   // if (selectionChanged) {
+    //   //   // selection changed
+    //   //   console.log(doc)
+    //   // }
+    // })
   })
 
   document.addEventListener(
@@ -171,9 +199,13 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style scoped>
+<style>
 .editor {
   height: 100%;
   overflow-y: auto;
+}
+
+.milkdown .milkdown-toolbar {
+  z-index: 1;
 }
 </style>
