@@ -35,15 +35,16 @@ import { menuConfigs } from './configs/menuConfigs'
 
 import { Crepe } from '@milkdown/crepe'
 import { ElScrollbar } from 'element-plus'
-import { TextSelection } from 'prosemirror-state'
 
-const emits = defineEmits(['update', 'save', 'mounted', 'cursorUpdate'])
+import { serializerCtx, schemaCtx } from '@milkdown/core'
+
+const emits = defineEmits(['update', 'save', 'mounted', 'cursorUpdate', 'selectionUpdate'])
 const props = defineProps({
   room: {
     type: String,
     required: true,
   },
-  defaultValue: {
+  modelValue: {
     type: String,
     default: '',
   },
@@ -65,16 +66,6 @@ const methods = {
   },
   handleSave: (isAutoSava = false) => {
     emits('save', editor.getMarkdown(), isAutoSava)
-  },
-  handleGetCurrentSelection: () => {
-    return new Promise((resolve, reject) => {
-      editor.editor.action((ctx) => {
-        const view = ctx.get(editorViewCtx)
-        const { selection, doc } = view.state
-
-        resolve({ selection, doc })
-      })
-    })
   },
   handleInsertLink: (ctx) => {
     const view = ctx.get(editorViewCtx)
@@ -111,7 +102,7 @@ const methods = {
 onMounted(async () => {
   editor = new Crepe({
     root: editorRef.value,
-    defaultValue: props.defaultValue,
+    defaultValue: props.modelValue,
     featureConfigs: {
       placeholder: {
         text: '输入 / 唤起更多',
@@ -133,9 +124,9 @@ onMounted(async () => {
   editor.editor.action((ctx) => {
     const collabService = ctx.get(collabServiceCtx)
     collabManager = new CollabManager(collabService, props.room)
-    collabManager.flush(props.defaultValue)
+    collabManager.flush(props.modelValue)
 
-    emits('mounted', { editor, collabManager, getSelection: methods.handleGetCurrentSelection })
+    emits('mounted', { editor, collabManager })
   })
 
   editor.on((listener) => {
@@ -156,21 +147,36 @@ onMounted(async () => {
 
       emits('cursorUpdate', res)
     })
-
-    // listener.selectionUpdated((ctx, selection, prevSelection) => {
-    //   console.log('Selection updated:', selection)
-    // })
   })
 
-  editor.on((listener) => {
-    // listener.updated((ctx, doc, prevDoc) => {
-    //   console.log(doc, prevDoc)
-    //   // const selectionChanged = doc.selection.eq(prevDoc.selection)
-    //   // if (selectionChanged) {
-    //   //   // selection changed
-    //   //   console.log(doc)
-    //   // }
+  editor.editor.action((ctx) => {
+    const view = ctx.get(editorViewCtx)
+    // const { from, to } = view.state.selection
+    // const fragment = view.state.doc.slice(from, to).content
+
+    // fragment.forEach((node) => {
+    //   console.log('选中的节点：', node)
     // })
+    // const view = ctx.get(editorViewCtx)
+    view.setProps({
+      handleDOMEvents: {
+        mousemove: (view, event) => {
+          try {
+            const { selection, doc } = view.state
+            const { from, to } = selection
+
+            const serializer = ctx.get(serializerCtx)
+            const fragment = doc.slice(from, to).content
+            const tmpDoc = doc.type.create(undefined, fragment)
+            const markdown = serializer(tmpDoc)
+
+            return emits('selectionUpdate', markdown)
+          } catch (error) {
+            return emits('selectionUpdate', '')
+          }
+        },
+      },
+    })
   })
 
   document.addEventListener(
@@ -205,7 +211,8 @@ onBeforeUnmount(() => {
   overflow-y: auto;
 }
 
-.milkdown .milkdown-toolbar {
+.milkdown .milkdown-toolbar,
+.milkdown .milkdown-slash-menu {
   z-index: 1;
 }
 </style>

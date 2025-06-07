@@ -97,31 +97,13 @@
     <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
         <MDEditor
+          v-model="docStore.currentDocState.docInfo.content"
           @mounted="methods.handleEditorMounted"
           @update="methods.handleUpdate"
           @save="methods.handleSave"
           @cursor-update="methods.handleCursorUpdate"
+          @selection-update="methods.handleSelectionUpdate"
           :room="`${route.params.book}-${route.params.doc}`"
-          :default-value="docStore.currentDocState.content"
-        />
-
-        <ElButton
-          v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
-          class="ai-chat-btn"
-          size="large"
-          :icon="ChatDotRound"
-          @click="state.AIToolVisible = !state.AIToolVisible"
-          circle
-        />
-        <AIChatTool
-          v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
-          v-model="state.AIToolVisible"
-          :position="state.cursorState.position"
-          :modelValue="state.AIToolVisible"
-          :selectionContent="state.editorView.selection"
-          @update:modelValue="state.AIToolVisible = $event"
-          @replace="methods.handleReplaceMD"
-          @focus="methods.handleAIChatFocus"
         />
       </template>
       <template v-else>
@@ -135,6 +117,26 @@
     @close="state.historyToolBoardVisible = false"
     @restore="methods.handleRestore"
   />
+
+  <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
+    <ElButton
+      v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+      class="ai-chat-btn"
+      size="large"
+      :icon="ChatDotRound"
+      @click="state.AIToolVisible = !state.AIToolVisible"
+      circle
+    />
+    <AIChatTool
+      v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+      v-model="state.AIToolVisible"
+      :position="state.cursorState.position"
+      :modelValue="state.AIToolVisible"
+      :selectionContent="state.editorView.selection"
+      @update:modelValue="state.AIToolVisible = $event"
+      @replace="methods.handleReplaceMD"
+    />
+  </template>
 </template>
 
 <script setup>
@@ -149,6 +151,7 @@ import { ChatDotRound, Cloudy, View } from '@element-plus/icons-vue/dist/index.j
 import { ElButton, ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
+import { commandsCtx } from '@milkdown/core'
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -159,6 +162,7 @@ import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate } from '@/api/user'
 import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
 import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
+import { editorView } from '@milkdown/kit/core'
 
 const route = useRoute()
 
@@ -185,13 +189,6 @@ const state = reactive({
 const isLoad = ref(false)
 
 const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
-
-watch(
-  () => state.AIToolVisible,
-  async (val) => {
-    if (val) await methods.handleAIChatFocus()
-  },
-)
 
 const methods = {
   async initDoc() {
@@ -285,14 +282,8 @@ const methods = {
     docStore.currentDocState.docInfo.content = md
     editorState.editor.editor.action(replaceAll(md))
   },
-  async handleAIChatFocus() {
-    const { selection } = await editorState.getSelection()
-
-    const { from, to } = selection
-
-    state.editorView.selection = docStore.currentDocState.docInfo.content
-      ?.replaceAll(' ', '')
-      ?.slice(from, to)
+  async handleSelectionUpdate(text) {
+    state.editorView.selection = text
   },
 }
 

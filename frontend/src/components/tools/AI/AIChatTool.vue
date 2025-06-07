@@ -14,11 +14,6 @@ const { modelValue, selectionContent } = defineProps({
 
 const emits = defineEmits(['replace', 'focus'])
 
-const promptPrefixStrategies = {
-  beautify: () => `美化这段内容`,
-  continue: () => `续写这段内容`,
-}
-
 const state = reactive({
   chatPrompt: '',
   messageResult: ``,
@@ -132,7 +127,7 @@ const methods = {
           v-model="state.chatPrompt"
           @focus="methods.handleFocus"
           @keydown.enter="methods.handleChat"
-          placeholder="请输入内容"
+          :placeholder="selectionContent ? '对选中的内容进行提问' : '请输入内容'"
           :disabled="state.isLoading"
         />
         <ElButton
@@ -151,13 +146,10 @@ const methods = {
 
 <style lang="scss" scoped>
 .ai-chat-container {
-  position: absolute;
+  position: sticky;
   bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
 
   padding: 1rem;
-  width: 70%;
 
   border-radius: 1rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
