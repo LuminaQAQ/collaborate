@@ -22,6 +22,11 @@ export const useDocStore = defineStore('doc', () => {
     collaborators: [],
     docList: [],
     docInfo: {},
+    editorView: {
+      selection: '',
+      isReadonly: false,
+      isTranslateMode: false,
+    },
   })
 
   const handleRole = {

@@ -26,11 +26,14 @@
   }
 }
 
+// .floating-btn {
+//   position: fixed;
+//   z-index: 999;
+// }
+
 .ai-chat-btn {
-  position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 999;
 }
 </style>
 
@@ -82,7 +85,7 @@
           <ClIconButton
             :icon="state.editorView.isReadonly ? View : Edit"
             :title="state.editorView.isReadonly ? '预览' : '编辑'"
-            @click="state.editorView.isReadonly = !state.editorView.isReadonly"
+            @click="methods.handleEditorViewReadonlyChange"
           />
           <ShareTool :targetId="Number(route.params.doc)" targetType="Doc" />
           <ClIconButton
@@ -96,7 +99,11 @@
         </ClIconButtonGroup>
       </section>
     </ElHeader>
-    <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
+    <ElMain
+      id="editor-container"
+      style="overflow: hidden; padding: 0.25rem 0"
+      v-loading="state.translateLoading"
+    >
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
         <MDEditor
           v-model="docStore.currentDocState.docInfo.content"
@@ -110,7 +117,9 @@
         />
       </template>
       <template v-else>
-        <v-md-preview :text="docStore.currentDocState.docInfo.content" />
+        <v-md-preview
+          :text="state.editorView.translateText || docStore.currentDocState.docInfo.content"
+        />
       </template>
     </ElMain>
   </ElContainer>
@@ -121,23 +130,32 @@
     @restore="methods.handleRestore"
   />
 
-  <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
-    <ElButton
+  <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
+    <FloatingBall
+      title="AI"
+      style="right: 20px; bottom: 20px"
       v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
-      class="ai-chat-btn"
-      size="large"
       :icon="ChatDotRound"
       @click="state.AIToolVisible = !state.AIToolVisible"
-      circle
     />
+
     <AIChatTool
       v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
       v-model="state.AIToolVisible"
       :position="state.cursorState.position"
       :modelValue="state.AIToolVisible"
-      :selectionContent="state.editorView.selection"
-      @update:modelValue="state.AIToolVisible = $event"
+      :selectionContent="docStore.currentDocState.editorView.selection"
       @replace="methods.handleReplaceMD"
+    />
+  </template>
+
+  <template v-else>
+    <FloatingBall
+      title="翻译"
+      style="right: 20px; bottom: 20px"
+      :icon="Translate"
+      :loading="state.translateLoading"
+      @click="methods.handleTranslateModeChange"
     />
   </template>
 </template>
@@ -151,7 +169,7 @@ import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, Edit, View } from '@element-plus/icons-vue/dist/index.js'
-import { ElButton, ElContainer, ElMain, ElMessage } from 'element-plus'
+import { ElContainer, ElMain, ElMessage } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
 
@@ -164,6 +182,9 @@ import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate } from '@/api/user'
 import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
 import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
+import FloatingBall from '@/components/tools/FloatingBall.vue'
+import Translate from '@/components/imgs/Translate.vue'
+import { requestChatToAi } from '@/api/ai'
 
 const route = useRoute()
 
@@ -175,9 +196,13 @@ let editorState = null
 const state = reactive({
   historyToolBoardVisible: false,
   AIToolVisible: false,
+
+  translateToolVisible: false,
+  translateLoading: false,
   editorView: {
     selection: '',
-    isReadonly: true,
+    isReadonly: false,
+    translateText: '',
   },
   cursorState: {
     position: {
@@ -260,6 +285,7 @@ const methods = {
   handleRestore(docInfo, loading, done) {
     if (isMulCollaborator.value)
       return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
+
     loading()
 
     const { doc_id, content, title } = docInfo
@@ -270,7 +296,9 @@ const methods = {
           docStore.currentDocState.docInfo.title = title
           docStore.currentDocState.docInfo.content = content
 
-          editorState.editor.editor.action(replaceAll(content))
+          try {
+            editorState.editor.editor.action(replaceAll(content))
+          } catch (error) {}
           done()
           resolve()
           state.historyToolBoardVisible = false
@@ -285,7 +313,46 @@ const methods = {
     editorState.editor.editor.action(replaceAll(md))
   },
   async handleSelectionUpdate(text) {
-    state.editorView.selection = text
+    docStore.currentDocState.editorView.selection = text
+  },
+  handleEditorViewReadonlyChange() {
+    state.editorView.isReadonly = !state.editorView.isReadonly
+    docStore.currentDocState.editorView.isReadonly = state.editorView.isReadonly
+  },
+  handleTranslateDocument() {
+    const lang = navigator.language || navigator.userLanguage
+
+    docStore.currentDocState.editorView.isTranslateMode = true
+    state.translateLoading = true
+
+    ElMessage.success('翻译中...')
+
+    return new Promise((resolve) => {
+      requestChatToAi({
+        prompt: `翻译这篇文档至 ${lang} 语言`,
+        content: docStore.currentDocState.docInfo.content,
+      })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          ElMessage.error('翻译失败')
+        })
+        .finally(() => {
+          state.translateLoading = false
+        })
+    })
+  },
+  async handleTranslateModeChange() {
+    const { isTranslateMode } = docStore.currentDocState.editorView
+
+    if (!isTranslateMode) {
+      const res = await methods.handleTranslateDocument()
+      state.editorView.translateText = res.data.response
+    } else {
+      docStore.currentDocState.editorView.isTranslateMode = false
+      state.editorView.translateText = ''
+    }
   },
 }
 
