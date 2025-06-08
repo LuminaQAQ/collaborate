@@ -161,6 +161,24 @@
       :loading="state.translateLoading"
       @click="methods.handleTranslateModeChange"
     />
+
+    <el-popover placement="left-end" :width="400" trigger="click" @show="methods.handleSummary">
+      <template #reference>
+        <FloatingBall
+          title="摘要"
+          style="right: 20px; bottom: 70px"
+          :icon="Abstract"
+          :loading="state.aiLoading"
+          @click="methods.handleAIModeChange"
+        />
+      </template>
+      <template #default>
+        <ElScrollbar v-loading="state.editorView.abstractText.length === 0">
+          <h2 style="text-align: center; margin: 0">摘要</h2>
+          <v-md-preview :text="state.editorView.abstractText" style="height: 12rem" />
+        </ElScrollbar>
+      </template>
+    </el-popover>
   </template>
 </template>
 
@@ -173,7 +191,7 @@ import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, Edit, View } from '@element-plus/icons-vue/dist/index.js'
-import { ElContainer, ElMain, ElMessage } from 'element-plus'
+import { ElContainer, ElMain, ElMessage, ElScrollbar, ElText } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
 
@@ -189,6 +207,7 @@ import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
 import FloatingBall from '@/components/tools/FloatingBall.vue'
 import Translate from '@/components/imgs/Translate.vue'
 import { requestChatToAi } from '@/api/ai'
+import Abstract from '@/components/imgs/Abstract.vue'
 
 const route = useRoute()
 
@@ -207,6 +226,7 @@ const state = reactive({
     selection: '',
     isReadonly: false,
     translateText: '',
+    abstractText: '',
   },
   cursorState: {
     position: {
@@ -357,6 +377,32 @@ const methods = {
       docStore.currentDocState.editorView.isTranslateMode = true
     } else {
       docStore.currentDocState.editorView.isTranslateMode = false
+    }
+  },
+
+  handleSummaryDocument() {
+    const lang = navigator.language || navigator.userLanguage
+
+    return new Promise((resolve) => {
+      requestChatToAi({
+        prompt: `生成摘要， 语言为${lang}`,
+        content: docStore.currentDocState.docInfo.content,
+      })
+        .then((res) => {
+          resolve(res)
+        })
+        .catch((err) => {
+          ElMessage.error('翻译失败')
+        })
+        .finally(() => {
+          state.translateLoading = false
+        })
+    })
+  },
+  async handleSummary() {
+    if (!state.editorView.abstractText) {
+      const res = await methods.handleSummaryDocument()
+      state.editorView.abstractText = res.data.response
     }
   },
 }
