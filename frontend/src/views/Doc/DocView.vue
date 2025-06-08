@@ -67,35 +67,37 @@
       </section>
       <section class="doc-addition-wrap">
         <ClIconButtonGroup size="21px">
-          <!-- TODO: 预览功能 -->
-          <ClIconButton :icon="View" title="预览" @click="handleView" />
-
           <FavoriteTool
             :targetId="Number(route.params.doc)"
             targetType="Doc"
             :isFavorite="docStore.currentDocState.docInfo.isFavorite"
             @update="methods.handleDocFavorite"
           />
-          <ShareTool
-            :targetId="Number(route.params.doc)"
-            targetType="Doc"
-            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+        </ClIconButtonGroup>
+
+        <ClIconButtonGroup
+          size="21px"
+          v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
+        >
+          <ClIconButton
+            :icon="state.editorView.isReadonly ? View : Edit"
+            :title="state.editorView.isReadonly ? '预览' : '编辑'"
+            @click="state.editorView.isReadonly = !state.editorView.isReadonly"
           />
-          <!-- <HistoryTool @restore="methods.handleRestore" v-permission="['doc:owner', 'doc:editor']" /> -->
+          <ShareTool :targetId="Number(route.params.doc)" targetType="Doc" />
           <ClIconButton
             title="历史记录"
             :icon="Cloudy"
-            v-permission="['book:owner', 'book:editor', 'doc:owner', 'doc:editor']"
             @click="state.historyToolBoardVisible = !state.historyToolBoardVisible"
           />
           <!-- <ClIconButton title="设置" :icon="SetUp" v-permission="['doc:owner', 'doc:editor']" /> -->
           <!-- TODO: 添加设置抽屉 -->
-          <SettingDeawerTool v-permission="['doc:owner', 'doc:editor']" />
+          <SettingDeawerTool />
         </ClIconButtonGroup>
       </section>
     </ElHeader>
     <ElMain id="editor-container" style="overflow: hidden; padding: 0.25rem 0">
-      <template v-if="docStore.handleRole.isOwnerOrEditor('doc')">
+      <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
         <MDEditor
           v-model="docStore.currentDocState.docInfo.content"
           @mounted="methods.handleEditorMounted"
@@ -103,11 +105,12 @@
           @save="methods.handleSave"
           @cursor-update="methods.handleCursorUpdate"
           @selection-update="methods.handleSelectionUpdate"
+          :readonly="state.editorView.isReadonly"
           :room="`${route.params.book}-${route.params.doc}`"
         />
       </template>
       <template v-else>
-        <v-md-preview :text="docStore.currentDocState.content" />
+        <v-md-preview :text="docStore.currentDocState.docInfo.content" />
       </template>
     </ElMain>
   </ElContainer>
@@ -147,11 +150,10 @@ import HistoryTool from '@/components/tools/HistoryTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
-import { ChatDotRound, Cloudy, View } from '@element-plus/icons-vue/dist/index.js'
-import { ElButton, ElContainer, ElDrawer, ElMain, ElMessage } from 'element-plus'
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { ChatDotRound, Cloudy, Edit, View } from '@element-plus/icons-vue/dist/index.js'
+import { ElButton, ElContainer, ElMain, ElMessage } from 'element-plus'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { replaceAll } from '@milkdown/kit/utils'
-import { commandsCtx } from '@milkdown/core'
 
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 
@@ -162,7 +164,6 @@ import { toPersonalCenter } from '@/router/handler'
 import { requestDocUpdate } from '@/api/user'
 import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
 import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
-import { editorView } from '@milkdown/kit/core'
 
 const route = useRoute()
 
@@ -176,6 +177,7 @@ const state = reactive({
   AIToolVisible: false,
   editorView: {
     selection: '',
+    isReadonly: true,
   },
   cursorState: {
     position: {

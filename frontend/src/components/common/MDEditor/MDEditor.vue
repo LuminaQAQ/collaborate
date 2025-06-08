@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
 
-import { listener, listenerCtx } from '@milkdown/kit/plugin/listener'
+import { listener } from '@milkdown/kit/plugin/listener'
 
 import { CollabManager } from './utils/CollabManager'
 import { collab, collabServiceCtx } from '@milkdown/plugin-collab'
@@ -36,7 +36,7 @@ import { menuConfigs } from './configs/menuConfigs'
 import { Crepe } from '@milkdown/crepe'
 import { ElScrollbar } from 'element-plus'
 
-import { serializerCtx, schemaCtx } from '@milkdown/core'
+import { serializerCtx } from '@milkdown/core'
 
 const emits = defineEmits(['update', 'save', 'mounted', 'cursorUpdate', 'selectionUpdate'])
 const props = defineProps({
@@ -83,7 +83,7 @@ const methods = {
 
   handleCursorUpdate: (duration = 50) => {
     return new Promise((resolve, reject) => {
-      setTimeout(() => {
+      let timer = setTimeout(() => {
         try {
           const cursorEl = document.querySelector('.ProseMirror .prosemirror-virtual-cursor')
           const proseMirror = document.querySelector('.milkdown .ProseMirror')
@@ -93,6 +93,9 @@ const methods = {
           resolve({ top, left, height, width })
         } catch (error) {
           // reject(error)
+        } finally {
+          clearTimeout(timer)
+          timer = null
         }
       }, duration)
     })
@@ -151,13 +154,6 @@ onMounted(async () => {
 
   editor.editor.action((ctx) => {
     const view = ctx.get(editorViewCtx)
-    // const { from, to } = view.state.selection
-    // const fragment = view.state.doc.slice(from, to).content
-
-    // fragment.forEach((node) => {
-    //   console.log('选中的节点：', node)
-    // })
-    // const view = ctx.get(editorViewCtx)
     view.setProps({
       handleDOMEvents: {
         mousemove: (view, event) => {
@@ -205,7 +201,7 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<style>
+<style lang="scss">
 .editor {
   height: 100%;
   overflow-y: auto;

@@ -13,7 +13,6 @@ const formatPrompt = (prompt, content) => {
   return `指令：${prompt}\n文档内容：${content}。`;
 };
 
-// TODO: DeepSeek Example
 AIRouter.post("/chat", jwtMiddleware, async (req, res, next) => {
   const { prompt, content } = req.body;
 
