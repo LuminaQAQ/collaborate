@@ -118,7 +118,11 @@
       </template>
       <template v-else>
         <v-md-preview
-          :text="state.editorView.translateText || docStore.currentDocState.docInfo.content"
+          :text="
+            (docStore.currentDocState.editorView.isTranslateMode &&
+              state.editorView.translateText) ||
+            docStore.currentDocState.docInfo.content
+          "
         />
       </template>
     </ElMain>
@@ -322,7 +326,6 @@ const methods = {
   handleTranslateDocument() {
     const lang = navigator.language || navigator.userLanguage
 
-    docStore.currentDocState.editorView.isTranslateMode = true
     state.translateLoading = true
 
     ElMessage.success('翻译中...')
@@ -347,11 +350,13 @@ const methods = {
     const { isTranslateMode } = docStore.currentDocState.editorView
 
     if (!isTranslateMode) {
-      const res = await methods.handleTranslateDocument()
-      state.editorView.translateText = res.data.response
+      if (!state.editorView.translateText) {
+        const res = await methods.handleTranslateDocument()
+        state.editorView.translateText = res.data.response
+      }
+      docStore.currentDocState.editorView.isTranslateMode = true
     } else {
       docStore.currentDocState.editorView.isTranslateMode = false
-      state.editorView.translateText = ''
     }
   },
 }
