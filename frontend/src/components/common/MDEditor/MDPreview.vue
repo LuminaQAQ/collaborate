@@ -1,138 +1,236 @@
 <script setup>
-import md from '@/utils/VMDBlockIdPlugin'
+import { ElButton, ElDialog } from 'element-plus'
+import MDPreviewBasic from './MDPreviewBasic.vue'
 
-import VMdPreview from '@kangc/v-md-editor/lib/preview'
-import '@kangc/v-md-editor/lib/style/preview.css'
-import vuepressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js'
-import '@kangc/v-md-editor/lib/theme/style/vuepress.css'
-import Prism from 'prismjs'
-import createTodoListPlugin from '@kangc/v-md-editor/lib/plugins/todo-list/index'
-import '@kangc/v-md-editor/lib/plugins/todo-list/todo-list.css'
-import createCopyCodePlugin from '@kangc/v-md-editor/lib/plugins/copy-code/index'
-import '@kangc/v-md-editor/lib/plugins/copy-code/copy-code.css'
-import createKatexPlugin from '@kangc/v-md-editor/lib/plugins/katex/cdn'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
+import MDComment from './MDComment.vue'
 
-VMdPreview.use(vuepressTheme, {
-  Prism,
-})
-
-VMdPreview.use(createTodoListPlugin())
-VMdPreview.use(createCopyCodePlugin())
-VMdPreview.use(createKatexPlugin())
-
-defineProps({
+const { value } = defineProps({
   value: {
     type: String,
     default: '',
   },
 })
 
+const domLines = ref([])
+const state = reactive({
+  commentDialogVisable: false,
+  commentedMDContent: '',
+  comment: '',
+})
+
+const MDArray = computed(() => value.split('\n'))
+
 // TODO: 评论系统
+/**
+ * @type {import("vue").Ref<HTMLElement> | null}
+ */
 const previewRef = ref(null)
+/**
+ * @type {import("vue").Ref<HTMLElement> | null}
+ */
+const commentBtnRef = ref(null)
+/**
+ * @type {import("vue").Ref<HTMLElement> | null}
+ */
+const commentEditor = ref(null)
+/**
+ * @type {HTMLElement | null}
+ */
+let previewContainer = null
 
-// onMounted(() => {
-//   const root = previewRef.value?.$el
+const unmountedController = new AbortController()
 
-//   const commentBtn = document.createElement('div')
-//   commentBtn.innerText = '💬'
-//   commentBtn.className = 'comment-btn'
-//   commentBtn.style.display = 'none'
-//   document.body.appendChild(commentBtn)
-//   commentBtnRef.value = commentBtn
+const methods = {
+  /**
+   * @returns {HTMLElement}
+   */
+  initCommentBtnCreate() {
+    const commentBtn = document.createElement('cl-comment-btn')
+    commentBtnRef.value = commentBtn
+    commentBtn.className = 'comment-btn'
+    previewContainer.appendChild(commentBtn)
 
-//   const hoverBtn = document.createElement('div')
-//   hoverBtn.innerText = '💬'
-//   hoverBtn.className = 'comment-hover-btn'
-//   hoverCommentRef.value = hoverBtn
-//   document.body.appendChild(hoverBtn)
+    return commentBtn
+  },
+  /**
+   * @param {HTMLElement} line
+   */
+  initBlockEvent: (line, index) => {
+    line.addEventListener(
+      'mouseover',
+      (e) => {
+        e.stopPropagation()
+        e.preventDefault()
 
-//   // 监听划词
-//   document.addEventListener('mouseup', () => {
-//     const sel = window.getSelection()
-//     if (!sel || sel.isCollapsed) {
-//       commentBtn.style.display = 'none'
-//       return
-//     }
+        const controller = new AbortController()
+        const { vMdLine } = line.dataset
 
-//     const range = sel.getRangeAt(0)
-//     const container = range.startContainer.parentElement.closest('[data-block-id]')
-//     if (!container) return
+        commentBtnRef.value.classList.add('active')
 
-//     const rect = range.getBoundingClientRect()
-//     commentBtn.style.top = `${rect.top - 30 + window.scrollY}px`
-//     commentBtn.style.left = `${rect.left + window.scrollX}px`
-//     commentBtn.style.display = 'block'
-//     selectedBlockId.value = container.getAttribute('data-block-id')
-//   })
+        if (vMdLine !== commentBtnRef.value.dataset.vMdLine) {
+          /**
+           * @type {HTMLElement}
+           */
+          const nextLine = domLines.value[index + 1]
 
-//   // 监听 hover 显示右侧按钮
-//   const blocks = root.querySelectorAll('[data-block-id]')
-//   blocks.forEach((block) => {
-//     const blockId = block.getAttribute('data-block-id')
+          commentBtnRef.value.setAttribute('data-v-md-line', vMdLine)
+          commentBtnRef.value.setAttribute(
+            'data-v-md-next-line',
+            nextLine?.dataset?.vMdLine || null,
+          )
+        }
 
-//     block.addEventListener('mouseenter', (e) => {
-//       const rect = block.getBoundingClientRect()
-//       hoverBtn.style.top = `${rect.top + window.scrollY}px`
-//       hoverBtn.style.left = `${rect.right + 10 + window.scrollX}px`
-//       hoverBtn.style.display = 'block'
-//       hoverBtn.dataset.blockId = blockId
-//     })
+        previewContainer.style.setProperty('--preview-comment-top', `${line.offsetTop}px`)
 
-//     block.addEventListener('mouseleave', (e) => {
-//       // 延迟隐藏防止按钮移开
-//       setTimeout(() => {
-//         if (!hoverBtn.matches(':hover')) {
-//           hoverBtn.style.display = 'none'
-//         }
-//       }, 300)
-//     })
-//   })
+        previewContainer.addEventListener(
+          'mouseleave',
+          () => {
+            commentBtnRef.value.classList.remove('active')
+            controller.abort()
+          },
+          { signal: controller.signal },
+        )
+      },
+      { signal: unmountedController.signal },
+    )
+  },
 
-//   // 防止按钮在鼠标移入后立刻消失
-//   hoverBtn.addEventListener('mouseleave', () => {
-//     hoverBtn.style.display = 'none'
-//   })
+  /**
+   *
+   * @param {MouseEvent} e
+   */
+  handleComment: (e) => {
+    const { vMdLine, vMdNextLine } = e.target.dataset
+    state.commentedMDContent = MDArray.value
+      .slice(Number(vMdLine) - 1, Number(vMdNextLine) - 1 || MDArray.value.length - 1)
+      .join('\n')
 
-//   // 点击评论按钮（hover）
-//   hoverBtn.addEventListener('click', () => {
-//     const id = hoverBtn.dataset.blockId
-//     alert(`点击了块：${id}，打开评论面板`)
-//   })
+    state.commentDialogVisable = true
+  },
 
-//   // 点击浮动评论按钮（划词）
-//   commentBtn.addEventListener('click', () => {
-//     const text = window.getSelection().toString()
-//     alert(`对块 ${selectedBlockId.value} 中的文字 "${text}" 进行评论`)
-//     commentBtn.style.display = 'none'
-//   })
-// })
+  handleSubmit() {
+    console.log(state.comment)
+
+    methods.handleReset()
+  },
+  handleReset() {
+    state.commentDialogVisable = false
+    state.comment = ''
+    commentEditor.value.handleReset()
+  },
+}
+
+onMounted(async () => {
+  await import('@/components/common/MDEditor/components/ClCommentBtn')
+
+  previewContainer = previewRef.value?.root?.$el
+
+  commentBtnRef.value = methods.initCommentBtnCreate()
+  commentBtnRef.value.addEventListener('click', methods.handleComment, {
+    signal: unmountedController.signal,
+  })
+
+  domLines.value = [...previewContainer.querySelectorAll('[data-v-md-line]')]
+  domLines.value.forEach(methods.initBlockEvent)
+})
+
+onUnmounted(() => {
+  previewContainer?.remove()
+  commentBtnRef.value?.remove()
+  unmountedController.abort()
+})
 </script>
+
 <template>
-  <v-md-preview ref="previewRef" :text="value" :markdown="md.render" />
+  <MDPreviewBasic class="pm-root" ref="previewRef" :text="value" />
+  <ElDialog
+    class="pm-comment-dialog"
+    v-model="state.commentDialogVisable"
+    @close="methods.handleReset"
+  >
+    <section class="pm-comment-dialog_body">
+      <blockquote class="pm-commented-content">
+        <MDPreviewBasic :text="state.commentedMDContent" />
+      </blockquote>
+      <MDComment
+        ref="commentEditor"
+        v-model="state.comment"
+        @update="state.comment = $event"
+        height="12rem"
+      />
+    </section>
+
+    <template #title>
+      <ElButton type="primary" size="small" @click="methods.handleSubmit"> 评论 </ElButton>
+    </template>
+  </ElDialog>
 </template>
 
-<style lang="scss" scoped>
-// .comment-btn {
+<style lang="scss">
+.pm-root {
+  --preview-comment-top: 0;
+  position: relative;
+  padding-right: 1.5rem;
+
+  .comment-btn {
+    position: absolute;
+    display: none;
+    right: 0;
+    transform: translateX(-100%);
+    top: var(--preview-comment-top);
+
+    &.active {
+      display: block;
+    }
+  }
+}
+
+.pm-comment-dialog {
+  // max-width: 50%;
+  height: 70%;
+  width: 80%;
+
+  overflow: hidden;
+  .pm-comment-dialog_body {
+    .pm-commented-content {
+      box-sizing: border-box;
+      margin: 1rem 0;
+      padding: 0.25rem 0 0.25rem 1rem;
+      border-left: 0.2rem solid #dfe2e5;
+
+      max-height: 15rem;
+      overflow: auto;
+
+      color: #999;
+      font-size: 1rem;
+
+      .vuepress-markdown-body,
+      .v-md-editor-preview {
+        padding: 0;
+      }
+
+      .v-md-editor-preview {
+      }
+    }
+  }
+}
+
+// .hover-comment-btn,
+// .select-comment-btn {
 //   position: absolute;
-//   background: #fff;
+//   background-color: #fff;
 //   border: 1px solid #ccc;
-//   padding: 2px 4px;
 //   font-size: 12px;
+//   padding: 2px 6px;
+//   border-radius: 4px;
 //   cursor: pointer;
 //   z-index: 1000;
 //   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+//   user-select: none;
 // }
 
-// .comment-hover-btn {
-//   position: absolute;
-//   right: -25px;
-//   top: 0;
-//   background: #eee;
-//   border-radius: 4px;
-//   padding: 2px 6px;
-//   font-size: 12px;
-//   cursor: pointer;
-//   display: none;
+// .select-comment-btn {
+//   background-color: #f3f3f3;
 // }
 </style>

@@ -176,7 +176,7 @@
       <template #default>
         <ElScrollbar v-loading="state.editorView.abstractText.length === 0">
           <h2 style="text-align: center; margin: 0">摘要</h2>
-          <v-md-preview :text="state.editorView.abstractText" style="height: 12rem" />
+          <MDPreview :text="state.editorView.abstractText" style="height: 12rem" />
         </ElScrollbar>
       </template>
     </el-popover>
@@ -204,7 +204,7 @@ import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, Edit, View } from '@element-plus/icons-vue/dist/index.js'
 import { replaceAll } from '@milkdown/kit/utils'
-import { ElContainer, ElMain, ElMessage, ElScrollbar, ElText } from 'element-plus'
+import { ElContainer, ElMain, ElMessage, ElScrollbar } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -244,7 +244,9 @@ const isLoad = ref(false)
 
 const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
 const previewMD = computed(() => {
-  return `# ${docStore.currentDocState.docInfo.title}\n${docStore.currentDocState.content}`
+  return `# ${docStore.currentDocState.docInfo.title}
+
+${docStore.currentDocState.content}`
 })
 
 const methods = {
