@@ -40,15 +40,16 @@
 <template>
   <ElContainer v-if="isLoad">
     <ElHeader>
-      <section>
+      <section v-if="state.editorView.isReadonly">
         <ElInput
           v-if="docStore.handleRole.isOwnerOrEditor('doc')"
-          v-model="docStore.currentDocState.title"
+          v-model="state.editorView.title"
         />
         <h2 v-else>
-          {{ docStore.currentDocState.title }}
+          {{ docStore.currentDocState.docInfo.title }}
         </h2>
       </section>
+      <section v-else></section>
       <!-- 协作者 -->
       <section class="collaborator-wrap" v-if="isMulCollaborator">
         <section
@@ -107,21 +108,21 @@
       <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
         <MDEditor
           v-model="docStore.currentDocState.docInfo.content"
+          :readonly="state.editorView.isReadonly"
+          :room="`${route.params.book}-${route.params.doc}`"
           @mounted="methods.handleEditorMounted"
           @update="methods.handleUpdate"
           @save="methods.handleSave"
           @cursor-update="methods.handleCursorUpdate"
           @selection-update="methods.handleSelectionUpdate"
-          :readonly="state.editorView.isReadonly"
-          :room="`${route.params.book}-${route.params.doc}`"
         />
       </template>
       <template v-else>
-        <v-md-preview
-          :text="
+        <MDPreview
+          :value="
             (docStore.currentDocState.editorView.isTranslateMode &&
               state.editorView.translateText) ||
-            docStore.currentDocState.docInfo.content
+            previewMD
           "
         />
       </template>
@@ -183,31 +184,29 @@
 </template>
 
 <script setup>
+import { requestChatToAi } from '@/api/ai'
+import { requestDocUpdate } from '@/api/user'
 import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
+import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
+import MDPreview from '@/components/common/MDEditor/MDPreview.vue'
+import Abstract from '@/components/imgs/Abstract.vue'
+import Translate from '@/components/imgs/Translate.vue'
+import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
 import FavoriteTool from '@/components/tools/FavoriteTool/FavoriteTool.vue'
+import FloatingBall from '@/components/tools/FloatingBall.vue'
 import HistoryTool from '@/components/tools/HistoryTool.vue'
+import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
 import ShareTool from '@/components/tools/ShareTool/ShareTool.vue'
+import { toPersonalCenter } from '@/router/handler'
+import DocSocket from '@/socket/doc'
 import { useDocStore } from '@/stores/doc'
 import { request } from '@/utils/request'
 import { ChatDotRound, Cloudy, Edit, View } from '@element-plus/icons-vue/dist/index.js'
+import { replaceAll } from '@milkdown/kit/utils'
 import { ElContainer, ElMain, ElMessage, ElScrollbar, ElText } from 'element-plus'
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
-import { replaceAll } from '@milkdown/kit/utils'
-
-import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
-
 import { useRoute } from 'vue-router'
-import DocSocket from '@/socket/doc'
-
-import { toPersonalCenter } from '@/router/handler'
-import { requestDocUpdate } from '@/api/user'
-import SettingDeawerTool from '@/components/tools/SettingDrawerTool.vue'
-import AIChatTool from '@/components/tools/AI/AIChatTool.vue'
-import FloatingBall from '@/components/tools/FloatingBall.vue'
-import Translate from '@/components/imgs/Translate.vue'
-import { requestChatToAi } from '@/api/ai'
-import Abstract from '@/components/imgs/Abstract.vue'
 
 const route = useRoute()
 
@@ -223,8 +222,12 @@ const state = reactive({
   translateToolVisible: false,
   translateLoading: false,
   editorView: {
+    title: '',
     selection: '',
+    // TODO:
+    isReadonly: true,
     isReadonly: false,
+
     translateText: '',
     abstractText: '',
   },
@@ -240,6 +243,9 @@ const state = reactive({
 const isLoad = ref(false)
 
 const isMulCollaborator = computed(() => docStore.currentDocState.collaborators.length > 1)
+const previewMD = computed(() => {
+  return `# ${docStore.currentDocState.docInfo.title}\n${docStore.currentDocState.content}`
+})
 
 const methods = {
   async initDoc() {
@@ -250,10 +256,13 @@ const methods = {
   handleDocFavorite(isFavorite) {
     docStore.currentDocState.docInfo.isFavorite = isFavorite
   },
-  handleSave(markdown, isAutoSava) {
-    if (docStore.currentDocState.content === markdown) return ElMessage.success('保存成功！')
+  handleSave(content, isAutoSava) {
+    const { docInfo } = docStore.currentDocState
+    if (docInfo.title === state.editorView.title && docInfo.content === content)
+      return ElMessage.success('保存成功！')
 
-    docStore.currentDocState.content = markdown
+    docStore.currentDocState.docInfo.title = state.editorView.title
+    docStore.currentDocState.docInfo.content = content
 
     docStore.updateDoc(isAutoSava)
   },
@@ -417,6 +426,8 @@ onMounted(async () => {
 
   const { book, doc } = route.params
   socket = new DocSocket({ bookId: Number(book), docId: Number(doc) })
+
+  state.editorView.title = docStore.currentDocState.docInfo.title
 })
 
 onUnmounted(() => {

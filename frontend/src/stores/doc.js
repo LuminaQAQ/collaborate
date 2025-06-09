@@ -21,7 +21,10 @@ export const useDocStore = defineStore('doc', () => {
     },
     collaborators: [],
     docList: [],
-    docInfo: {},
+    docInfo: {
+      title: '',
+      content: '',
+    },
     editorView: {
       selection: '',
       isReadonly: false,
@@ -77,8 +80,8 @@ export const useDocStore = defineStore('doc', () => {
   const updateDoc = (callback, isAutoSave = false) =>
     requestDocUpdate({
       doc_id: route.params.doc,
-      title: currentDocState.title,
-      content: currentDocState.content,
+      title: currentDocState.docInfo.title,
+      content: currentDocState.docInfo.content,
     }).then((res) => {
       if (!isAutoSave) ElMessage.success('保存成功！')
       fetchDocList()
