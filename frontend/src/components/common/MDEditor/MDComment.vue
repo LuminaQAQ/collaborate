@@ -55,7 +55,6 @@ defineExpose({
   root,
   handleReset,
 })
-
 </script>
 
 <template>
@@ -70,3 +69,9 @@ defineExpose({
     :height="height"
   />
 </template>
+
+<style>
+.v-md-editor {
+  margin-top: none;
+}
+</style>

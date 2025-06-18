@@ -186,16 +186,68 @@ const initDocFavoriteGroupTable = async () => {
   }
 };
 
-const initTables = () => {
-  initUserTable();
-  initDocsTable();
-  initDocsVersionTable();
-  initDocPermissionsTable();
-  initBooksTable();
-  initBookPermissionsTable();
-  initDocGroupTable();
-  initDocFavoritesTable();
-  initDocFavoriteGroupTable();
+const initDocCommentsTable = async () => {
+  const isExists = await db.schema.hasTable("doc_comments");
+
+  if (!isExists) {
+    return new Promise((resolve, reject) => {
+      db.schema
+        .createTable("doc_comments", (table) => {
+          table.increments("id").primary();
+          table.integer("doc_id").notNullable();
+          table.integer("comment_user").notNullable();
+          table.text("comment_content").notNullable();
+          table.text("comment_quote").nullable();
+          table.integer("parent_id").nullable();
+          table.timestamp("created_at").defaultTo(db.fn.now());
+        })
+        .then(() => resolve())
+        .catch((err) => reject(err));
+    });
+  }
+};
+
+const initCommentLikesTable = async () => {
+  const isExists = await db.schema.hasTable("comment_likes");
+
+  if (!isExists) {
+    db.schema
+      .createTable("comment_likes", (table) => {
+        table.increments("id").primary();
+        table
+          .integer("comment_id")
+          .notNullable()
+          .references("id")
+          .inTable("doc_comments")
+          .onDelete("CASCADE");
+        table.integer("user_id").notNullable();
+        table.timestamp("liked_at").defaultTo(db.fn.now());
+
+        table.unique(["comment_id", "user_id"]);
+      })
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+  }
+};
+
+const initTables = async () => {
+  try {
+    initUserTable();
+    initDocsTable();
+    initDocsVersionTable();
+    initDocPermissionsTable();
+    initBooksTable();
+    initBookPermissionsTable();
+    initDocGroupTable();
+    initDocFavoritesTable();
+    initDocFavoriteGroupTable();
+    await initDocCommentsTable();
+    initCommentLikesTable();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = initTables;

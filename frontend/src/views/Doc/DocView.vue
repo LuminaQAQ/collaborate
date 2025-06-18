@@ -176,7 +176,7 @@
       <template #default>
         <ElScrollbar v-loading="state.editorView.abstractText.length === 0">
           <h2 style="text-align: center; margin: 0">摘要</h2>
-          <MDPreview :text="state.editorView.abstractText" style="height: 12rem" />
+          <MDPreviewBasic :value="state.editorView.abstractText" style="height: 12rem" />
         </ElScrollbar>
       </template>
     </el-popover>
@@ -190,6 +190,7 @@ import ClIconButton from '@/components/common/ClIconButton.vue'
 import ClIconButtonGroup from '@/components/common/ClIconButtonGroup.vue'
 import MDEditor from '@/components/common/MDEditor/MDEditor.vue'
 import MDPreview from '@/components/common/MDEditor/MDPreview.vue'
+import MDPreviewBasic from '@/components/common/MDEditor/MDPreviewBasic.vue'
 import Abstract from '@/components/imgs/Abstract.vue'
 import Translate from '@/components/imgs/Translate.vue'
 import AIChatTool from '@/components/tools/AI/AIChatTool.vue'

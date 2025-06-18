@@ -1,9 +1,12 @@
 <script setup>
-import { ElButton, ElDialog } from 'element-plus'
+import { ElButton, ElDialog, ElDivider, ElMessage } from 'element-plus'
 import MDPreviewBasic from './MDPreviewBasic.vue'
 
 import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 import MDComment from './MDComment.vue'
+import { requestCommentDoc, requestFetchComments } from '@/api/doc'
+import { useDocStore } from '@/stores/doc'
+import CommentListItem from './components/CommentListItem.vue'
 
 const { value } = defineProps({
   value: {
@@ -12,12 +15,36 @@ const { value } = defineProps({
   },
 })
 
+const docStore = useDocStore()
 const domLines = ref([])
 const state = reactive({
   commentDialogVisable: false,
-  commentedMDContent: '',
+  commentQuote: '',
   comment: '',
+  parent_id: null,
+
+  docCommentEditor: {
+    comment: '',
+    submitBtnIsLoading: false,
+  },
+
+  commentList: [],
+  commentStatusIsLoading: false,
 })
+
+const commentsQuoteData = computed(() => ({
+  doc_id: docStore.currentDocState.docInfo.id,
+  comment_quote: state.commentQuote,
+  comment_content: state.comment,
+  parent_id: state.parent_id,
+}))
+
+const commentsDocData = computed(() => ({
+  doc_id: docStore.currentDocState.docInfo.id,
+  comment_quote: null,
+  comment_content: state.docCommentEditor.comment,
+  parent_id: null,
+}))
 
 const MDArray = computed(() => value.split('\n'))
 
@@ -96,33 +123,89 @@ const methods = {
     )
   },
 
+  fetchCommentList: (doc_id) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await requestFetchComments({ doc_id })
+        state.commentList = res.data
+
+        resolve(res.data)
+      } catch (error) {
+        reject(error)
+      }
+    })
+  },
+
   /**
    *
    * @param {MouseEvent} e
    */
-  handleComment: (e) => {
+  handleComment: async (e) => {
     const { vMdLine, vMdNextLine } = e.target.dataset
-    state.commentedMDContent = MDArray.value
+    state.commentQuote = MDArray.value
       .slice(Number(vMdLine) - 1, Number(vMdNextLine) - 1 || MDArray.value.length - 1)
       .join('\n')
 
     state.commentDialogVisable = true
   },
 
-  handleSubmit() {
-    console.log(state.comment)
+  async handleCommentLike(comment) {
+    console.log(comment)
+  },
 
-    methods.handleReset()
+  async handleCommentReply(comment) {
+    console.log(comment)
+
+    const { comment_content, comment_id, comment_quote } = comment
+    state.parent_id = comment_id
+
+    state.commentQuote = `> ${comment_quote}
+${comment_content}
+`
+
+    state.commentDialogVisable = true
+  },
+
+  async handleCommentSubmit({ doc_id, comment_quote, comment_content, parent_id }) {
+    if (!comment_content) return
+
+    try {
+      state.commentStatusIsLoading = true
+      state.docCommentEditor.submitBtnIsLoading = true
+
+      await requestCommentDoc({
+        doc_id,
+        comment_quote,
+        comment_content,
+        parent_id,
+      })
+
+      ElMessage.success('评论成功')
+      methods.handleReset()
+      await methods.fetchCommentList(docStore.currentDocState.docInfo.id)
+    } catch (error) {
+      ElMessage.error('评论失败')
+    } finally {
+      state.commentStatusIsLoading = false
+    }
   },
   handleReset() {
     state.commentDialogVisable = false
     state.comment = ''
+    state.parent_id = null
+
+    state.docCommentEditor.comment = ''
+    state.docCommentEditor.submitBtnIsLoading = false
+
     commentEditor.value.handleReset()
   },
 }
 
 onMounted(async () => {
   await import('@/components/common/MDEditor/components/ClCommentBtn')
+  await methods.fetchCommentList(docStore.currentDocState.docInfo.id)
+
+  console.log(state.commentList)
 
   previewContainer = previewRef.value?.root?.$el
 
@@ -144,6 +227,39 @@ onUnmounted(() => {
 
 <template>
   <MDPreviewBasic class="pm-root" ref="previewRef" :text="value" />
+
+  <section class="pm-comment-container">
+    <MDComment
+      ref="commentEditor"
+      v-model="state.docCommentEditor.comment"
+      placeholder="输入评论..."
+      @update="state.docCommentEditor.comment = $event"
+      height="12rem"
+    />
+    <ElButton
+      class="pm-comment-btn"
+      type="primary"
+      :disabled="state.docCommentEditor.comment.length === 0"
+      :loading="state.docCommentEditor.isLoading"
+      @click="methods.handleCommentSubmit(commentsDocData)"
+    >
+      评论
+    </ElButton>
+  </section>
+
+  <section class="pm-comment-list-container">
+    <header>{{ `所有评论（${state.commentList.length}）` }}</header>
+    <ElDivider />
+    <CommentListItem
+      v-for="item in state.commentList"
+      :key="item.id"
+      :comment="item"
+      @like="methods.handleCommentLike"
+      @reply="methods.handleCommentReply"
+    />
+  </section>
+
+  <!-- 评论框 -->
   <ElDialog
     class="pm-comment-dialog"
     v-model="state.commentDialogVisable"
@@ -151,7 +267,7 @@ onUnmounted(() => {
   >
     <section class="pm-comment-dialog_body">
       <blockquote class="pm-commented-content">
-        <MDPreviewBasic :text="state.commentedMDContent" />
+        <MDPreviewBasic :text="state.commentQuote" />
       </blockquote>
       <MDComment
         ref="commentEditor"
@@ -162,7 +278,15 @@ onUnmounted(() => {
     </section>
 
     <template #title>
-      <ElButton type="primary" size="small" @click="methods.handleSubmit"> 评论 </ElButton>
+      <ElButton
+        type="primary"
+        size="small"
+        @click="methods.handleCommentSubmit(commentsQuoteData)"
+        :disabled="state.comment.length === 0"
+        :loading="state.commentStatusIsLoading"
+      >
+        评论
+      </ElButton>
     </template>
   </ElDialog>
 </template>
@@ -187,12 +311,20 @@ onUnmounted(() => {
 }
 
 .pm-comment-dialog {
-  // max-width: 50%;
   height: 70%;
   width: 80%;
 
   overflow: hidden;
+
+  .el-dialog__body {
+    height: 100%;
+  }
   .pm-comment-dialog_body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 100%;
+
     .pm-commented-content {
       box-sizing: border-box;
       margin: 1rem 0;
@@ -216,21 +348,15 @@ onUnmounted(() => {
   }
 }
 
-// .hover-comment-btn,
-// .select-comment-btn {
-//   position: absolute;
-//   background-color: #fff;
-//   border: 1px solid #ccc;
-//   font-size: 12px;
-//   padding: 2px 6px;
-//   border-radius: 4px;
-//   cursor: pointer;
-//   z-index: 1000;
-//   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-//   user-select: none;
-// }
+.pm-comment-container {
+  padding: 1rem;
 
-// .select-comment-btn {
-//   background-color: #f3f3f3;
-// }
+  .pm-comment-btn {
+    margin-top: 0.5rem;
+  }
+}
+
+.pm-comment-list-container {
+  padding: 1rem;
+}
 </style>

@@ -21,6 +21,8 @@ export const apiList = {
     updateDoc: '/api/updateDoc',
     delDoc: '/api/delDoc',
     delDocGroup: '/api/delDocGroup',
+    comment: '/api/comment/:doc_id',
+    fetchComments: '/api/comments/:doc_id',
   },
   historyApi: {
     fetchDocHistory: '/api/historyList',

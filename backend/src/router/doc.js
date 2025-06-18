@@ -284,4 +284,88 @@ docRouter.post(
   }
 );
 
+// 评论
+docRouter.post("/comment/:doc_id", jwtMiddleware, async (req, res, next) => {
+  const { user } = req;
+  const { doc_id, comment_content, comment_quote, parent_id } = req.body;
+
+  try {
+    await db("doc_comments").insert({
+      doc_id,
+      comment_user: user.id,
+      comment_content,
+      comment_quote: comment_quote || null,
+      parent_id: parent_id || null,
+    });
+
+    return res.json({ msg: "评论成功" });
+  } catch (error) {
+    next(new InternalServerError(500, "评论失败！", error.message));
+  }
+});
+
+// 获取评论
+docRouter.get("/comments/:doc_id", async (req, res, next) => {
+  const { doc_id } = req.params;
+
+  try {
+    const comments = await db("doc_comments")
+      .where({ doc_id })
+      .join("users", "users.id", "doc_comments.comment_user")
+      .select(
+        "doc_comments.id as comment_id",
+        "doc_comments.comment_content",
+        "doc_comments.comment_quote",
+        "doc_comments.created_at as comment_time",
+        "doc_comments.parent_id as comment_parent_id",
+        "users.username as comment_user_name",
+        "users.avatar as comment_user_avatar"
+      )
+      .orderBy("comment_time", "asc");
+
+    const likes = await db("comment_likes")
+      .select("comment_id")
+      .count("* as like_count")
+      .groupBy("comment_id");
+
+    const likeMap = {};
+    likes.forEach((l) => {
+      likeMap[l.comment_id] = l.like_count;
+    });
+
+    // TODO: 优化评论层级与回复对象
+    // const commentsMap = new Map();
+
+    // comments.forEach((c) => {
+    //   if (!c.comment_parent_id) {
+    //     c.children = [];
+    //     commentsMap.set(c.comment_id, c);
+    //   }
+    // });
+    // comments.forEach((c) => {
+    //   if (c.comment_parent_id) {
+    //     const parent = commentsMap.get(c.comment_parent_id);
+    //     if (parent) {
+    //       parent.children.push(c);
+    //       commentsMap.delete(c.comment_id);
+    //     }
+    //   }
+    // });
+
+    // const withLikes = [...commentsMap.values()].map((comment) => ({
+    //   ...comment,
+    //   like_count: likeMap[comment.id] || 0,
+    // }));
+
+    const withLikes = comments.map((comment) => ({
+      ...comment,
+      like_count: likeMap[comment.id] || 0,
+    }));
+
+    return res.status(200).json(withLikes);
+  } catch (error) {
+    next(new InternalServerError(500, "获取评论列表失败！", error.message));
+  }
+});
+
 module.exports = docRouter;
