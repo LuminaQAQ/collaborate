@@ -7,6 +7,7 @@ import FullScreenWrapper from '@/components/layout/FullScreenWrapper.vue'
 
 import { requestDocHistory, requestDocHistoryDetail } from '@/api/history'
 import { useDocStore } from '@/stores/doc'
+import MDPreviewBasic from '../common/MDEditor/MDPreviewBasic.vue'
 
 const route = useRoute()
 const emits = defineEmits(['restore', 'close', 'open'])
@@ -19,8 +20,8 @@ const state = reactive({
   isReady: true,
   isRestore: false,
   docInfo: {
-    title: "",
-    content: ""
+    title: '',
+    content: '',
   },
   text: '',
   historyList: [],
@@ -45,7 +46,7 @@ const methods = {
 
         methods.handleHistoryItem(res.data.list[0].id)
       })
-      .catch(() => { })
+      .catch(() => {})
   },
   handleClose() {
     emits('close')
@@ -61,11 +62,11 @@ const methods = {
         state.docInfo = res.data
         state.isReady = false
       })
-      .catch(() => { })
+      .catch(() => {})
   },
   timeFormat(time) {
-    const today = new Date();
-    const now = new Date(`${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`);
+    const today = new Date()
+    const now = new Date(`${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`)
     const target = new Date(time.slice(0, 10))
     const diff = now.getTime() - target.getTime()
     const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24)) || 0
@@ -83,23 +84,45 @@ const methods = {
     return `${fullDate} ${time?.slice(11, 16)}`
   },
   handleRestore() {
-    if (isMulCollaborator.value) return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
+    if (isMulCollaborator.value)
+      return ElMessage.error('多人编辑中，请请联系其他协作者退出编辑后再试')
 
-    emits('restore', state.docInfo, () => { state.isRestore = true }, () => { state.isOpen = false; state.isRestore = false })
+    emits(
+      'restore',
+      state.docInfo,
+      () => {
+        state.isRestore = true
+      },
+      () => {
+        state.isOpen = false
+        state.isRestore = false
+      },
+    )
   },
 }
 </script>
 
 <template>
-  <FullScreenWrapper :key="state.updateKey" :is-loading="state.isRestore" @open="methods.handleOpen"
-    @close="methods.handleClose">
+  <FullScreenWrapper
+    :key="state.updateKey"
+    :is-loading="state.isRestore"
+    @open="methods.handleOpen"
+    @close="methods.handleClose"
+  >
     <template #header>
-      <ElPageHeader title="历史记录" @back="methods.handleHistoryBoard"
-        style="padding: 0.5rem 0; font-size: 3rem; height: 3rem">
+      <ElPageHeader
+        title="历史记录"
+        @back="methods.handleHistoryBoard"
+        style="padding: 0.5rem 0; font-size: 3rem; height: 3rem"
+      >
         <template #extra>
           <div class="flex items-center">
-            <ElButton v-if="state.historyList.length > 0" type="primary" @click="methods.handleRestore"
-              :disabled="state.isReady">
+            <ElButton
+              v-if="state.historyList.length > 0"
+              type="primary"
+              @click="methods.handleRestore"
+              :disabled="state.isReady"
+            >
               恢复此记录
             </ElButton>
           </div>
@@ -108,9 +131,13 @@ const methods = {
     </template>
     <template #aside>
       <ElScrollbar>
-        <section class="history-item" v-for="item in state.historyList"
-          :class="{ active: state.activeHistoryItem === item.id }" :key="item.id"
-          @click="methods.handleHistoryItem(item.id)">
+        <section
+          class="history-item"
+          v-for="item in state.historyList"
+          :class="{ active: state.activeHistoryItem === item.id }"
+          :key="item.id"
+          @click="methods.handleHistoryItem(item.id)"
+        >
           <header style="margin-bottom: 0.5rem">
             <span> {{ methods.timeFormat(item.created_at) }} </span>
           </header>
@@ -121,7 +148,11 @@ const methods = {
       </ElScrollbar>
     </template>
     <template #content>
-      <v-md-preview v-loading="state.isReady" :text="state.docInfo.content" style="height: 100%" />
+      <MDPreviewBasic
+        v-loading="state.isReady"
+        :text="state.docInfo.content"
+        style="height: 100%"
+      />
     </template>
   </FullScreenWrapper>
 </template>
