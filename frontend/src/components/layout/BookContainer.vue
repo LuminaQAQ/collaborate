@@ -12,33 +12,25 @@ import {
   Lock,
   Search,
   Plus,
-  Document,
-  Folder,
 } from '@element-plus/icons-vue'
 import {
   ElContainer,
   ElDivider,
-  ElEmpty,
   ElHeader,
   ElIcon,
   ElInput,
   ElMain,
   ElMenu,
-  ElMenuItem,
   ElScrollbar,
   ElSkeleton,
   ElSkeletonItem,
-  ElSubMenu,
 } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
 import { useDocStore } from '@/stores/doc'
-import { requestCreateDoc } from '@/api/create'
-import DocMenuItem from '../common/DocMenuItem.vue'
 import MenuTree from '../common/MenuTree.vue'
 import AddDoc from '../dropdown/AddDoc.vue'
 import AddGroup from '../dropdown/AddGroup.vue'
-import CreateDoc from '../tools/CreateDoc.vue'
-import { useUserStore } from '@/stores/user'
+import ImportDocDropdownItem from '../dropdown/ImportDocDropdownItem.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -206,6 +198,10 @@ onUnmounted(() => {
                 <el-dropdown-menu>
                   <AddDoc />
                   <AddGroup />
+
+                  <ElDivider />
+
+                  <ImportDocDropdownItem />
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
