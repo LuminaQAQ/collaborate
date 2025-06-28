@@ -249,7 +249,7 @@ onUnmounted(() => {
       </el-icon>
     </el-aside>
 
-    <ElMain>
+    <ElMain style="overflow: hidden">
       <RouterView :key="state.key" />
     </ElMain>
   </ElContainer>

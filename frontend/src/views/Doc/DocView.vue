@@ -38,7 +38,7 @@
 </style>
 
 <template>
-  <ElContainer v-if="isLoad">
+  <ElContainer style="height: 100%" v-if="isLoad">
     <ElHeader>
       <section v-if="state.editorView.isReadonly">
         <ElInput
@@ -100,33 +100,36 @@
         </ClIconButtonGroup>
       </section>
     </ElHeader>
-    <ElMain
-      id="editor-container"
-      style="overflow: hidden; padding: 0.25rem 0"
-      v-loading="state.translateLoading"
-    >
-      <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
-        <MDEditor
-          v-model="docStore.currentDocState.docInfo.content"
-          :readonly="state.editorView.isReadonly"
-          :room="`${route.params.book}-${route.params.doc}`"
-          @mounted="methods.handleEditorMounted"
-          @update="methods.handleUpdate"
-          @save="methods.handleSave"
-          @cursor-update="methods.handleCursorUpdate"
-          @selection-update="methods.handleSelectionUpdate"
-        />
-      </template>
-      <template v-else>
-        <MDPreview
-          :value="
-            (docStore.currentDocState.editorView.isTranslateMode &&
-              state.editorView.translateText) ||
-            previewMD
-          "
-        />
-      </template>
-    </ElMain>
+
+    <ElScrollbar wrap-class="DocContainer">
+      <ElMain
+        id="editor-container"
+        style="padding: 0.25rem 0; height: 100%; overflow: auto"
+        v-loading="state.translateLoading"
+      >
+        <template v-if="docStore.handleRole.isOwnerOrEditor('doc') && state.editorView.isReadonly">
+          <MDEditor
+            v-model="docStore.currentDocState.docInfo.content"
+            :readonly="state.editorView.isReadonly"
+            :room="`${route.params.book}-${route.params.doc}`"
+            @mounted="methods.handleEditorMounted"
+            @update="methods.handleUpdate"
+            @save="methods.handleSave"
+            @cursor-update="methods.handleCursorUpdate"
+            @selection-update="methods.handleSelectionUpdate"
+          />
+        </template>
+        <template v-else>
+          <MDPreview
+            :value="
+              (docStore.currentDocState.editorView.isTranslateMode &&
+                state.editorView.translateText) ||
+              previewMD
+            "
+          />
+        </template>
+      </ElMain>
+    </ElScrollbar>
   </ElContainer>
 
   <HistoryTool

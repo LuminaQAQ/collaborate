@@ -7,6 +7,8 @@ import MDComment from './MDComment.vue'
 import { requestCommentDoc, requestFetchComments } from '@/api/doc'
 import { useDocStore } from '@/stores/doc'
 import CommentListItem from './components/CommentListItem.vue'
+// @ts-ignore
+import ClToolbar from './components/ClToolbar'
 
 const { value } = defineProps({
   value: {
@@ -15,6 +17,7 @@ const { value } = defineProps({
   },
 })
 
+const emits = defineEmits(['selectionchange'])
 const docStore = useDocStore()
 const domLines = ref([])
 const state = reactive({
@@ -22,6 +25,7 @@ const state = reactive({
   commentQuote: '',
   comment: '',
   parent_id: null,
+  selection: '',
 
   docCommentEditor: {
     comment: '',
@@ -62,6 +66,14 @@ const commentBtnRef = ref(null)
  */
 const commentEditor = ref(null)
 /**
+ * @type {import("vue").Ref<HTMLElement> | null}
+ */
+const docContainer = ref(null)
+/**
+ * @type {import("vue").Ref<HTMLElement> | null}
+ */
+const toolbarEl = ref(null)
+/**
  * @type {HTMLElement | null}
  */
 let previewContainer = null
@@ -79,6 +91,21 @@ const methods = {
     previewContainer.appendChild(commentBtn)
 
     return commentBtn
+  },
+  initToolbarCreate() {
+    const toolbar = document.createElement('cl-toolbar')
+    toolbar.className = 'cl-toolbar'
+    previewContainer.appendChild(toolbar)
+
+    console.log()
+
+    toolbar.commentIcon.addEventListener('click', () => {
+      console.log(state.selection)
+
+      commentBtnRef.value.click()
+    })
+
+    return toolbar
   },
   /**
    * @param {HTMLElement} line
@@ -122,6 +149,27 @@ const methods = {
       { signal: unmountedController.signal },
     )
   },
+  /**
+   *
+   * @param {Selection} selection
+   */
+  handleSelection(selection) {
+    const selectedText = selection.toString()?.trim()
+    if (!selectedText) return
+
+    const range = selection.getRangeAt(0)
+    const rect = range.getBoundingClientRect()
+    const { scrollLeft, scrollTop } = docContainer.value
+
+    const containerRect = docContainer.value.getBoundingClientRect()
+    const relativeLeft = rect.left - containerRect.left + scrollLeft
+    const relativeTop = rect.top - containerRect.top + scrollTop - 8
+
+    const toolbar = toolbarEl.value
+    toolbar.style.setProperty('--toolbar-left', `${relativeLeft}px`)
+    toolbar.style.setProperty('--toolbar-top', `${relativeTop}px`)
+    toolbar.style.setProperty('--toolbar-visibility', `visable`)
+  },
 
   fetchCommentList: (doc_id) => {
     return new Promise(async (resolve, reject) => {
@@ -142,9 +190,13 @@ const methods = {
    */
   handleComment: async (e) => {
     const { vMdLine, vMdNextLine } = e.target.dataset
-    state.commentQuote = MDArray.value
-      .slice(Number(vMdLine) - 1, Number(vMdNextLine) - 1 || MDArray.value.length - 1)
-      .join('\n')
+    console.log(state.selection)
+
+    state.commentQuote =
+      state.selection ||
+      MDArray.value
+        .slice(Number(vMdLine) - 1, Number(vMdNextLine) - 1 || MDArray.value.length - 1)
+        .join('\n')
 
     state.commentDialogVisable = true
   },
@@ -194,6 +246,8 @@ ${comment_content}
     state.comment = ''
     state.parent_id = null
 
+    state.selection = ''
+
     state.docCommentEditor.comment = ''
     state.docCommentEditor.submitBtnIsLoading = false
 
@@ -201,26 +255,52 @@ ${comment_content}
   },
 }
 
+const emitMethods = {
+  handleEmitSelectionChange() {
+    const selection = window.getSelection()
+    const selectedText = selection.toString()?.trim()
+
+    if (selectedText) {
+      state.selection = selectedText
+      methods.handleSelection(selection)
+      emits('selectionchange', selectedText)
+    } else {
+      let timer = setTimeout(() => {
+        if (!state.commentDialogVisable) state.selection = ''
+        timer = null
+        clearTimeout(timer)
+      }, 100)
+      toolbarEl.value.style.setProperty('--toolbar-visibility', `hidden`)
+    }
+  },
+}
+
 onMounted(async () => {
   await import('@/components/common/MDEditor/components/ClCommentBtn')
   await methods.fetchCommentList(docStore.currentDocState.docInfo.id)
 
-  console.log(state.commentList)
-
   previewContainer = previewRef.value?.root?.$el
-
+  docContainer.value = document.querySelector('.DocContainer')
+  toolbarEl.value = methods.initToolbarCreate()
   commentBtnRef.value = methods.initCommentBtnCreate()
+
   commentBtnRef.value.addEventListener('click', methods.handleComment, {
     signal: unmountedController.signal,
   })
 
   domLines.value = [...previewContainer.querySelectorAll('[data-v-md-line]')]
   domLines.value.forEach(methods.initBlockEvent)
+
+  previewContainer.addEventListener('mouseup', emitMethods.handleEmitSelectionChange, {
+    signal: unmountedController.signal,
+  })
 })
 
 onUnmounted(() => {
   previewContainer?.remove()
   commentBtnRef.value?.remove()
+  toolbarEl.value?.remove()
+  docContainer.value = null
   unmountedController.abort()
 })
 </script>
