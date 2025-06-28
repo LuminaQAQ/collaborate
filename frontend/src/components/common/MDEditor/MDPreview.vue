@@ -82,6 +82,7 @@ const unmountedController = new AbortController()
 
 const methods = {
   /**
+   * 初始化评论按钮创建
    * @returns {HTMLElement}
    */
   initCommentBtnCreate() {
@@ -92,6 +93,10 @@ const methods = {
 
     return commentBtn
   },
+  /**
+   * 初始化工具栏创建
+   * @returns {HTMLElement}
+   */
   initToolbarCreate() {
     const toolbar = document.createElement('cl-toolbar')
     toolbar.className = 'cl-toolbar'
@@ -108,6 +113,7 @@ const methods = {
     return toolbar
   },
   /**
+   * 初始化行事件
    * @param {HTMLElement} line
    */
   initBlockEvent: (line, index) => {
@@ -150,7 +156,7 @@ const methods = {
     )
   },
   /**
-   *
+   * 鼠标进入行
    * @param {Selection} selection
    */
   handleSelection(selection) {
@@ -170,7 +176,10 @@ const methods = {
     toolbar.style.setProperty('--toolbar-top', `${relativeTop}px`)
     toolbar.style.setProperty('--toolbar-visibility', `visable`)
   },
-
+  /**
+   * 获取评论列表
+   * @param {string|number} doc_id
+   */
   fetchCommentList: (doc_id) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -183,9 +192,8 @@ const methods = {
       }
     })
   },
-
   /**
-   *
+   * 添加评论
    * @param {MouseEvent} e
    */
   handleComment: async (e) => {
@@ -205,9 +213,11 @@ const methods = {
     console.log(comment)
   },
 
+  /**
+   * 回复评论
+   * @param {string} comment
+   */
   async handleCommentReply(comment) {
-    console.log(comment)
-
     const { comment_content, comment_id, comment_quote } = comment
     state.parent_id = comment_id
 
@@ -217,7 +227,14 @@ ${comment_content}
 
     state.commentDialogVisable = true
   },
-
+  /**
+   * 删除评论
+   * @param {Object} param0
+   * @param {number} param0.doc_id
+   * @param {string} param0.comment_quote
+   * @param {string} param0.comment_content
+   * @param {number} param0.parent_id
+   */
   async handleCommentSubmit({ doc_id, comment_quote, comment_content, parent_id }) {
     if (!comment_content) return
 
@@ -241,6 +258,10 @@ ${comment_content}
       state.commentStatusIsLoading = false
     }
   },
+
+  /**
+   * 重置state状态
+   */
   handleReset() {
     state.commentDialogVisable = false
     state.comment = ''
@@ -256,6 +277,9 @@ ${comment_content}
 }
 
 const emitMethods = {
+  /**
+   * 监听selection变化, 并 `emit` `selectionChange` 事件
+   */
   handleEmitSelectionChange() {
     const selection = window.getSelection()
     const selectedText = selection.toString()?.trim()
