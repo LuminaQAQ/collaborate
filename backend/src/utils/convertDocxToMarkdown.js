@@ -1,5 +1,4 @@
 const mammoth = require("mammoth");
-const cheerio = require("cheerio");
 const TurndownService = require("turndown");
 const { gfm } = require("turndown-plugin-gfm");
 const path = require("path");
@@ -71,8 +70,6 @@ module.exports = convertDocxToMarkdown = async (fileBuffer) => {
       );
       const html = result.value;
       const markdown = turndownService.turndown(html);
-
-      console.log(markdown);
 
       resolve(markdown);
     } catch (err) {

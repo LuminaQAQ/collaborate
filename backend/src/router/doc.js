@@ -26,12 +26,12 @@ docRouter.get(
       const group = await db("doc_group")
         .join("users")
         .select(["doc_group.*", "users.email"])
-        .where({ book_id });
+        .where({ book_id, is_deleted: 0 });
       const doc = await db("docs")
         .join("users", "users.id", "docs.creator_id")
         .join("books", "docs.book_id", "books.id")
         .select(["docs.*", "users.email"])
-        .where({ book_id })
+        .where({ book_id, "docs.is_deleted": 0 })
         .orderBy("docs.id");
       const [bookInfo] = await db("books")
         .select([
@@ -44,6 +44,7 @@ docRouter.get(
               user_id: req.user.id,
               target_type: "Book",
               target_id: book_id,
+              is_deleted: 0,
             })
             .as("isFavorite"),
         ])
@@ -243,11 +244,12 @@ docRouter.post("/delDoc", jwtMiddleware, async (req, res, next) => {
   const { doc_id } = req.body;
 
   try {
-    await db("docs").delete().where({ id: doc_id });
-    await db("docs_version").delete().where({ doc_id });
-    await db("favorites")
-      .delete()
-      .where({ target_id: doc_id, target_type: "Doc" });
+    // await db("docs").delete().where({ id: doc_id });
+    await db("docs").update({ is_deleted: 1 }).where({ id: doc_id });
+    // await db("docs_version").delete().where({ doc_id });
+    // await db("favorites")
+    //   .delete()
+    //   .where({ target_id: doc_id, target_type: "Doc" });
 
     return res.send({ msg: "ok" });
   } catch (error) {
@@ -262,7 +264,8 @@ docRouter.post("/delDocGroup", jwtMiddleware, async (req, res, next) => {
   try {
     const del = async (table, list) => {
       for (const k of list) {
-        await db(table).delete().where({ id: k });
+        // await db(table).delete().where({ id: k });
+        await db(table).update({ is_deleted: 1 }).where({ id: k });
       }
     };
     await del("doc_group", groupList);
