@@ -23,6 +23,7 @@ export const apiList = {
     delDocGroup: '/api/delDocGroup',
     comment: '/api/comment/:doc_id',
     fetchComments: '/api/comments/:doc_id',
+    uploadDocFile: '/api/uploadDocFile',
   },
   historyApi: {
     fetchDocHistory: '/api/historyList',

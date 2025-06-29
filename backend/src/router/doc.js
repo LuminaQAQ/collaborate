@@ -7,6 +7,10 @@ const { InternalServerError } = require("../middleware/errorMiddleware");
 const upload = require("../middleware/uploadMiddleware");
 const generateHash = require("../utils/generateHash");
 const bookPermissionMiddleware = require("../middleware/roleMiddleware");
+const path = require("node:path");
+
+const multer = require("multer")();
+const convertDocxToMarkdown = require("../utils/convertDocxToMarkdown");
 
 const docRouter = express.Router();
 
@@ -367,5 +371,46 @@ docRouter.get("/comments/:doc_id", async (req, res, next) => {
     next(new InternalServerError(500, "获取评论列表失败！", error.message));
   }
 });
+
+docRouter.post(
+  "/uploadDocFile",
+  jwtMiddleware,
+  multer.single("file"),
+  async (req, res, next) => {
+    const { id } = req.user;
+
+    const file = req.file;
+    const { file_name, book_id, parent_id } = req.body;
+
+    const whiteList = [".docx", ".md", ".markdown", ".txt"];
+
+    try {
+      let md = null;
+      const ext = path.extname(req.file.originalname);
+
+      if (!whiteList.includes(ext))
+        return res.status(400).send({
+          error: "文件格式错误！",
+        });
+
+      if (ext === ".docx") md = await convertDocxToMarkdown(file.buffer);
+      else md = file.buffer.toString("utf-8");
+
+      const [doc_id] = await db("docs")
+        .insert({
+          book_id,
+          title: file_name,
+          content: md,
+          creator_id: id,
+          parent_id: parent_id === "null" || !parent_id ? null : parent_id,
+        })
+        .select("id as doc_id");
+
+      return res.status(200).send({ msg: "文件导入成功！", doc_id });
+    } catch (error) {
+      return next(new InternalServerError(500, "文件处理失败!", error.message));
+    }
+  }
+);
 
 module.exports = docRouter;

@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import { requestUploadDocFile } from '@/api/doc'
+import { toDoc } from '@/router/handler'
+import { useDocStore } from '@/stores/doc'
+import { useUserStore } from '@/stores/user'
 import { Upload } from '@element-plus/icons-vue/dist/index.js'
-import { ElDialog, ElDropdownItem } from 'element-plus'
+import { ElButton, ElDialog, ElDropdownItem, ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 
 const importFileBtn = ref<HTMLInputElement>(null)
+const docStore = useDocStore()
+const userStore = useUserStore()
 
 const state = reactive({
   importDocumentDialogVisible: false,
+  uploadImportLoading: false,
   fileData: {
-    content: '',
+    file: null,
     name: '',
     size: 0,
     type: '',
@@ -27,19 +34,52 @@ const methods = {
     fileReader.readAsText(file)
     fileReader.onload = () => {
       state.fileData = {
-        content: fileReader.result.toString(),
+        file: file,
         name: file.name,
         size: file.size,
         type: file.type,
       }
     }
   },
-  handleUploadImportFile() {
-    console.log(1)
+  async handleUploadImportFile() {
+    try {
+      state.uploadImportLoading = true
+
+      const formData = new FormData()
+      formData.append('file', state.fileData.file)
+      formData.append('book_id', docStore.currentDocState.bookInfo.id)
+      formData.append('file_name', state.fileData.name)
+      formData.append('file_size', state.fileData.size)
+      formData.append('file_type', state.fileData.type)
+      formData.append('parent_id', null)
+
+      const res = await requestUploadDocFile(formData)
+      await docStore.fetchDocList()
+
+      toDoc({
+        user: userStore.user.userInfo.username,
+        book: docStore.currentDocState.bookInfo.id,
+        doc: res.data.doc_id,
+      })
+
+      state.importDocumentDialogVisible = false
+
+      ElMessage.success('导入成功')
+    } catch (error) {
+      ElMessage.error(error.message)
+    } finally {
+      state.uploadImportLoading = false
+    }
   },
   handleImportFileDialogClose() {
     state.importDocumentDialogVisible = false
     importFileBtn.value.value = ''
+    state.fileData = {
+      file: null,
+      name: null,
+      size: null,
+      type: null,
+    }
   },
 }
 
@@ -53,7 +93,7 @@ onMounted(() => {})
       ref="importFileBtn"
       class="import-file-btn"
       type="file"
-      accept=".md,.markdown,.doc,.docx,.txt"
+      accept=".md,.markdown,.docx,.txt"
       @change="methods.handleImportFileChange"
     />
   </ElDropdownItem>
@@ -68,7 +108,12 @@ onMounted(() => {})
     <p><strong>文件类型：</strong>{{ state.fileData.type }}</p>
 
     <template #footer>
-      <ElButton type="primary" @click="methods.handleUploadImportFile">导入</ElButton>
+      <ElButton
+        type="primary"
+        :loading="state.uploadImportLoading"
+        @click="methods.handleUploadImportFile"
+        >导入</ElButton
+      >
       <ElButton @click="methods.handleImportFileDialogClose">取消</ElButton>
     </template>
   </ElDialog>

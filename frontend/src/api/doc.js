@@ -26,3 +26,12 @@ export const requestCommentDoc = (data) =>
  */
 export const requestFetchComments = (data) =>
   request(computedCommentsDocIdAPI(apiList.docApi.fetchComments, data.doc_id))
+
+export const requestUploadDocFile = (data) =>
+  request(apiList.docApi.uploadDocFile, {
+    method: 'post',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    data,
+  })
