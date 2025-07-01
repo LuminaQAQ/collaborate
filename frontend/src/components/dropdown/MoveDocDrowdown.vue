@@ -12,6 +12,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useDocStore } from '@/stores/doc'
 import { requestBookList, requestDocList } from '@/api/user'
 import { useRoute } from 'vue-router'
+import { requestDocMove } from '@/api/doc'
 
 const docStore = useDocStore()
 const route = useRoute()
@@ -20,6 +21,10 @@ const treeProps = {
   label: 'title',
   children: 'children',
 }
+
+const { docItem } = defineProps({
+  docItem: Object,
+})
 
 const state = reactive({
   dialogVisible: false,
@@ -86,14 +91,24 @@ const methods = {
   handleNodeClick(data) {
     state.selectedDocTarget = data
   },
-  handleConfirm() {
+  async handleConfirm() {
     if (!state.selectedDocTarget) return ElMessage.warning('请选择目标分组或文档节点')
 
-    console.log('移动文档ID：', state.selectedDocTarget)
-    console.log('移动文档ID：', state.selectedBookId)
+    const data = {
+      doc_id: docItem.id,
+      book_id: state.selectedDocTarget?.book_id || state.selectedBookId,
+      parent_id: state.selectedDocTarget?.type === 'group' ? state.selectedDocTarget.id : null,
+    }
 
-    ElMessage.success('移动成功')
-    // methods.handleDialogClose()
+    try {
+      await requestDocMove(data)
+      await docStore.fetchDocList()
+
+      ElMessage.success('移动成功')
+      methods.handleDialogClose()
+    } catch (error) {
+      ElMessage.error('移动失败')
+    }
   },
 }
 
@@ -124,6 +139,7 @@ onMounted(async () => {})
         node-key="id"
         :props="treeProps"
         highlight-current
+        default-expand-all
         @node-click="methods.handleNodeClick"
       />
     </div>

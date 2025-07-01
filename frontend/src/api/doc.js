@@ -27,11 +27,27 @@ export const requestCommentDoc = (data) =>
 export const requestFetchComments = (data) =>
   request(computedCommentsDocIdAPI(apiList.docApi.fetchComments, data.doc_id))
 
+/**
+ * 导入文档
+ * @param {FormData} data
+ * @param {File} data.file
+ * @param {String} data.file_name
+ * @param {Number} data.file_size
+ * @param {String} data.file_type
+ * @param {Number|String} data.parent_id
+ * @returns
+ */
 export const requestUploadDocFile = (data) =>
   request(apiList.docApi.uploadDocFile, {
     method: 'post',
     headers: {
       'Content-Type': 'multipart/form-data',
     },
+    data,
+  })
+
+export const requestDocMove = (data) =>
+  request(apiList.docApi.moveDoc, {
+    method: 'post',
     data,
   })

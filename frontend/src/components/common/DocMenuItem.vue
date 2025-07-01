@@ -58,7 +58,7 @@ const methods = {
             <el-dropdown-item>在新标签页打开</el-dropdown-item>
             <ElDivider />
             <el-dropdown-item>复制</el-dropdown-item>
-            <MoveDocDrowdown />
+            <MoveDocDrowdown :doc-item="book" />
             <el-dropdown-item>导出</el-dropdown-item>
             <ElDivider />
             <el-dropdown-item @click="methods.handleDocDel">删除</el-dropdown-item>
