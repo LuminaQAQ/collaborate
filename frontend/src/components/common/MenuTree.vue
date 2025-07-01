@@ -55,7 +55,7 @@
         :index="`/${book.email}/${book.book_id}/group_${book.id}`"
       >
         <template #title>
-          <span>{{ book.name }}</span>
+          <span>{{ book.title }}</span>
         </template>
         <MenuTree v-for="(item, index) in book.children" :key="index" :book="item" />
       </el-sub-menu>

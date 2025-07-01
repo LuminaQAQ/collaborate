@@ -124,7 +124,11 @@ docRouter.post("/createDocGroup", jwtMiddleware, async (req, res, next) => {
 
   try {
     const [doc_group_id] = await db("doc_group")
-      .insert({ name: name || "新分组", parent_id: parent_id || null, book_id })
+      .insert({
+        title: name || "新分组",
+        parent_id: parent_id || null,
+        book_id,
+      })
       .select("id as doc_group_id");
 
     return res.status(200).send({ msg: "创建成功！", doc_group_id });
@@ -375,6 +379,7 @@ docRouter.get("/comments/:doc_id", async (req, res, next) => {
   }
 });
 
+// 导入文档
 docRouter.post(
   "/uploadDocFile",
   jwtMiddleware,
@@ -415,5 +420,9 @@ docRouter.post(
     }
   }
 );
+
+docRouter.post("/moveDoc", jwtMiddleware, async (req, res, next) => {
+  
+});
 
 module.exports = docRouter;

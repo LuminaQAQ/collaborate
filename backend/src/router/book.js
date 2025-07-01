@@ -12,8 +12,9 @@ bookRouter.get("/bookList", jwtMiddleware, async (req, res, next) => {
   try {
     const bookList = await db("books")
       .join("users", "books.creator_id", "users.id")
+      .join("book_permissions", "book_permissions.book_id", "books.id")
       .select(["books.id", "books.name", "books.description", "users.email"])
-      .where({ "books.creator_id": id })
+      .where({ "book_permissions.user_id": id })
       .orderBy("books.id");
 
     return res.status(200).send({ msg: "ok", bookList, email });

@@ -23,7 +23,7 @@ const props = defineProps({
     >
       <span>{{ item.title }}</span>
       <span class="doc-list-chain"></span>
-      <span>{{ item.created_at.slice(0, 10) }}</span>
+      <span style="white-space: nowrap">{{ item.created_at.slice(0, 10) }}</span>
     </section>
   </template>
 </template>

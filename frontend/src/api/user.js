@@ -26,6 +26,7 @@ export const requestBookList = () => {
 /**
  * 请求对应文档库存在的文档
  * @param {object} params
+ * @param {number} params.book_id
  * @returns {import("axios").AxiosPromise}
  */
 export const requestDocList = (params) => {

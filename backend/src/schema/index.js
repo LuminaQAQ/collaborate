@@ -136,7 +136,7 @@ const initDocGroupTable = async () => {
     db.schema
       .createTable("doc_group", (table) => {
         table.increments("id").primary().unsigned();
-        table.string("name").notNullable();
+        table.string("title").notNullable();
         table.integer("parent_id").unsigned();
         table.boolean("is_deleted").notNullable().defaultTo(false);
         table.integer("book_id").notNullable().unsigned();
