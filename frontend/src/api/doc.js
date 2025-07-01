@@ -46,8 +46,22 @@ export const requestUploadDocFile = (data) =>
     data,
   })
 
+/**
+ * 文档移动
+ * @param {Object} data
+ * @param {Number} data.book_id
+ * @param {Number} data.doc_id
+ * @param {Number} data.parent_id
+ * @returns
+ */
 export const requestDocMove = (data) =>
   request(apiList.docApi.moveDoc, {
+    method: 'post',
+    data,
+  })
+
+export const requestDocCopy = (data) =>
+  request(apiList.docApi.copyDoc, {
     method: 'post',
     data,
   })

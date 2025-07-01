@@ -3,7 +3,7 @@ import { ElDialog, ElDropdownItem, ElMessage } from 'element-plus'
 import { onMounted } from 'vue'
 import { useDocStore } from '@/stores/doc'
 import { useRoute } from 'vue-router'
-import { requestDocMove } from '@/api/doc'
+import { requestDocCopy } from '@/api/doc'
 import { useDocMoveOrCopy } from './composables/useDocMoveOrCopy'
 import ClSelect from './components/ClSelect.vue'
 import ClListTree from './components/ClListTree.vue'
@@ -56,13 +56,13 @@ const methods = {
     }
 
     try {
-      await requestDocMove(data)
+      await requestDocCopy(data)
       await docStore.fetchDocList()
 
-      ElMessage.success('移动成功')
+      ElMessage.success('复制成功')
       methods.handleDialogClose()
     } catch (error) {
-      ElMessage.error('移动失败')
+      ElMessage.error('复制失败')
     }
   },
 }
@@ -71,11 +71,11 @@ onMounted(async () => {})
 </script>
 
 <template>
-  <ElDropdownItem @click="methods.handleDialogOpen"> 移动到... </ElDropdownItem>
+  <ElDropdownItem @click="methods.handleDialogOpen"> 复制到... </ElDropdownItem>
 
   <ElDialog
     v-model="state.dialogVisible"
-    title="移动到..."
+    title="复制到..."
     width="600px"
     append-to-body
     @close="handleDialogClose"
@@ -99,7 +99,7 @@ onMounted(async () => {})
     <template #footer>
       <div style="text-align: right">
         <el-button @click="methods.handleDialogClose">取消</el-button>
-        <el-button type="primary" @click="methods.handleConfirm">确认移动</el-button>
+        <el-button type="primary" @click="methods.handleConfirm">确认复制</el-button>
       </div>
     </template>
   </ElDialog>

@@ -2,8 +2,9 @@
 import { useDocStore } from '@/stores/doc'
 import { MoreFilled } from '@element-plus/icons-vue/dist/index.js'
 import { ElDivider } from 'element-plus'
-import { nextTick, reactive, ref } from 'vue'
+import { reactive } from 'vue'
 import MoveDocDrowdown from '../dropdown/MoveDocDrowdown.vue'
+import CopyDocDropdown from '../dropdown/CopyDocDropdown.vue'
 
 const props = defineProps({ book: Object })
 
@@ -57,7 +58,7 @@ const methods = {
             <el-dropdown-item>复制链接</el-dropdown-item>
             <el-dropdown-item>在新标签页打开</el-dropdown-item>
             <ElDivider />
-            <el-dropdown-item>复制</el-dropdown-item>
+            <CopyDocDropdown :doc-item="book" />
             <MoveDocDrowdown :doc-item="book" />
             <el-dropdown-item>导出</el-dropdown-item>
             <ElDivider />

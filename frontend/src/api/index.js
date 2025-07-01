@@ -25,6 +25,7 @@ export const apiList = {
     fetchComments: '/api/comments/:doc_id',
     uploadDocFile: '/api/uploadDocFile',
     moveDoc: '/api/moveDoc',
+    copyDoc: '/api/copyDoc',
   },
   historyApi: {
     fetchDocHistory: '/api/historyList',

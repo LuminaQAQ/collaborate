@@ -421,6 +421,7 @@ docRouter.post(
   }
 );
 
+// 文档移动
 docRouter.post("/moveDoc", jwtMiddleware, async (req, res, next) => {
   try {
     const { doc_id, book_id, parent_id } = req.body;
@@ -443,6 +444,34 @@ docRouter.post("/moveDoc", jwtMiddleware, async (req, res, next) => {
     return res.json({ msg: "移动成功" });
   } catch (error) {
     return next(new InternalServerError(500, "移动失败", error.message));
+  }
+});
+
+// 文档复制
+docRouter.post("/copyDoc", jwtMiddleware, async (req, res, next) => {
+  try {
+    const { doc_id, book_id, parent_id } = req.body;
+
+    if (!doc_id || !book_id)
+      return res.status(400).json({ success: false, message: "参数不完整" });
+
+    const doc = await db("docs").where({ id: doc_id, is_deleted: 0 }).first();
+    if (!doc)
+      return res.status(404).json({ success: false, message: "原文档不存在" });
+
+    const newDoc = {
+      title: doc.title + "（副本）",
+      content: doc.content,
+      book_id,
+      parent_id,
+      creator_id: req.user.id,
+    };
+
+    await db("docs").insert(newDoc);
+
+    return res.json({ msg: "复制成功" });
+  } catch (error) {
+    return next(new InternalServerError(500, "复制失败", error.message));
   }
 });
 
